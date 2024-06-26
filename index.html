@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PhD Student Homepage</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <style>
+        /* Additional styles can be added here */
+        .main-content {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff; /* Content background color */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Ensure content stays above overlay */
+            z-index: 1001; /* Ensure content is above overlay */
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -16,12 +30,41 @@
         </nav>
     </header>
     
-    <main>
+    <!-- Scrolling overlay -->
+    <div class="scroll-overlay"></div>
+
+    <main class="main-content">
         <section>
             <h2>About the PhD Student</h2>
-            <p>Insert biography and other relevant information here.</p>
+            <!-- Insert biography and other relevant information here -->
+            <p>This is a brief introduction about the PhD student.</p>
+            <!-- Add the student image with a customized background -->
+            <img src="path/to/student-image.png" alt="PhD Student" class="student-image">
+            <!-- Add more content as needed -->
         </section>
     </main>
+
+    <!-- Optional: JavaScript to toggle overlay -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const overlay = document.querySelector('.scroll-overlay');
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) { // Change this value as needed
+                    overlay.style.display = 'block';
+                    setTimeout(function() {
+                        overlay.classList.add('contrast-change');
+                    }, 100); // Delay for smooth transition
+                } else {
+                    overlay.classList.remove('contrast-change');
+                    setTimeout(function() {
+                        overlay.style.display = 'none';
+                    }, 300); // Delay for smooth transition
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
 
