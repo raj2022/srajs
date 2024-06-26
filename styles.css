@@ -28,3 +28,23 @@ body {
     transition: filter 0.3s ease-out; /* Smooth transition */
 }
 
+/* Additional styles for main content */
+.main-content {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff; /* Content background color */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative; /* Ensure content stays above overlay */
+    z-index: 1001; /* Ensure content is above overlay */
+}
+
+.student-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 50%; /* Rounded image */
+    margin-bottom: 20px;
+    /* Add any additional styling */
+}
+
