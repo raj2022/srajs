@@ -50,11 +50,12 @@ body {
     background-color: #f0f0f0; /* Set your background color */
     text-align: center;
     padding: 20px;
-    background-image: url('https://example.com/premium_photo-1682804227487-e8ffeb4b6ddd.png'); /* Replace with your actual image URL */
+    background-image: url('images/premium_photo-1682804227487-e8ffeb4b6ddd.png'); /* Update the path */
     background-size: cover; /* Ensure the image covers the entire background */
     background-position: center; /* Center the background image */
     background-attachment: fixed; /* Keep the background image fixed while scrolling */
 }
+
 
 /* Scrolling overlay */
 .scroll-overlay {
