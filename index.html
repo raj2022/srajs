@@ -6,10 +6,9 @@
     <title>PhD Student Homepage</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
     <style>
-        /* Additional styles can be added here */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0; /* Set your background color */
+            background-color: #f0f0f0;
             text-align: center;
             position: relative;
         }
@@ -17,11 +16,11 @@
             max-width: 800px;
             margin: auto;
             padding: 20px;
-            background-color: #fff; /* Content background color */
+            background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative; /* Ensure content stays above overlay */
-            z-index: 1001; /* Ensure content is above overlay */
+            position: relative;
+            z-index: 1001;
         }
         .scroll-overlay {
             position: fixed;
@@ -29,18 +28,47 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-            z-index: 1000; /* Ensure it's above other content */
-            pointer-events: none; /* Allows interaction with elements behind overlay */
-            transition: background-color 0.3s ease-out; /* Smooth color transition */
-            display: none; /* Initially hidden */
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            pointer-events: none;
+            transition: background-color 0.3s ease-out;
+            display: none;
         }
         .student-image {
             max-width: 100%;
             height: auto;
-            border-radius: 50%; /* Rounded image */
+            border-radius: 50%;
             margin-bottom: 20px;
-            /* Add any additional styling */
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav ul li {
+            margin-right: 10px;
+        }
+        nav ul li a {
+            color: #333;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        nav ul li a i {
+            font-size: 24px;
+        }
+        .calendly-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .calendly-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -51,20 +79,26 @@
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="projects.html">Projects</a></li>
-		<!-- Add social media icons with links -->
+                <li><a href="achievements.html">Achievements & Awards</a></li>
+                <li><a href="presentations.html">Presentations & Talks</a></li>
+                <li><a href="about.html">About Me</a></li>
+                <!-- Add social media icons with links -->
                 <li><a href="https://twitter.com/YourTwitterHandle" target="_blank"><i class="fab fa-twitter"></i></a></li>
-            	<li><a href="https://www.linkedin.com/in/yourprofile" target="_blank"><i class="fab fa-linkedin"></i></a></li>
-            	<li><a href="https://www.facebook.com/YourPage" target="_blank"><i class="fab fa-facebook"></i></a></li>
-           </ul>
-       </nav>
-    <!-- Calendly scheduling button -->
-      <a href="https://calendly.com/rajsh-cua/30min" class="calendly-button" target="_blank">Schedule a Meeting</a>
-   </header>
-    
-     <!-- Scrolling Main Events -->
+                <li><a href="https://www.linkedin.com/in/yourprofile" target="_blank"><i class="fab fa-linkedin"></i></a></li>
+                <li><a href="https://www.facebook.com/YourPage" target="_blank"><i class="fab fa-facebook"></i></a></li>
+            </ul>
+        </nav>
+        <!-- Calendly scheduling button -->
+        <a href="https://calendly.com/rajsh-cua/30min" class="calendly-button" target="_blank">Schedule a Meeting</a>
+    </header>
+
+    <!-- Scrolling Main Events -->
     <section class="scrolling-events">
         <div class="marquee">
-            <span>Main Event 1 | Main Event 2 | Main Event 3 | Main Event 4 | Main Event 5 | Main Event 6 | Main Event 7 | Main Event 8 | Main Event 9 | Main Event 10</span>
+            <!-- Add main events here -->
+            <p>Main Event 1</p>
+            <p>Main Event 2</p>
+            <!-- Add more events as needed -->
         </div>
     </section>
 
@@ -72,7 +106,6 @@
         <section>
             <h2>About Me</h2>
             <p>This is a brief introduction about the PhD student. Describe your background, interests, and goals.</p>
-            <!-- Add the student image with a customized background -->
             <img src="path/to/student-image.png" alt="PhD Student" class="student-image">
         </section>
 
@@ -82,7 +115,6 @@
             <ul>
                 <li><strong>Project 1:</strong> Description of project 1.</li>
                 <li><strong>Project 2:</strong> Description of project 2.</li>
-                <!-- Add more projects as needed -->
             </ul>
         </section>
 
@@ -92,7 +124,6 @@
             <ul>
                 <li><strong>Publication Title 1:</strong> Authors, Journal/Conference, Year.</li>
                 <li><strong>Publication Title 2:</strong> Authors, Journal/Conference, Year.</li>
-                <!-- Add more publications as needed -->
             </ul>
         </section>
     </main>
@@ -103,16 +134,16 @@
             const overlay = document.querySelector('.scroll-overlay');
 
             window.addEventListener('scroll', function() {
-                if (window.scrollY > 50) { // Change this value as needed
+                if (window.scrollY > 50) {
                     overlay.style.display = 'block';
                     setTimeout(function() {
                         overlay.classList.add('contrast-change');
-                    }, 100); // Delay for smooth transition
+                    }, 100);
                 } else {
                     overlay.classList.remove('contrast-change');
                     setTimeout(function() {
                         overlay.style.display = 'none';
-                    }, 300); // Delay for smooth transition
+                    }, 300);
                 }
             });
         });
