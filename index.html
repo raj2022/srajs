@@ -88,11 +88,12 @@
                 <li><a href="https://www.facebook.com/YourPage" target="_blank"><i class="fab fa-facebook"></i></a></li>
             </ul>
         </nav>
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="theme-toggle">Toggle Dark Mode</button>
         <!-- Calendly scheduling button -->
         <a href="https://calendly.com/rajsh-cua/30min" class="calendly-button" target="_blank">Schedule a Meeting</a>
     </header>
-
-    <!-- Scrolling Main Events -->
+    
     <section class="scrolling-events">
         <div class="marquee">
             <!-- Add main events here -->
@@ -132,6 +133,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const overlay = document.querySelector('.scroll-overlay');
+            const toggleButton = document.getElementById('theme-toggle');
 
             window.addEventListener('scroll', function() {
                 if (window.scrollY > 50) {
@@ -146,9 +148,18 @@
                     }, 300);
                 }
             });
+
+            toggleButton.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                document.querySelector('header').classList.toggle('dark-mode');
+                document.querySelectorAll('nav ul li a').forEach(el => el.classList.toggle('dark-mode'));
+                document.querySelector('.calendly-button').classList.toggle('dark-mode');
+                document.querySelector('.main-content').classList.toggle('dark-mode');
+                document.querySelector('.scroll-overlay').classList.toggle('dark-mode');
+                document.querySelector('.student-image').classList.toggle('dark-mode');
+            });
         });
     </script>
-
 </body>
 </html>
 

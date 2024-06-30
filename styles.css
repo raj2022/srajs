@@ -1,10 +1,4 @@
-/* styles.css */
-
 /* Main body and overlay styles */
-
-/* styles.css */
-
-/* styles.css */
 
 header {
     background-color: #fff; /* Background color for header */
@@ -51,10 +45,6 @@ nav ul li a i {
     background-color: #0056b3;
 }
 
-
-
-
-
 body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0; /* Set your background color */
@@ -65,7 +55,6 @@ body {
     background-position: center; /* Center the background image */
     background-attachment: fixed; /* Keep the background image fixed while scrolling */
 }
-
 
 /* Scrolling overlay */
 .scroll-overlay {
@@ -105,5 +94,42 @@ body {
     border-radius: 50%; /* Rounded image */
     margin-bottom: 20px;
     /* Add any additional styling */
+}
+
+/* Dark Theme Styles */
+body.dark-mode {
+    background-color: #121212;
+    background-image: none; /* Remove background image for dark mode */
+}
+
+header.dark-mode {
+    background-color: #333;
+}
+
+nav ul li a.dark-mode {
+    color: #fff;
+}
+
+.calendly-button.dark-mode {
+    background-color: #0056b3;
+}
+
+.calendly-button.dark-mode:hover {
+    background-color: #003f8a;
+}
+
+.main-content.dark-mode {
+    background-color: #333; /* Dark background for content */
+    color: #fff; /* Light text color for dark mode */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Additional dark mode styles */
+.scroll-overlay.dark-mode {
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white overlay for dark mode */
+}
+
+.student-image.dark-mode {
+    border: 2px solid #fff; /* Light border for dark mode */
 }
 
