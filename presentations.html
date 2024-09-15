@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<script>
+    function toggleClassicMode(mode) {
+        document.body.classList.remove('classic-mode', 'classic-mode-2');
+        document.body.classList.add(mode);
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        document.querySelectorAll('.presentation-line').forEach(el => el.classList.toggle('dark-mode'));
+    }
+</script>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,6 +31,10 @@
             </ul>
         </nav>
     </header>
+    <button class="toggle-classic-mode" onclick="toggleClassicMode('classic-mode')">Classic Mode 1</button>
+<button class="toggle-classic-mode" onclick="toggleClassicMode('classic-mode-2')">Classic Mode 2</button>
+<button class="toggle-classic-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+
     <main class="main-content">
         <section>
             <h2>Presentations</h2>
