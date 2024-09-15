@@ -170,3 +170,60 @@ nav ul li a.dark-mode:hover {
   background-color: #0056b3;
 }
 
+/* Base styles for the container */
+.container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Styling for the card */
+.card {
+  background: url('premium_photo-1682804227487-e8ffeb4b6ddd.avif') no-repeat center center;
+  background-size: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  margin: 10px;
+  height: 300px; /* Set a fixed height or adjust based on content */
+}
+
+/* Styling for the card image (if you still need it) */
+.card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Styling for the card content */
+.card-content {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8); /* Slightly transparent background for readability */
+  border-radius: 0 0 10px 10px;
+}
+
+/* Hover effect */
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Button styling */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+.button:hover {
+  background-color: #0056b3;
+}
+
