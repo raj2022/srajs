@@ -1,22 +1,14 @@
 <!DOCTYPE html>
-<script>
-    function toggleClassicMode(mode) {
-        document.body.classList.remove('classic-mode', 'classic-mode-2');
-        document.body.classList.add(mode);
-    }
-
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        document.querySelectorAll('.presentation-line').forEach(el => el.classList.toggle('dark-mode'));
-    }
-</script>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shivam Raj's Homepage</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+
+    <!-- Add Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -82,6 +74,31 @@
         .calendly-button:hover {
             background-color: #0056b3;
         }
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+            animation: marquee 15s linear infinite;
+        }
+        .marquee p {
+            display: inline-block;
+            padding-left: 100%;
+        }
+        @keyframes marquee {
+            0%   { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+        /* Dark mode styling */
+        body.dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .dark-mode nav ul li a {
+            color: #ddd;
+        }
+        .dark-mode .calendly-button {
+            background-color: #222;
+        }
     </style>
 </head>
 <body>
@@ -141,7 +158,7 @@
         </section>
     </main>
 
-    <!-- Optional: JavaScript to toggle overlay -->
+    <!-- Optional: JavaScript to toggle overlay and dark mode -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const overlay = document.querySelector('.scroll-overlay');

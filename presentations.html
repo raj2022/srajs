@@ -1,22 +1,49 @@
 <!DOCTYPE html>
-<script>
-    function toggleClassicMode(mode) {
-        document.body.classList.remove('classic-mode', 'classic-mode-2');
-        document.body.classList.add(mode);
-    }
-
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        document.querySelectorAll('.presentation-line').forEach(el => el.classList.toggle('dark-mode'));
-    }
-</script>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presentations & Talks</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Add styles for classic modes and dark mode */
+        body.dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        body.classic-mode {
+            background-color: #f4f4e8;
+            font-family: "Times New Roman", serif;
+        }
+        body.classic-mode-2 {
+            background-color: #fff3e0;
+            font-family: Georgia, serif;
+        }
+        .presentation-line.dark-mode {
+            color: #bbb;
+        }
+        .button-container {
+            margin: 20px 0;
+        }
+        .button-container button {
+            margin-right: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function toggleClassicMode(mode) {
+            document.body.classList.remove('classic-mode', 'classic-mode-2');
+            document.body.classList.add(mode);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.querySelectorAll('.presentation-line').forEach(el => el.classList.toggle('dark-mode'));
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -31,20 +58,24 @@
             </ul>
         </nav>
     </header>
-    <button class="toggle-classic-mode" onclick="toggleClassicMode('classic-mode')">Classic Mode 1</button>
-<button class="toggle-classic-mode" onclick="toggleClassicMode('classic-mode-2')">Classic Mode 2</button>
-<button class="toggle-classic-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    
+    <!-- Grouping theme buttons in a container -->
+    <div class="button-container">
+        <button onclick="toggleClassicMode('classic-mode')">Classic Mode 1</button>
+        <button onclick="toggleClassicMode('classic-mode-2')">Classic Mode 2</button>
+        <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </div>
 
     <main class="main-content">
         <section>
             <h2>Presentations</h2>
             <ul>
-                <li>
+                <li class="presentation-line">
                     <strong><a href="https://example.com/presentation1" target="_blank">Presentation 1</a></strong> - 
                     <em>Conference Name, Location</em> - 
                     <span>Date: August 12, 2024</span>
                 </li>
-                <li>
+                <li class="presentation-line">
                     <strong><a href="https://example.com/presentation2" target="_blank">Presentation 2</a></strong> - 
                     <em>Workshop Name, Location</em> - 
                     <span>Date: July 5, 2024</span>
@@ -54,12 +85,12 @@
         <section>
             <h2>Talks</h2>
             <ul>
-                <li>
+                <li class="presentation-line">
                     <strong><a href="https://example.com/talk1" target="_blank">Talk 1</a></strong> - 
                     <em>Webinar, Online</em> - 
                     <span>Date: June 20, 2024</span>
                 </li>
-                <li>
+                <li class="presentation-line">
                     <strong><a href="https://example.com/talk2" target="_blank">Talk 2</a></strong> - 
                     <em>Meetup, New York</em> - 
                     <span>Date: May 15, 2024</span>
