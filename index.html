@@ -11,19 +11,18 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             background-color: #f0f0f0;
             text-align: center;
-            position: relative;
+            margin: 0;
+            padding: 0;
             background-image: url("default-bg.jpg");
             background-size: cover;
             background-attachment: fixed;
             color: #333;
-            margin: 0;
-            padding: 0;
         }
         .main-content {
-            max-width: 800px;
+            max-width: 900px;
             margin: auto;
             padding: 20px;
             background-color: #fff;
@@ -35,30 +34,17 @@
         header {
             background-color: rgba(0, 123, 255, 0.8);
             color: white;
-            padding: 15px 0;
+            padding: 20px 0;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
         }
         header h1 {
             margin: 0;
-            font-size: 2em;
-        }
-        .scroll-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            pointer-events: none;
-            transition: background-color 0.3s ease-out;
-            display: none;
-        }
-        .student-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 50%;
-            margin-bottom: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
         }
         nav ul {
             list-style-type: none;
@@ -66,48 +52,66 @@
             margin: 0;
             display: flex;
             justify-content: center;
-        }
-        nav ul li {
-            margin-right: 10px;
+            gap: 20px;
         }
         nav ul li a {
-            color: #333;
+            color: #fff;
             text-decoration: none;
             font-size: 18px;
+            transition: color 0.3s ease;
         }
         nav ul li a:hover {
-            text-decoration: underline;
+            color: #ffeb3b;
         }
-        figure {
-            margin: 20px auto;
-            text-align: center;
-        }
-        figure img {
+        .student-image {
             max-width: 100%;
             height: auto;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        .project-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #f9f9f9;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
-        figure figcaption {
-            margin-top: 8px;
+        .project-section:hover {
+            transform: scale(1.05);
+        }
+        .project-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .project-description {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        .project-section ul {
+            font-size: 1.1em;
+            padding-left: 20px;
+        }
+        footer {
+            margin-top: 30px;
             font-size: 14px;
-            color: #555;
-        }
-        .upload-btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 15px;
-            background-color: #007bff;
+            color: #777;
+            padding: 20px 0;
+            background-color: #333;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
+        }
+        footer a {
+            color: #ffeb3b;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
         }
         .calendly-button {
             background-color: #007bff;
             color: #fff;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 5px;
             text-decoration: none;
             font-weight: bold;
@@ -116,10 +120,14 @@
         .calendly-button:hover {
             background-color: #0056b3;
         }
+        .scrolling-events {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            color: white;
+        }
         .marquee {
             overflow: hidden;
             white-space: nowrap;
-            box-sizing: border-box;
             animation: marquee 15s linear infinite;
         }
         .marquee p {
@@ -127,8 +135,20 @@
             padding-left: 100%;
         }
         @keyframes marquee {
-            0%   { transform: translate(0, 0); }
+            0% { transform: translate(0, 0); }
             100% { transform: translate(-100%, 0); }
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            nav ul {
+                flex-direction: column;
+            }
         }
         /* Dark mode styling */
         body.dark-mode {
@@ -141,26 +161,21 @@
         .dark-mode .calendly-button {
             background-color: #222;
         }
-        .upload-btn:hover {
-            background-color: #0056b3;
+        .dark-mode footer {
+            background-color: #222;
         }
-        .background-change-btn {
-            margin: 20px 0;
-            padding: 10px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .background-change-btn:hover {
-            background-color: #218838;
-        }
-        footer {
-            margin-top: 30px;
-            font-size: 14px;
-            color: #777;
+        /* Sticky Scroll overlay */
+        .scroll-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            pointer-events: none;
+            display: none;
+            transition: background-color 0.3s ease-out;
         }
     </style>
 </head>
@@ -196,7 +211,7 @@
     </section>
 
     <main class="main-content">
-        <section>
+        <section  id="dynamic-content">
             <h2>About Me</h2>
             <p>This is a brief introduction about the PhD student. Describe your background, interests, and goals.</p>
             <img src="path/to/student-image.png" alt="PhD Student" class="student-image">
@@ -260,7 +275,7 @@
         </div>
         
 
-        <section>
+        <section  id="dynamic-content">
             <h2>Publications</h2>
             <p>List your publications, papers, or any significant academic achievements.</p>
             <ul>
@@ -270,7 +285,7 @@
         </section>
     </main>
 
-    <section>
+    <section  id="dynamic-content">
         <h2 class="section-heading">Publications</h2>
         <ul>
             <li><strong>Paper 1:</strong> "Title of the Paper" - Published in [Journal Name].</li>
