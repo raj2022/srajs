@@ -15,6 +15,12 @@
             background-color: #f0f0f0;
             text-align: center;
             position: relative;
+            background-image: url("default-bg.jpg");
+            background-size: cover;
+            background-attachment: fixed;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
         .main-content {
             max-width: 800px;
@@ -25,6 +31,16 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             position: relative;
             z-index: 1001;
+        }
+        header {
+            background-color: rgba(0, 123, 255, 0.8);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2em;
         }
         .scroll-overlay {
             position: fixed;
@@ -59,8 +75,34 @@
             text-decoration: none;
             font-size: 18px;
         }
-        nav ul li a i {
-            font-size: 24px;
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+        figure {
+            margin: 20px auto;
+            text-align: center;
+        }
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        figure figcaption {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        .upload-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
         }
         .calendly-button {
             background-color: #007bff;
@@ -98,6 +140,27 @@
         }
         .dark-mode .calendly-button {
             background-color: #222;
+        }
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+        .background-change-btn {
+            margin: 20px 0;
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .background-change-btn:hover {
+            background-color: #218838;
+        }
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
         }
     </style>
 </head>
@@ -171,11 +234,33 @@
 
     <footer>
         <p>&copy; 2025 Shivam Raj. All rights reserved. Built with <i class="fa fa-heart" style="color:red;"></i>.</p>
-        <p><a href="mailto:shivam@example.com">Contact Me</a></p>
+        <p><a href="mailto:rajsh@cua.edu">Contact Me</a></p>
     </footer>
 
     <!-- Optional: JavaScript to toggle overlay and dark mode -->
     <script>
+        function changeBackground() {
+            const bgUrl = prompt("Enter the URL for the new background image:");
+            if (bgUrl) {
+                document.body.style.backgroundImage = `url(${bgUrl})`;
+            }
+        }
+
+        function previewImage(input, targetId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '100%';
+                    img.style.borderRadius = '8px';
+                    const target = document.querySelector(`#${targetId}`);
+                    target.innerHTML = ''; // Clear previous content
+                    target.appendChild(img);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
         document.addEventListener('DOMContentLoaded', function() {
             const overlay = document.querySelector('.scroll-overlay');
             const toggleButton = document.getElementById('theme-toggle');
