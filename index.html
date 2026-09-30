@@ -112,6 +112,14 @@ section{position:relative}
 }
 
 
+/* ---------- Experience ---------- */
+.exp{border-top:1px solid #d2d2d7}
+.exp article{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px 48px;padding:32px 0;border-bottom:1px solid #d2d2d7;align-items:baseline}
+.exp h3{font-size:24px;line-height:1.2;font-weight:600;margin:0 0 6px;letter-spacing:.009em}
+.exp .org{margin:0;color:var(--gray);font-size:17px}
+.exp p{margin:0;max-width:52ch}
+@media (max-width:820px){.exp article{grid-template-columns:1fr;gap:10px}}
+
 /* ---------- Projects list ---------- */
 .plist{border-top:1px solid #d2d2d7}
 .proj{border-bottom:1px solid #d2d2d7}
@@ -184,6 +192,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
     <a class="brand" href="#top">Shivam Raj</a>
     <ul>
       <li><a href="#work">Work</a></li>
+      <li class="hide-sm"><a href="#experience">Experience</a></li>
       <li class="hide-sm"><a href="#projects">Projects</a></li>
       <li><a href="#toolkit">Toolkit</a></li>
       <li class="hide-sm"><a href="#about">About</a></li>
@@ -286,7 +295,46 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
     </div>
   </section>
 
-  <section class="sec" id="projects">
+  <section class="sec" id="experience">
+    <div class="wrap">
+      <h2>Experience.</h2>
+      <p class="intro">What I do day to day on CMS.</p>
+      <div class="exp">
+        <article>
+          <div>
+            <h3>PhD researcher, CMS experiment</h3>
+            <p class="org">The Catholic University of America and CERN</p>
+          </div>
+          <div>
+            <p>I lead a physics analysis from start to finish: choosing the events to keep, modelling the backgrounds, estimating the systematic uncertainties, and running the statistical fit that produces the result. I also made a significant contribution to a recently published CMS paper.</p>
+            <!-- WHAT I DID (analysis): name the analysis, your main results, and the years -->
+          </div>
+        </article>
+        <article>
+          <div>
+            <h3>B2G contact, Muon Physics Object Group</h3>
+            <p class="org">CMS Collaboration</p>
+          </div>
+          <div>
+            <p>I am the link between the Beyond Two Generations analysis group and the muon experts. I make sure analyses use the right muon identification, isolation and efficiency recommendations, and I bring the group's needs back to the muon team.</p>
+            <!-- WHAT I DID (Muon POG): concrete deliverables, e.g. scale factors, studies, talks -->
+          </div>
+        </article>
+        <article>
+          <div>
+            <h3>Sample production and analysis tools</h3>
+            <p class="org">HiggsDNA, CERN computing</p>
+          </div>
+          <div>
+            <p>I produce and process analysis samples with HiggsDNA, running large batches of jobs on HTCondor and working with data on lxplus, AFS and EOS.</p>
+            <!-- WHAT I DID (computing): sizes of the samples, number of jobs, tools you improved -->
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-paper" id="projects">
     <div class="wrap">
       <h2>Projects.</h2>
       <p class="intro">Machine learning and detector work around the CMS experiment. Select a project to read more.</p>
@@ -335,7 +383,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
     </div>
   </section>
 
-  <section class="sec sec-paper" id="toolkit">
+  <section class="sec" id="toolkit">
     <div class="wrap">
       <h2>Built for data science.</h2>
       <p class="intro">Particle physics is data science with a very demanding reviewer. Here's what carries over.</p>
@@ -359,7 +407,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
     </div>
   </section>
 
-  <section class="sec" id="about">
+  <section class="sec sec-paper" id="about">
     <div class="wrap about">
       <div class="portrait"><img src="photo.jpg" alt="Shivam Raj" width="260" height="260"></div>
       <div>
