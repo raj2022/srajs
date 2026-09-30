@@ -114,10 +114,25 @@ section{position:relative}
 
 /* ---------- Projects list ---------- */
 .plist{border-top:1px solid #d2d2d7}
-.plist article{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px 48px;padding:28px 0;border-bottom:1px solid #d2d2d7;align-items:baseline}
-.plist h3{font-size:24px;line-height:1.2;font-weight:600;margin:0;letter-spacing:.009em}
-.plist p{margin:0;color:var(--gray);max-width:44ch}
-@media (max-width:820px){.plist article{grid-template-columns:1fr;gap:6px}}
+.proj{border-bottom:1px solid #d2d2d7}
+.proj summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) 24px;gap:6px 48px;padding:28px 0;align-items:baseline;cursor:pointer;list-style:none}
+.proj summary::-webkit-details-marker{display:none}
+.proj summary::after{content:"";width:12px;height:12px;justify-self:end;align-self:center;background:
+  linear-gradient(var(--ink),var(--ink)) center/100% 1.5px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) center/1.5px 100% no-repeat;transition:transform .25s}
+.proj[open] summary::after{transform:rotate(45deg)}
+.pt{font-size:24px;line-height:1.2;font-weight:600;letter-spacing:.009em}
+.po{color:var(--gray);max-width:44ch}
+.pd{padding:0 0 32px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) 24px;gap:0 48px}
+.pd > *{grid-column:2}
+.pd p{margin:0 0 14px;max-width:52ch}
+.pd .tags{font-size:14px;color:var(--gray);margin:0}
+@media (max-width:820px){
+  .proj summary{grid-template-columns:minmax(0,1fr) 24px;gap:6px 16px}
+  .po{grid-column:1}
+  .proj summary::after{grid-row:1;grid-column:2}
+  .pd{display:block}
+}
 
 /* ---------- Toolkit ---------- */
 .kit{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #d2d2d7}
@@ -160,8 +175,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 <body>
 
 <!-- ===================================================================
-     EDIT ME: replace the LinkedIn URL (search for "yourprofile") and check the
-     INSPIRE-HEP link.
+     EDIT ME: add "What I did" lines to the projects (search for WHAT I DID) and
+     put your CV in the repo as cv.pdf.
      =================================================================== -->
 
 <nav class="nav" aria-label="Main">
@@ -173,6 +188,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <li><a href="#toolkit">Toolkit</a></li>
       <li class="hide-sm"><a href="#about">About</a></li>
       <li><a href="#contact">Contact</a></li>
+      <li><a href="cv.pdf" target="_blank" rel="noopener">CV</a></li>
     </ul>
   </div>
 </nav>
@@ -185,7 +201,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <p class="lede">I'm Shivam Raj, a PhD student on the CMS experiment at CERN. I turn enormous, noisy datasets into results people can trust.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="#work">See my work</a>
-        <a class="btn btn-ghost" href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a>
+        <a class="btn btn-ghost" href="cv.pdf" target="_blank" rel="noopener">Download CV</a>
       </div>
     </div>
     <div class="wide">
@@ -259,11 +275,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
         <div>
           <h3>Published, and cited.</h3>
           <p>I made a significant contribution to a recently published CMS paper, and my work has around 500 citations.</p>
-          <a class="more" href="https://inspirehep.net/authors?q=Shivam%20Raj" target="_blank" rel="noopener">Find my papers on INSPIRE-HEP</a>
+          <a class="more" href="https://inspirehep.net/authors/2830251" target="_blank" rel="noopener">See my papers on INSPIRE-HEP</a>
         </div>
         <div class="art">
           <p class="stat">~500</p>
-          <p class="stat-label">citations</p>
+          <p class="stat-label">citations, <a href="https://scholar.google.com/citations?user=HTzYZIUAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a></p>
         </div>
       </article>
 
@@ -273,28 +289,48 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
   <section class="sec" id="projects">
     <div class="wrap">
       <h2>Projects.</h2>
-      <p class="intro">Machine learning and detector work around the CMS experiment.</p>
+      <p class="intro">Machine learning and detector work around the CMS experiment. Select a project to read more.</p>
       <div class="plist">
-        <article>
-          <h3>Quantization and sparsification</h3>
-          <p>Compressing neural networks so they run fast enough for real-time use.</p>
-        </article>
-        <article>
-          <h3>Hypergraph models for MLPF</h3>
-          <p>Machine-learned particle flow: reconstructing every particle in a collision with a neural network.</p>
-        </article>
-        <article>
-          <h3>Anomaly detection for data quality</h3>
-          <p>Flagging problems in CMS data automatically, before they reach a physics analysis.</p>
-        </article>
-        <article>
-          <h3>fPix</h3>
-          <p>The forward pixel detector of the CMS tracker.</p>
-        </article>
-        <article>
-          <h3>HH &rarr; &gamma;&gamma;b<span style="text-decoration:overline">b</span></h3>
-          <p>A search for pairs of Higgs bosons decaying to two photons and two b quarks.</p>
-        </article>
+        <details class="proj">
+          <summary><span class="pt">Quantization and sparsification</span><span class="po">Compressing neural networks so they run fast enough for real-time use.</span></summary>
+          <div class="pd">
+            <p>Large neural networks are expensive to run. Quantization stores weights and activations with fewer bits, and sparsification removes the weights that contribute least. Together they shrink a model and cut its latency and memory use, which matters when a decision has to be made in a tiny fraction of a second, as in a detector trigger.</p>
+            <!-- WHAT I DID: add one or two sentences on your own contribution and result -->
+            <p class="tags">Quantization, Pruning, Neural networks, Low latency</p>
+          </div>
+        </details>
+        <details class="proj">
+          <summary><span class="pt">Hypergraph models for MLPF</span><span class="po">Machine-learned particle flow: reconstructing every particle in a collision with a neural network.</span></summary>
+          <div class="pd">
+            <p>Particle flow combines signals from every part of the detector to reconstruct each particle in a collision. MLPF replaces the hand-written rules with a neural network that learns this directly from simulation. Hypergraphs can link more than two elements at once, so they offer a natural way to group all the signals that belong to one particle.</p>
+            <!-- WHAT I DID: add one or two sentences on your own contribution and result -->
+            <p class="tags">Particle flow, Graph neural networks, Hypergraphs, Reconstruction</p>
+          </div>
+        </details>
+        <details class="proj">
+          <summary><span class="pt">Anomaly detection for data quality</span><span class="po">Flagging problems in CMS data automatically, before they reach a physics analysis.</span></summary>
+          <div class="pd">
+            <p>CMS checks the quality of its data as it is recorded, and people on shift look through hundreds of monitoring plots. Anomaly detection learns what normal data looks like and flags what doesn't fit, so problems are caught sooner and with less manual effort.</p>
+            <!-- WHAT I DID: add one or two sentences on your own contribution and result -->
+            <p class="tags">Anomaly detection, Data quality monitoring, Unsupervised learning</p>
+          </div>
+        </details>
+        <details class="proj">
+          <summary><span class="pt">fPix</span><span class="po">The forward pixel detector of the CMS tracker.</span></summary>
+          <div class="pd">
+            <p>The pixel detector sits closest to the collision point and records the first measurements of every charged particle. Its forward part covers the regions near the beam pipe, where particles leave at shallow angles. Precise tracking there feeds into every physics result that follows.</p>
+            <!-- WHAT I DID: add one or two sentences on your own contribution and result -->
+            <p class="tags">Pixel detector, Tracking, CMS tracker</p>
+          </div>
+        </details>
+        <details class="proj">
+          <summary><span class="pt">HH &rarr; &gamma;&gamma;b<span style="text-decoration:overline">b</span></span><span class="po">A search for pairs of Higgs bosons decaying to two photons and two b quarks.</span></summary>
+          <div class="pd">
+            <p>Producing two Higgs bosons at once is extremely rare, and its rate depends on how the Higgs boson interacts with itself, which is one of the open questions of the Standard Model. The final state with two photons and two b quarks is rare but clean: the photons give a sharp mass peak to search for above a smooth background.</p>
+            <!-- WHAT I DID: add one or two sentences on your own contribution and result -->
+            <p class="tags">Higgs physics, Statistical inference, Background modelling, Event selection</p>
+          </div>
+        </details>
       </div>
     </div>
   </section>
@@ -341,9 +377,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <p class="intro">Questions about the analysis, the projects or working together? I'd like to hear from you.</p>
       <div class="ctas"><a class="btn btn-primary" href="mailto:ssrajsingh99@gmail.com">Email me</a><a class="btn btn-ghost" href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a></div>
       <div class="links">
-        <a href="https://www.linkedin.com/in/yourprofile" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://www.linkedin.com/in/shivam-raj-singh-294207147/" target="_blank" rel="noopener">LinkedIn</a>
         <a href="https://github.com/raj2022" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://inspirehep.net/authors?q=Shivam%20Raj" target="_blank" rel="noopener">INSPIRE-HEP</a>
+        <a href="https://scholar.google.com/citations?user=HTzYZIUAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a>
+        <a href="https://inspirehep.net/authors/2830251" target="_blank" rel="noopener">INSPIRE-HEP</a>
+        <a href="cv.pdf" target="_blank" rel="noopener">CV</a>
       </div>
     </div>
   </section>
