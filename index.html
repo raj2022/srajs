@@ -66,12 +66,23 @@ sub{font-size:.72em}
 
 /* ---------- Scrolling notebook ---------- */
 .content{min-width:0;padding:0 clamp(24px,6vw,96px) 40px clamp(28px,4.5vw,72px)}
-.nav{position:sticky;top:0;z-index:5;background:var(--paper);display:flex;gap:26px;padding:16px 0 14px;font:600 14.5px/1 var(--sans);overflow-x:auto;scrollbar-width:none;white-space:nowrap}
-.nav::-webkit-scrollbar{display:none}
-.nav a{text-decoration:none;color:var(--muted);padding-bottom:6px;box-shadow:inset 0 -2px transparent}
-.nav a:hover{color:var(--ink)}
-.nav a[aria-current="true"]{color:var(--ink);box-shadow:inset 0 -2px var(--accent)}
-.nav .cv{margin-left:auto;color:var(--ink)}
+.bar{position:sticky;top:0;z-index:20;background:var(--paper);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0 14px}
+.bar-right{display:flex;align-items:center;gap:10px}
+.nb{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);font:600 15px/1 var(--sans);text-decoration:none;cursor:pointer;white-space:nowrap}
+.nb:hover{background:var(--ink);color:var(--paper)}
+.nb.cta{background:var(--accent);border-color:var(--accent);color:#fff}
+.nb.cta:hover{background:var(--ink);border-color:var(--ink);color:#fff}
+.nb svg{width:11px;height:11px;transition:transform .2s}
+.nb[aria-expanded="true"]{background:var(--ink);color:var(--paper)}
+.nb[aria-expanded="true"] svg{transform:rotate(180deg)}
+.dd{position:relative}
+.dd-panel{position:absolute;right:0;top:calc(100% + 8px);width:min(300px,calc(100vw - 40px));background:#f7f9fb;border:1px solid #9aa6b2;border-radius:6px;padding:8px}
+.dd-panel[hidden]{display:none}
+.dd-panel ul{list-style:none;margin:0;padding:0}
+.dd-panel ul + ul{margin-top:8px;padding-top:8px;border-top:1px solid var(--rule)}
+.dd-panel a{display:block;padding:10px 12px;border-radius:3px;font:600 15px/1.2 var(--sans);text-decoration:none;color:var(--ink)}
+.dd-panel a:hover{background:#e1e7ed;color:var(--ink)}
+.dd-panel a[aria-current="true"]{box-shadow:inset 3px 0 0 var(--accent);background:#eef2f6}
 
 section{padding:88px 0 0}
 #top{padding-top:clamp(56px,14vh,150px)}
@@ -85,6 +96,9 @@ h1{font:700 clamp(52px,6.6vw,96px)/.96 var(--sans);letter-spacing:-.035em;margin
 .actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px}
 .btn{display:inline-block;background:var(--ink);color:var(--paper);font:600 15.5px/1 var(--sans);padding:14px 20px;border-radius:4px;text-decoration:none}
 .btn:hover{background:var(--accent);color:#fff}
+.btn.cta{background:var(--accent)}
+.btn.cta:hover{background:var(--ink)}
+.btn.lg{font-size:17px;padding:18px 26px}
 .actions a:not(.btn){font:600 15.5px/1 var(--sans)}
 
 .sec-head{display:flex;gap:20px;align-items:flex-start;margin-bottom:38px}
@@ -135,7 +149,11 @@ footer p{margin:0 0 4px}
   .refs .n{padding:0}
   .sec-head{gap:16px}
   .glyph{width:40px;height:40px}
-  .nav{margin:0 -20px;padding:14px 20px 12px}
+  .bar{margin:0 -20px;padding:12px 20px 10px}
+  .bar-right{gap:8px}
+  .dd{position:static}
+  .dd-panel{right:20px;top:calc(100% - 2px)}
+  .nb{min-height:40px;padding:0 13px;font-size:14.5px}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -165,16 +183,36 @@ footer p{margin:0 0 4px}
   <!-- ===== Scrolling: the notebook ===== -->
   <div class="content">
 
-    <nav class="nav" aria-label="Sections">
-      <a href="#analysis">Analysis</a>
-      <a href="#ml">Machine learning</a>
-      <a href="#muons">Muons</a>
-      <a href="#detector">Detector</a>
-      <a href="#papers">Papers</a>
-      <a href="#toolkit">Toolkit</a>
-      <a href="#contact">Contact</a>
-      <a class="cv" href="cv.pdf" target="_blank" rel="noopener">CV</a>
-    </nav>
+    <header class="bar">
+      <a class="nb" href="#top" id="home">Home</a>
+      <div class="bar-right">
+        <div class="dd">
+          <button class="nb" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Menu
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 4 L6 8.5 L10.5 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="dd-panel" id="menu" hidden>
+            <ul>
+              <li><a href="#analysis">Searches and analysis</a></li>
+              <li><a href="#ml">Machine learning</a></li>
+              <li><a href="#muons">Muon reviews</a></li>
+              <li><a href="#detector">Detector hardware</a></li>
+              <li><a href="#papers">Papers and talks</a></li>
+              <li><a href="#toolkit">Toolkit</a></li>
+              <li><a href="#background">Background</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+            <ul>
+              <li><a href="cv.pdf" target="_blank" rel="noopener">Download CV</a></li>
+              <li><a href="https://www.linkedin.com/in/shivam-raj-singh-294207147/" target="_blank" rel="noopener">LinkedIn</a></li>
+              <li><a href="https://github.com/raj2022" target="_blank" rel="noopener">GitHub</a></li>
+              <li><a href="https://inspirehep.net/authors/2830251" target="_blank" rel="noopener">INSPIRE-HEP</a></li>
+              <li><a href="https://scholar.google.com/citations?user=HTzYZIUAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a></li>
+            </ul>
+          </div>
+        </div>
+        <a class="nb cta" href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a>
+      </div>
+    </header>
 
     <main>
 
@@ -189,6 +227,7 @@ footer p{margin:0 0 4px}
           <dt>Studying</dt><dd>PhD at The Catholic University of America, expected 2027</dd>
         </dl>
         <div class="actions">
+          <a class="btn cta" href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a>
           <a class="btn" href="cv.pdf" target="_blank" rel="noopener">Download CV</a>
           <a href="mailto:rajsh@cua.edu">Email</a>
           <a href="https://www.linkedin.com/in/shivam-raj-singh-294207147/" target="_blank" rel="noopener">LinkedIn</a>
@@ -442,9 +481,9 @@ footer p{margin:0 0 4px}
           <div><h2 class="title">Get in touch</h2></div>
         </header>
         <p style="max-width:30em">Questions about the analysis, the projects or working together? I'd like to hear from you.</p>
+        <p style="margin-bottom:26px"><a class="btn cta lg" href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a></p>
         <p><a class="mail" href="mailto:rajsh@cua.edu">rajsh@cua.edu</a></p>
         <div class="links">
-          <a href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a>
           <a href="cv.pdf" target="_blank" rel="noopener">CV</a>
           <a href="https://www.linkedin.com/in/shivam-raj-singh-294207147/" target="_blank" rel="noopener">LinkedIn</a>
           <a href="https://github.com/raj2022" target="_blank" rel="noopener">GitHub</a>
@@ -671,13 +710,29 @@ footer p{margin:0 0 4px}
 
   /* ---------- scroll linking: the section under the middle of the screen sets the layer ---------- */
   const note = document.getElementById('note');
-  const links = [...document.querySelectorAll('.nav a[href^="#"]')];
+  const links = [...document.querySelectorAll('#menu a[href^="#"]')];
   function activate(sec){
     const list = (sec.dataset.layers||'').split(' ').filter(Boolean);
     setLayers(list);
     note.textContent = sec.dataset.note || '';
     links.forEach(a=>a.setAttribute('aria-current', a.getAttribute('href') === '#'+sec.id ? 'true' : 'false'));
   }
+  /* ---------- top bar: Home and the Menu dropdown ---------- */
+  document.getElementById('home').addEventListener('click', e=>{
+    e.preventDefault();
+    window.scrollTo({top:0, behavior: reduce ? 'auto' : 'smooth'});
+  });
+  const btn = document.getElementById('menu-btn'), menu = document.getElementById('menu');
+  function setMenu(open, refocus){
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    menu.hidden = !open;
+    if (!open && refocus) btn.focus();
+  }
+  btn.addEventListener('click', ()=> setMenu(menu.hidden));
+  menu.addEventListener('click', e=>{ if (e.target.closest('a')) setMenu(false); });
+  document.addEventListener('click', e=>{ if (!menu.hidden && !e.target.closest('.dd')) setMenu(false); });
+  document.addEventListener('keydown', e=>{ if (e.key === 'Escape' && !menu.hidden) setMenu(false, true); });
+
   const secs = [...document.querySelectorAll('main > section')];
   if ('IntersectionObserver' in window){
     const io = new IntersectionObserver(es=>{ es.forEach(e=>{ if (e.isIntersecting) activate(e.target); }); },
