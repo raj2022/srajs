@@ -1,360 +1,594 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shivam Raj's Homepage</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shivam Raj | Experimental particle physicist, CMS at CERN</title>
+<meta name="description" content="Shivam Raj, PhD student at The Catholic University of America working on the CMS experiment at CERN. Statistics, machine learning and large-scale data pipelines.">
+<meta property="og:title" content="Shivam Raj">
+<meta property="og:description" content="Finding the signal in a billion collisions a second.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='black'/><circle cx='32' cy='32' r='20' fill='none' stroke='%23444' stroke-width='3'/><path d='M32 32 Q44 20 58 14' stroke='%23ff375f' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M32 32 Q22 44 8 52' stroke='%23ff375f' stroke-width='4' fill='none' stroke-linecap='round'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#000;
+  --ink:#1d1d1f;
+  --paper:#f5f5f7;
+  --white:#fff;
+  --gray:#6e6e73;
+  --gray-dark:#86868b;
+  --blue:#0071e3;
+  --link:#0066cc;
+  --link-dark:#2997ff;
+  --muon:#ff375f;
+  --photon:#ffd60a;
+  --ecal:#ff9f0a;
+  --hcal:#0a84ff;
+  --track:#9fd8ff;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --wrap:980px;
+  --wide:1200px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:48px;-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--font);font-size:17px;line-height:1.47;letter-spacing:-.022em;color:var(--ink);background:var(--white);-webkit-font-smoothing:antialiased}
+img,svg,canvas{display:block;max-width:100%}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
+.wrap{width:min(var(--wrap),100% - 44px);margin-inline:auto}
+.wide{width:min(var(--wide),100% - 32px);margin-inline:auto}
 
-    <!-- Add Font Awesome for icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+/* ---------- Nav ---------- */
+.nav{position:fixed;inset:0 0 auto;z-index:50;height:calc(48px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);background:rgba(22,22,23,.8);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px)}
+.nav .wrap{height:48px;display:flex;align-items:center;justify-content:space-between}
+.nav a{color:#e8e8ed;font-size:12px;letter-spacing:-.01em;opacity:.85}
+.nav a:hover{opacity:1;text-decoration:none}
+.nav .brand{font-size:15px;font-weight:600;opacity:1}
+.nav ul{display:flex;gap:32px;list-style:none;margin:0;padding:0}
+@media (max-width:600px){.nav ul{gap:18px}.nav .hide-sm{display:none}}
 
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-image: url("default-bg.jpg");
-            background-size: cover;
-            background-attachment: fixed;
-            color: #333;
-        }
-        .main-content {
-            max-width: 900px;
-            margin: auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1001;
-        }
-        header {
-            background-color: rgba(0, 123, 255, 0.8);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: bold;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 18px;
-            transition: color 0.3s ease;
-        }
-        nav ul li a:hover {
-            color: #ffeb3b;
-        }
-        .student-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 50%;
-            margin-bottom: 20px;
-        }
-        .project-section {
-            margin-bottom: 40px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        .project-section:hover {
-            transform: scale(1.05);
-        }
-        .project-title {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .project-description {
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-        .project-section ul {
-            font-size: 1.1em;
-            padding-left: 20px;
-        }
-        footer {
-            margin-top: 30px;
-            font-size: 14px;
-            color: #777;
-            padding: 20px 0;
-            background-color: #333;
-            color: white;
-        }
-        footer a {
-            color: #ffeb3b;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        .calendly-button {
-            background-color: #007bff;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        .calendly-button:hover {
-            background-color: #0056b3;
-        }
-        .scrolling-events {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 15px;
-            color: white;
-        }
-        .marquee {
-            overflow: hidden;
-            white-space: nowrap;
-            animation: marquee 15s linear infinite;
-        }
-        .marquee p {
-            display: inline-block;
-            padding-left: 100%;
-        }
-        @keyframes marquee {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
-        }
-        /* Responsive design */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
-            .main-content {
-                padding: 10px;
-            }
-            nav ul {
-                flex-direction: column;
-            }
-        }
-        /* Dark mode styling */
-        body.dark-mode {
-            background-color: #333;
-            color: #fff;
-        }
-        .dark-mode nav ul li a {
-            color: #ddd;
-        }
-        .dark-mode .calendly-button {
-            background-color: #222;
-        }
-        .dark-mode footer {
-            background-color: #222;
-        }
-        /* Sticky Scroll overlay */
-        .scroll-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            pointer-events: none;
-            display: none;
-            transition: background-color 0.3s ease-out;
-        }
-    </style>
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;border-radius:980px;font-size:17px;font-weight:400;letter-spacing:-.022em;border:0;cursor:pointer;font-family:inherit;transition:background-color .2s}
+.btn:hover{text-decoration:none}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#0077ed}
+.btn-ghost{background:transparent;color:var(--link-dark);box-shadow:inset 0 0 0 1px var(--link-dark)}
+.btn-ghost:hover{background:rgba(41,151,255,.1)}
+.btn-small{min-height:36px;font-size:14px;padding:0 16px}
+
+/* ---------- Hero ---------- */
+.hero{background:var(--black);color:#f5f5f7;padding:calc(48px + env(safe-area-inset-top,0px) + 56px) 0 56px;text-align:center;overflow:hidden}
+.hero h1{font-size:clamp(40px,7vw,80px);line-height:1.05;font-weight:600;letter-spacing:-.015em;margin:0 auto;max-width:17ch}
+.hero .lede{font-size:clamp(19px,2.2vw,24px);line-height:1.35;color:#a1a1a6;max-width:36ch;margin:22px auto 0;letter-spacing:.005em}
+.hero .ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+.stage{position:relative;width:min(760px,100%);aspect-ratio:1/1;margin:28px auto 0}
+.stage canvas{width:100%;height:100%}
+.stage-meta{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:center;margin-top:8px;font-size:14px;color:var(--gray-dark)}
+.legend{display:flex;gap:18px;list-style:none;margin:0;padding:0}
+.legend li{display:flex;align-items:center;gap:7px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+
+/* ---------- Statement (scroll highlight) ---------- */
+.statement{background:var(--black);color:#f5f5f7;padding:80px 0 140px}
+.statement p{font-size:clamp(28px,4.2vw,48px);line-height:1.12;font-weight:600;letter-spacing:-.012em;margin:0;max-width:22ch}
+.statement .w{transition:opacity .25s linear;opacity:.22}
+.statement .w.on{opacity:1}
+
+/* ---------- Sections ---------- */
+section{position:relative}
+.sec{padding:120px 0}
+.sec-paper{background:var(--paper)}
+.sec h2{font-size:clamp(40px,6vw,64px);line-height:1.06;font-weight:600;letter-spacing:-.009em;margin:0 0 16px}
+.sec .intro{font-size:clamp(19px,2vw,24px);color:var(--gray);max-width:40ch;margin:0 0 56px;line-height:1.35}
+
+/* ---------- Work tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tile{position:relative;overflow:hidden;border-radius:28px;background:var(--white);padding:44px 44px 0;display:flex;flex-direction:column;min-height:520px}
+.tile h3{font-size:clamp(28px,3.2vw,40px);line-height:1.1;font-weight:600;letter-spacing:-.008em;margin:0 0 12px}
+.tile p{margin:0;color:var(--gray);max-width:40ch}
+.tile .more{display:inline-block;margin-top:18px;font-size:17px}
+.tile .art{margin-top:auto;padding-top:32px}
+.tile .art svg{width:100%;height:auto}
+.tile-dark{background:var(--black);color:#f5f5f7}
+.tile-dark p{color:#a1a1a6}
+.tile-dark a{color:var(--link-dark)}
+.span-2{grid-column:span 2}
+.tile.span-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:40px;align-items:center;padding:56px;min-height:460px}
+.tile.span-2 .art{margin:0;padding:0}
+.stat{font-size:clamp(64px,9vw,112px);font-weight:600;letter-spacing:-.03em;line-height:1;margin:0}
+.stat-label{font-size:21px;color:var(--gray);margin-top:10px}
+.tile .stat{color:var(--ink)}
+@media (max-width:820px){
+  .tiles{grid-template-columns:1fr}
+  .span-2{grid-column:auto}
+  .tile,.tile.span-2{padding:36px 28px 0;min-height:0;display:flex;align-items:stretch}
+  .tile.span-2 .art{padding:28px 0 28px}
+  .tile.light-stat{padding-bottom:36px}
+}
+
+
+/* ---------- Projects list ---------- */
+.plist{border-top:1px solid #d2d2d7}
+.plist article{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px 48px;padding:28px 0;border-bottom:1px solid #d2d2d7;align-items:baseline}
+.plist h3{font-size:24px;line-height:1.2;font-weight:600;margin:0;letter-spacing:.009em}
+.plist p{margin:0;color:var(--gray);max-width:44ch}
+@media (max-width:820px){.plist article{grid-template-columns:1fr;gap:6px}}
+
+/* ---------- Toolkit ---------- */
+.kit{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #d2d2d7}
+.kit > div{padding:36px 32px 8px 0}
+.kit > div + div{padding-left:32px;border-left:1px solid #d2d2d7}
+.kit h3{font-size:24px;font-weight:600;margin:0 0 10px;letter-spacing:.009em}
+.kit p{margin:0 0 18px;color:var(--gray)}
+.kit .tags{font-size:14px;color:var(--ink);line-height:1.9}
+@media (max-width:820px){
+  .kit{grid-template-columns:1fr}
+  .kit > div + div{padding-left:0;border-left:0;border-top:1px solid #d2d2d7}
+}
+
+/* ---------- About ---------- */
+.about{display:grid;grid-template-columns:260px 1fr;gap:64px;align-items:start}
+.portrait{width:260px;height:260px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#3a3a3c,#000);color:#f5f5f7;display:grid;place-items:center;font-size:72px;font-weight:600;letter-spacing:-.02em;overflow:hidden}
+.portrait img{width:100%;height:100%;object-fit:cover}
+.about p{font-size:21px;line-height:1.43;margin:0 0 20px;max-width:34em}
+.about p.small{font-size:17px;color:var(--gray)}
+@media (max-width:820px){.about{grid-template-columns:1fr;gap:32px}.portrait{width:180px;height:180px;font-size:52px}}
+
+/* ---------- Contact ---------- */
+.contact{background:var(--black);color:#f5f5f7;text-align:center;padding:140px 0}
+.contact h2{color:#f5f5f7;font-size:clamp(40px,6vw,64px);line-height:1.06;font-weight:600;letter-spacing:-.009em;margin:0 0 16px}
+.contact .ctas{margin-top:0}
+.contact .intro{font-size:clamp(19px,2vw,24px);line-height:1.35;max-width:40ch}
+.contact .intro{color:#a1a1a6;margin-inline:auto;margin-bottom:40px}
+.links{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-top:36px;font-size:17px}
+.links a{color:var(--link-dark)}
+
+footer{background:var(--paper);color:var(--gray);font-size:12px;padding:20px 0 calc(20px + env(safe-area-inset-bottom,0px))}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .statement .w{opacity:1;transition:none}
+}
+</style>
 </head>
 <body>
-    <header>
-        <h1>Shivam Raj's Homepage</h1>
-        <nav>
-            <ul>
-                <li><a href="#" onclick="loadSection('about.html')">About Me</a></li>
-                <li><a href="#" onclick="loadSection('projects.html')">Projects</a></li>
-                <li><a href="#" onclick="loadSection('achievements.html')">Achievements</a></li>
-                <li><a href="#" onclick="loadSection('publications.html')">Publications</a></li>
-                <li><a href="#" onclick="loadSection('contact.html')">Contact</a></li>
-                <!-- Add social media icons with links -->
-                <li><a href="https://twitter.com/YourTwitterHandle" target="_blank"><i class="fab fa-twitter"></i></a></li>
-                <li><a href="https://www.linkedin.com/in/yourprofile" target="_blank"><i class="fab fa-linkedin"></i></a></li>
-                <li><a href="https://www.facebook.com/YourPage" target="_blank"><i class="fab fa-facebook"></i></a></li>
-            </ul>
-        </nav>
-        <!-- Theme Toggle Button -->
-        <button id="theme-toggle" class="theme-toggle">Toggle Dark Mode</button>
-        <!-- Calendly scheduling button -->
-        <a href="https://calendly.com/rajsh-cua/30min" class="calendly-button" target="_blank">Schedule a Meeting</a>
-    </header>
-    
-    <section class="scrolling-events">
-        <div class="marquee">
-            <!-- Add main events here -->
-            <p>Main Event 1</p>
-            <p>Main Event 2</p>
-            <!-- Add more events as needed -->
-        </div>
-    </section>
 
-    <main class="main-content">
-        <section  id="dynamic-content">
-            <h2>About Me</h2>
-            <p>Pleasure, you are here! I am a experimetnal high energy phycsics student at the Catholic university of America, Washington DC, US. I work as experimental high energy physicist at CMS experiment in CERN.</p>
+<!-- ===================================================================
+     EDIT ME: replace the LinkedIn URL (search for "yourprofile") and check the
+     INSPIRE-HEP link.
+     =================================================================== -->
 
-            <img src="1659152301217.jpeg" alt="PhD Student" class="student-image">
-        </section>
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top">Shivam Raj</a>
+    <ul>
+      <li><a href="#work">Work</a></li>
+      <li class="hide-sm"><a href="#projects">Projects</a></li>
+      <li><a href="#toolkit">Toolkit</a></li>
+      <li class="hide-sm"><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
 
-        <div class="project-list">
-            <section class="project-section">
-                <h2 class="project-title">Quantization and Sparsification</h2>
-                <p class="project-description">Brief description of Project 1. Highlight its significance and your role.</p>
-                <ul>
-                    <li><strong>Objective:</strong> Describe the main goal of Project 1.</li>
-                    <li><strong>Methods:</strong> Overview of methods or techniques used.</li>
-                    <li><strong>Results:</strong> Key findings or outcomes.</li>
-                    <li><strong>Conclusion:</strong> Summary and implications.</li>
-                </ul>
-            </section>
-        
-            <section class="project-section">
-                <h2 class="project-title">Hypergraph on MLPF</h2>
-                <p class="project-description">Brief description of Project 2. Discuss its relevance and your contributions.</p>
-                <ul>
-                    <li><strong>Objective:</strong> Describe the main objective of Project 2.</li>
-                    <li><strong>Approach:</strong> Overview of the approach taken.</li>
-                    <li><strong>Results:</strong> Summary of results and findings.</li>
-                    <li><strong>Future Work:</strong> Potential future directions or extensions.</li>
-                </ul>
-            </section>
-        
-            <section class="project-section">
-                <h2 class="project-title">Anomaly Detection on DQM</h2>
-                <p class="project-description">Brief description of Project 3. Discuss its relevance and your contributions.</p>
-                <ul>
-                    <li><strong>Objective:</strong> Describe the main objective of Project 3.</li>
-                    <li><strong>Approach:</strong> Overview of the approach taken.</li>
-                    <li><strong>Results:</strong> Summary of results and findings.</li>
-                    <li><strong>Future Work:</strong> Potential future directions or extensions.</li>
-                </ul>
-            </section>
-        
-            <section class="project-section">
-                <h2 class="project-title">fPix</h2>
-                <p class="project-description">Brief description of Project 4. Discuss its relevance and your contributions.</p>
-                <ul>
-                    <li><strong>Objective:</strong> Describe the main objective of Project 4.</li>
-                    <li><strong>Approach:</strong> Overview of the approach taken.</li>
-                    <li><strong>Results:</strong> Summary of results and findings.</li>
-                    <li><strong>Future Work:</strong> Potential future directions or extensions.</li>
-                </ul>
-            </section>
-        
-            <section class="project-section">
-                <h2 class="project-title">$H\bar{H} \longrightarrow \gamma\gamma b\bar{b}$</h2>
-                <p class="project-description">Brief description of Project 5. Discuss its relevance and your contributions.</p>
-                <ul>
-                    <li><strong>Objective:</strong> Describe the main objective of Project 5.</li>
-                    <li><strong>Approach:</strong> Overview of the approach taken.</li>
-                    <li><strong>Results:</strong> Summary of results and findings.</li>
-                    <li><strong>Future Work:</strong> Potential future directions or extensions.</li>
-                </ul>
-            </section>
-        </div>
-        
+<main id="top">
 
-        <section  id="dynamic-content">
-            <h2>Publications</h2>
-            <p>List your publications, papers, or any significant academic achievements.</p>
-            <ul>
-                <li><strong>Publication Title 1:</strong> Authors, Journal/Conference, Year.</li>
-                <li><strong>Publication Title 2:</strong> Authors, Journal/Conference, Year.</li>
-            </ul>
-        </section>
-    </main>
-
-    <section  id="dynamic-content">
-        <h2 class="section-heading">Conferences</h2>
-        <ul>
-            <li><strong>USCMS:</strong> "Poster Presentation:" - Published in [Journal Name].</li>
-            <li><strong>Paper 2:</strong> "Title of Another Paper" - Published in [Journal Name].</li>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Finding the signal in a&nbsp;billion collisions a&nbsp;second.</h1>
+      <p class="lede">I'm Shivam Raj, a PhD student on the CMS experiment at CERN. I turn enormous, noisy datasets into results people can trust.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#work">See my work</a>
+        <a class="btn btn-ghost" href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a>
+      </div>
+    </div>
+    <div class="wide">
+      <div class="stage">
+        <canvas id="event" role="img" aria-label="Animated cross-section of the CMS detector showing a simulated collision with two muons, two photons and charged particle tracks."></canvas>
+      </div>
+      <div class="stage-meta">
+        <ul class="legend" aria-label="Legend">
+          <li><i style="background:var(--muon)"></i>Muons</li>
+          <li><i style="background:var(--photon)"></i>Photons</li>
+          <li><i style="background:var(--track)"></i>Tracks</li>
         </ul>
-    </section>
+        <button class="btn btn-ghost btn-small" id="again" type="button">New collision</button>
+      </div>
+    </div>
+  </section>
 
-    <a href="https://calendly.com/rajsh-cua/30min" class="calendly-button" target="_blank">Schedule a Meeting</a>
-    </main>
+  <section class="statement" aria-label="Summary">
+    <div class="wrap">
+      <p id="statement">Working inside one of the largest data experiments on Earth taught me to question every number, model every uncertainty, and deliver results that thousands of collaborators put their names to.</p>
+    </div>
+  </section>
 
-    <footer>
-        <p>&copy; 2025 Shivam Raj. All rights reserved. Built with <i class="fa fa-heart" style="color:red;"></i>.</p>
-        <p><a href="mailto:ssrajsingh99@gmail.com">Contact Me</a></p>
-    </footer>
+  <section class="sec sec-paper" id="work">
+    <div class="wrap">
+      <h2>What I've built.</h2>
+      <p class="intro">Analysis, detector expertise and data infrastructure, all at the scale of the Large Hadron Collider.</p>
+    </div>
+    <div class="wrap tiles">
 
-    <!-- Optional: JavaScript to toggle overlay and dark mode -->
-    <script>
-        function changeBackground() {
-            const bgUrl = prompt("Enter the URL for the new background image:");
-            if (bgUrl) {
-                document.body.style.backgroundImage = `url(${bgUrl})`;
-            }
-        }
+      <article class="tile tile-dark span-2">
+        <div>
+          <h3>Leading a CMS analysis.</h3>
+          <p>I lead a physics analysis end to end: event selection, background modelling, systematic uncertainties, and the statistical fit that turns raw data into a result.</p>
+          <a class="more" href="#projects">See the projects</a>
+        </div>
+        <div class="art"><svg id="bump" viewBox="0 0 520 300" aria-label="Histogram with a smooth falling background and a small excess of events in the middle"></svg></div>
+      </article>
 
-        function previewImage(input, targetId) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = '100%';
-                    img.style.borderRadius = '8px';
-                    const target = document.querySelector(`#${targetId}`);
-                    target.innerHTML = ''; // Clear previous content
-                    target.appendChild(img);
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-            const overlay = document.querySelector('.scroll-overlay');
-            const toggleButton = document.getElementById('theme-toggle');
+      <article class="tile">
+        <h3>Muon expert for B2G.</h3>
+        <p>As the contact between the Beyond Two Generations group and the Muon Physics Object Group, I make sure muon identification and efficiencies are right for every B2G analysis.</p>
+        <div class="art">
+          <svg viewBox="0 0 400 220" aria-hidden="true">
+            <g fill="#e8e8ed">
+              <rect x="40" y="30" width="26" height="160" rx="4"/>
+              <rect x="130" y="30" width="26" height="160" rx="4"/>
+              <rect x="220" y="30" width="26" height="160" rx="4"/>
+              <rect x="310" y="30" width="26" height="160" rx="4"/>
+            </g>
+            <g fill="var(--muon)">
+              <rect x="44" y="150" width="18" height="8" rx="2"/>
+              <rect x="134" y="122" width="18" height="8" rx="2"/>
+              <rect x="224" y="98" width="18" height="8" rx="2"/>
+              <rect x="314" y="78" width="18" height="8" rx="2"/>
+            </g>
+            <path d="M0 172.3 Q200 100.5 400 67.7" stroke="var(--muon)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </article>
 
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 50) {
-                    overlay.style.display = 'block';
-                    setTimeout(function() {
-                        overlay.classList.add('contrast-change');
-                    }, 100);
-                } else {
-                    overlay.classList.remove('contrast-change');
-                    setTimeout(function() {
-                        overlay.style.display = 'none';
-                    }, 300);
-                }
-            });
+      <article class="tile">
+        <h3>Pipelines at scale.</h3>
+        <p>I produce and process samples with HiggsDNA, running large batches of jobs on HTCondor with CERN's lxplus and EOS storage.</p>
+        <div class="art">
+          <svg viewBox="0 0 400 220" aria-hidden="true" id="jobs"></svg>
+        </div>
+      </article>
 
-            toggleButton.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                document.querySelector('header').classList.toggle('dark-mode');
-                document.querySelectorAll('nav ul li a').forEach(el => el.classList.toggle('dark-mode'));
-                document.querySelector('.calendly-button').classList.toggle('dark-mode');
-                document.querySelector('.main-content').classList.toggle('dark-mode');
-                document.querySelector('.scroll-overlay').classList.toggle('dark-mode');
-                document.querySelector('.student-image').classList.toggle('dark-mode');
-            });
-        });
-    </script>
+      <article class="tile span-2 light-stat">
+        <div>
+          <h3>Published, and cited.</h3>
+          <p>I made a significant contribution to a recently published CMS paper, and my work has around 500 citations.</p>
+          <a class="more" href="https://inspirehep.net/authors?q=Shivam%20Raj" target="_blank" rel="noopener">Find my papers on INSPIRE-HEP</a>
+        </div>
+        <div class="art">
+          <p class="stat">~500</p>
+          <p class="stat-label">citations</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="projects">
+    <div class="wrap">
+      <h2>Projects.</h2>
+      <p class="intro">Machine learning and detector work around the CMS experiment.</p>
+      <div class="plist">
+        <article>
+          <h3>Quantization and sparsification</h3>
+          <p>Compressing neural networks so they run fast enough for real-time use.</p>
+        </article>
+        <article>
+          <h3>Hypergraph models for MLPF</h3>
+          <p>Machine-learned particle flow: reconstructing every particle in a collision with a neural network.</p>
+        </article>
+        <article>
+          <h3>Anomaly detection for data quality</h3>
+          <p>Flagging problems in CMS data automatically, before they reach a physics analysis.</p>
+        </article>
+        <article>
+          <h3>fPix</h3>
+          <p>The forward pixel detector of the CMS tracker.</p>
+        </article>
+        <article>
+          <h3>HH &rarr; &gamma;&gamma;b<span style="text-decoration:overline">b</span></h3>
+          <p>A search for pairs of Higgs bosons decaying to two photons and two b quarks.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-paper" id="toolkit">
+    <div class="wrap">
+      <h2>Built for data science.</h2>
+      <p class="intro">Particle physics is data science with a very demanding reviewer. Here's what carries over.</p>
+      <div class="kit">
+        <div>
+          <h3>Statistics</h3>
+          <p>Maximum-likelihood fits, hypothesis testing and confidence intervals, with every systematic uncertainty accounted for.</p>
+          <div class="tags">Likelihood fits, hypothesis tests, uncertainty modelling, blinded analysis</div>
+        </div>
+        <div>
+          <h3>Machine learning</h3>
+          <p>Classifiers that separate rare signal from overwhelming background, validated on data they've never seen.</p>
+          <div class="tags">Gradient-boosted trees, neural networks, scikit-learn, XGBoost</div>
+        </div>
+        <div>
+          <h3>Engineering</h3>
+          <p>Reproducible pipelines that process billions of events across distributed computing clusters.</p>
+          <div class="tags">Python, NumPy, pandas, ROOT, coffea, HTCondor, Linux, Git</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="about">
+    <div class="wrap about">
+      <div class="portrait"><img src="photo.jpg" alt="Shivam Raj" width="260" height="260"></div>
+      <div>
+        <h2>Hi, I'm Shivam.</h2>
+        <p>I'm doing my PhD in experimental high energy physics at The Catholic University of America in Washington, DC, and I work on the CMS experiment at CERN. I lead a physics analysis and serve as the B2G contact for the Muon Physics Object Group.</p>
+        <p>What I enjoy most is the full arc of a problem: framing the question, building the pipeline, and defending the answer in front of experts who want to find the flaw. I'm now bringing that to data science.</p>
+        <p class="small">Presented a poster at USCMS. Based in Washington, DC.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <h2>Get in touch.</h2>
+      <p class="intro">Questions about the analysis, the projects or working together? I'd like to hear from you.</p>
+      <div class="ctas"><a class="btn btn-primary" href="mailto:ssrajsingh99@gmail.com">Email me</a><a class="btn btn-ghost" href="https://calendly.com/rajsh-cua/30min" target="_blank" rel="noopener">Schedule a meeting</a></div>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/yourprofile" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/raj2022" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://inspirehep.net/authors?q=Shivam%20Raj" target="_blank" rel="noopener">INSPIRE-HEP</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Shivam Raj</span>
+    <span>Collision display is a simulation drawn in your browser.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* ================= Event display ================= */
+  const cv = document.getElementById('event');
+  const ctx = cv.getContext('2d');
+  let W, H, cx, cy, R, dpr;
+  // Detector radii as fractions of the outer radius
+  const D = {tracker:.36, ecalIn:.38, ecalOut:.45, sol:.49, hcalIn:.51, hcalOut:.62,
+             muon:[.67,.76,.85,.93], muonT:.045};
+  let ev = null, start = 0, raf = 0;
+  const DUR = 2600;
+
+  function resize(){
+    const r = cv.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    W = r.width; H = r.height; cx = W/2; cy = H/2; R = Math.min(W,H)/2 * .98;
+  }
+
+  const rnd = (a,b)=>a + Math.random()*(b-a);
+  const expo = m => -Math.log(1 - Math.random()) * m;
+
+  // Integrate a charged particle in the solenoid field (field flips outside the magnet, like CMS)
+  function propagate(phi, q, rc, rMax, outside){
+    const pts = [[0,0]];
+    let x=0, y=0, dx=Math.cos(phi), dy=Math.sin(phi);
+    const ds = .004;
+    let travelled = 0;
+    const maxLen = Math.min(Math.PI * rc * 1.35, 3);
+    while (travelled < maxLen){
+      const r = Math.hypot(x,y);
+      if (r >= rMax) break;
+      let k = q / rc;
+      if (r > D.sol) { if (!outside) break; k = -q / (rc * 1.7); }
+      const a = k * ds, c = Math.cos(a), s = Math.sin(a);
+      const ndx = dx*c - dy*s, ndy = dx*s + dy*c; dx = ndx; dy = ndy;
+      x += dx*ds; y += dy*ds; travelled += ds;
+      pts.push([x,y]);
+    }
+    return pts;
+  }
+
+  function makeEvent(){
+    const tracks = [], towers = [];
+    const n = Math.round(rnd(20, 32));
+    for (let i=0;i<n;i++){
+      const phi = rnd(0, Math.PI*2), q = Math.random()<.5?-1:1;
+      const pt = .25 + expo(1.6);
+      const rc = .11 * pt;
+      const pts = propagate(phi, q, rc, D.tracker, false);
+      tracks.push(pts);
+      const last = pts[pts.length-1];
+      if (Math.hypot(last[0],last[1]) >= D.tracker*.98){
+        const ang = Math.atan2(last[1], last[0]);
+        towers.push({ang, r0:D.hcalIn, len:Math.min(.1, .012 + pt*.012), col:'hcal', w:.04});
+        if (Math.random()<.4) towers.push({ang, r0:D.ecalIn, len:Math.min(.06, .006+pt*.006), col:'ecal', w:.035});
+      }
+    }
+    // Two photons, roughly back to back (a diphoton event)
+    const pPhi = rnd(0, Math.PI*2);
+    const photons = [pPhi, pPhi + Math.PI + rnd(-.5,.5)].map(a=>({ang:a, e:rnd(.55,1)}));
+    photons.forEach(p=>towers.push({ang:p.ang, r0:D.ecalIn, len:(D.ecalOut-D.ecalIn)*1.1*p.e + .02, col:'photon', w:.06}));
+    // Two high-momentum muons crossing the full detector
+    const mPhi = rnd(0, Math.PI*2);
+    const muons = [mPhi, mPhi + Math.PI + rnd(-.8,.8)].map(a=>{
+      const q = Math.random()<.5?-1:1;
+      return propagate(a, q, rnd(1.4, 3.2), .985, true);
+    });
+    return {tracks, towers, photons, muons};
+  }
+
+  function P(p){ return [cx + p[0]*R, cy - p[1]*R]; }
+
+  function ring(r0, r1, fill){
+    ctx.beginPath(); ctx.arc(cx,cy,r1*R,0,Math.PI*2); ctx.arc(cx,cy,r0*R,0,Math.PI*2,true);
+    ctx.fillStyle = fill; ctx.fill();
+  }
+
+  function drawDetector(){
+    // tracker layers
+    ctx.lineWidth = 1;
+    [.04,.07,.1,.13,.18,.23,.28,.33,.36].forEach((r,i)=>{
+      ctx.beginPath(); ctx.arc(cx,cy,r*R,0,Math.PI*2);
+      ctx.strokeStyle = i<4 ? 'rgba(255,255,255,.09)' : 'rgba(255,255,255,.055)'; ctx.stroke();
+    });
+    ring(D.ecalIn, D.ecalOut, 'rgba(255,255,255,.055)');
+    ring(D.sol-.012, D.sol, 'rgba(255,255,255,.12)');
+    ring(D.hcalIn, D.hcalOut, 'rgba(255,255,255,.04)');
+    // 12-fold muon stations
+    ctx.fillStyle = 'rgba(255,255,255,.07)';
+    for (const r of D.muon){
+      for (let k=0;k<12;k++){
+        const a = k*Math.PI/6, t = D.muonT;
+        const hw0 = r*Math.tan(Math.PI/12)*.9, hw1 = (r+t)*Math.tan(Math.PI/12)*.9;
+        const ux = Math.cos(a), uy = Math.sin(a), vx = -uy, vy = ux;
+        const c = [[r*ux+hw0*vx, r*uy+hw0*vy],[r*ux-hw0*vx, r*uy-hw0*vy],
+                   [(r+t)*ux-hw1*vx,(r+t)*uy-hw1*vy],[(r+t)*ux+hw1*vx,(r+t)*uy+hw1*vy]].map(P);
+        ctx.beginPath(); ctx.moveTo(...c[0]); c.slice(1).forEach(p=>ctx.lineTo(...p)); ctx.closePath(); ctx.fill();
+      }
+    }
+  }
+
+  function path(pts, frac){
+    const m = Math.max(1, Math.floor(pts.length * frac));
+    ctx.beginPath(); ctx.moveTo(...P(pts[0]));
+    for (let i=1;i<m;i++) ctx.lineTo(...P(pts[i]));
+    ctx.stroke();
+  }
+
+  const ease = t => 1 - Math.pow(1 - Math.min(Math.max(t,0),1), 3);
+  const css = getComputedStyle(document.documentElement);
+  const COL = {
+    muon: css.getPropertyValue('--muon').trim(), photon: css.getPropertyValue('--photon').trim(),
+    ecal: css.getPropertyValue('--ecal').trim(), hcal: css.getPropertyValue('--hcal').trim(),
+    track: css.getPropertyValue('--track').trim()
+  };
+
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    drawDetector();
+    // interaction point glow
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,R*.06);
+    g.addColorStop(0,'rgba(255,255,255,'+(.5*ease(t*3))+')'); g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,R*.06,0,Math.PI*2); ctx.fill();
+
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    // tracks
+    ctx.strokeStyle = COL.track; ctx.globalAlpha = .7; ctx.lineWidth = 1.2;
+    const ft = ease((t - .02) / .38);
+    ev.tracks.forEach(p=>path(p, ft));
+    // photons: dashed, straight to the ECAL
+    ctx.globalAlpha = .9; ctx.setLineDash([4,5]); ctx.strokeStyle = COL.photon; ctx.lineWidth = 1.4;
+    const fp = ease((t - .02) / .3);
+    ev.photons.forEach(p=>{
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      const r = D.ecalIn * fp;
+      ctx.lineTo(...P([Math.cos(p.ang)*r, Math.sin(p.ang)*r])); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    // calorimeter towers
+    const fw = ease((t - .35) / .35);
+    ev.towers.forEach(tw=>{
+      const r0 = tw.r0, r1 = r0 + tw.len * fw;
+      if (r1 <= r0 + .001) return;
+      ctx.beginPath();
+      ctx.arc(cx,cy,r1*R,-tw.ang - tw.w/2, -tw.ang + tw.w/2);
+      ctx.arc(cx,cy,r0*R,-tw.ang + tw.w/2, -tw.ang - tw.w/2, true);
+      ctx.closePath();
+      ctx.fillStyle = COL[tw.col]; ctx.globalAlpha = tw.col==='photon' ? .95 : .55; ctx.fill();
+    });
+    // muons, drawn last with a glow
+    ctx.globalAlpha = 1; ctx.strokeStyle = COL.muon; ctx.lineWidth = 2.4;
+    ctx.shadowColor = COL.muon; ctx.shadowBlur = 12;
+    const fm = ease((t - .08) / .8);
+    ev.muons.forEach(p=>path(p, fm));
+    ctx.restore();
+  }
+
+  function play(){
+    cancelAnimationFrame(raf);
+    ev = makeEvent();
+    if (reduce){ draw(1); return; }
+    start = performance.now();
+    const step = now=>{
+      const t = Math.min((now - start)/DUR, 1);
+      draw(t);
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+
+  resize(); play();
+  let rt; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(()=>{ resize(); draw(1); }, 120); });
+  document.getElementById('again').addEventListener('click', play);
+
+  /* ================= Scroll-lit statement ================= */
+  const st = document.getElementById('statement');
+  st.innerHTML = st.textContent.trim().split(/\s+/).map(w=>'<span class="w">'+w+'</span>').join(' ');
+  const words = [...st.querySelectorAll('.w')];
+  function light(){
+    const r = st.getBoundingClientRect(), vh = window.innerHeight;
+    const p = Math.min(Math.max((vh*.8 - r.top) / (r.height + vh*.35), 0), 1);
+    const n = Math.round(p * words.length);
+    words.forEach((w,i)=>w.classList.toggle('on', i < n));
+  }
+  if (!reduce){
+    let ticking = false;
+    window.addEventListener('scroll', ()=>{ if(!ticking){ ticking = true; requestAnimationFrame(()=>{ light(); ticking = false; }); } }, {passive:true});
+    light();
+  } else words.forEach(w=>w.classList.add('on'));
+
+  /* ================= Tile art ================= */
+  // Invariant-mass style histogram: falling background plus a small peak
+  const bump = document.getElementById('bump');
+  (function(){
+    const N = 40, x0 = 20, x1 = 500, y0 = 270, top = 30;
+    const bw = (x1-x0)/N;
+    const bkg = i => 200 * Math.exp(-i/22);
+    const sig = i => 52 * Math.exp(-Math.pow(i-20,2)/(2*1.6*1.6));
+    let s = '<line x1="'+x0+'" y1="'+y0+'" x2="'+x1+'" y2="'+y0+'" stroke="#48484a"/>';
+    for (let i=0;i<N;i++){
+      const v = bkg(i) + sig(i) + (Math.sin(i*12.9898)*43758.5453 % 1) * 5;
+      const x = x0 + (i+.5)*bw, y = y0 - v;
+      s += '<line x1="'+x+'" y1="'+(y-Math.sqrt(v)*.9)+'" x2="'+x+'" y2="'+(y+Math.sqrt(v)*.9)+'" stroke="#86868b" stroke-width="1.2"/>';
+      s += '<circle cx="'+x+'" cy="'+y+'" r="3.2" fill="#f5f5f7"/>';
+    }
+    let d = '', ds = '';
+    for (let i=0;i<=N*4;i++){
+      const u = i/4, x = x0 + u*bw;
+      d  += (i?'L':'M') + x.toFixed(1) + ' ' + (y0 - bkg(u-.5)).toFixed(1);
+      ds += (i?'L':'M') + x.toFixed(1) + ' ' + (y0 - bkg(u-.5) - sig(u-.5)).toFixed(1);
+    }
+    s = '<path d="'+ds+'" stroke="var(--muon)" stroke-width="2.5" fill="none"/>' +
+        '<path d="'+d+'" stroke="var(--hcal)" stroke-width="2.5" fill="none" stroke-dasharray="6 5"/>' + s;
+    bump.innerHTML = s;
+  })();
+
+  // Batch jobs finishing across a cluster
+  (function(){
+    const svg = document.getElementById('jobs'); let s = '';
+    const rows = 7, cols = 16;
+    for (let r=0;r<rows;r++) for (let c=0;c<cols;c++){
+      const done = c < cols - Math.round(Math.abs(Math.sin(r*3.1))*5);
+      s += '<rect x="'+(8+c*24)+'" y="'+(14+r*28)+'" width="18" height="18" rx="5" fill="'+(done?'#30d158':'#e8e8ed')+'"/>';
+    }
+    svg.innerHTML = s;
+  })();
+})();
+</script>
 </body>
 </html>
-
