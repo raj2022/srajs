@@ -1,0 +1,996 @@
+<title>CV Checker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:wght@500;600&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: input column on the left, a marked-up review report on the right.
+   Report reads like a reviewer's pass over a manuscript: fix-first list, then a squiggle-marked copy of the CV. */
+:root {
+  --bg: #F3F5F8;
+  --surface: #FFFFFF;
+  --sunk: #EBEFF4;
+  --ink: #141922;
+  --muted: #586272;
+  --line: #D8DEE6;
+  --accent: #2447C9;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E3E9FB;
+  --good: #17754A;
+  --good-soft: #E1F3E9;
+  --warn: #965A00;
+  --warn-soft: #FBEFD6;
+  --bad: #B02A22;
+  --bad-soft: #FBE4E1;
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1218; --surface: #161B23; --sunk: #1D232D; --ink: #E7EBF1; --muted: #9AA5B5; --line: #2B3340;
+    --accent: #8AA4FF; --accent-ink: #0E1218; --accent-soft: #222C4D;
+    --good: #5CC48D; --good-soft: #15291F; --warn: #E8B04A; --warn-soft: #302514; --bad: #FF8F85; --bad-soft: #341A18;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1218; --surface: #161B23; --sunk: #1D232D; --ink: #E7EBF1; --muted: #9AA5B5; --line: #2B3340;
+  --accent: #8AA4FF; --accent-ink: #0E1218; --accent-soft: #222C4D;
+  --good: #5CC48D; --good-soft: #15291F; --warn: #E8B04A; --warn-soft: #302514; --bad: #FF8F85; --bad-soft: #341A18;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1180px; margin: 0 auto; }
+h1, h2, h3, p { margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top { display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px; max-width: 70ch; }
+.top h1 { font-family: var(--font-display); font-weight: 600; font-size: 34px; line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; }
+.top p { color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 901px) { .input { position: sticky; top: 16px; } }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; min-width: 0; }
+.input { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+label, .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.hint { font-size: 12.5px; color: var(--muted); }
+select, textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px;
+}
+textarea { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5; resize: vertical; }
+#cvText { min-height: 300px; }
+#extra { min-height: 72px; }
+
+.tabs { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; align-self: flex-start; }
+.tabs button { font: inherit; font-size: 13px; padding: 7px 14px; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; }
+.tabs button + button { border-left: 1px solid var(--line); }
+.tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+.drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  min-height: 150px; padding: 20px; border: 1.5px dashed var(--line); border-radius: 8px; background: var(--bg);
+  cursor: pointer; color: var(--muted); text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: 14px;
+}
+.drop strong { color: var(--ink); font-weight: 600; }
+.drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.drop:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.srcnote { font-size: 12.5px; color: var(--muted); min-height: 1.4em; }
+.srcnote.err { color: var(--bad); }
+
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+button.btn {
+  font: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+button.btn:hover { background: var(--sunk); }
+button.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button.btn.primary:hover { filter: brightness(1.08); }
+button.btn:disabled { opacity: 0.6; cursor: default; }
+.privacy { font-size: 12.5px; color: var(--muted); }
+
+/* report */
+.report { display: flex; flex-direction: column; gap: 22px; }
+.empty { color: var(--muted); padding: 36px 8px; text-align: center; }
+
+.scorecard { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+.ring { position: relative; width: 116px; height: 116px; flex: none; }
+.ring svg { width: 116px; height: 116px; transform: rotate(-90deg); }
+.ring .track { fill: none; stroke: var(--line); stroke-width: 9; }
+.ring .bar { fill: none; stroke-width: 9; stroke-linecap: round; }
+.ring.good .bar { stroke: var(--good); } .ring.warn .bar { stroke: var(--warn); } .ring.bad .bar { stroke: var(--bad); }
+@media (prefers-reduced-motion: no-preference) { .ring .bar { transition: stroke-dashoffset 0.6s ease; } }
+.ring .num { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 600; font-size: 38px; line-height: 1; font-variant-numeric: tabular-nums; }
+.ring .num small { display: block; font-family: var(--font-mono); font-weight: 400; font-size: 10px; color: var(--muted); text-align: center; margin-top: 2px; }
+.verdict { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1 1 260px; }
+.verdict h2 { font-family: var(--font-display); font-weight: 600; font-size: 26px; line-height: 1.15; text-wrap: balance; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; }
+.count { font-family: var(--font-mono); font-size: 12px; padding: 3px 9px; border-radius: 99px; font-variant-numeric: tabular-nums; }
+.count.fail { background: var(--bad-soft); color: var(--bad); }
+.count.warn { background: var(--warn-soft); color: var(--warn); }
+.count.pass { background: var(--good-soft); color: var(--good); }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 0; }
+.stats div { background: var(--surface); padding: 10px 12px; }
+.stats dt { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.stats dd { margin: 2px 0 0; font-family: var(--font-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+
+.block { display: flex; flex-direction: column; gap: 10px; }
+.block > h3 { font-family: var(--font-display); font-weight: 600; font-size: 21px; line-height: 1.2; }
+.block > .sub { font-size: 13px; color: var(--muted); margin-top: -6px; }
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.item { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+@media (max-width: 480px) { .item { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
+.tag { align-self: start; justify-self: start; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
+.item.fail .tag { background: var(--bad-soft); color: var(--bad); }
+.item.warn .tag { background: var(--warn-soft); color: var(--warn); }
+.item.pass .tag { background: var(--good-soft); color: var(--good); }
+.item.info .tag { background: var(--sunk); color: var(--muted); }
+.item .t { font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.item .grp { font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.item .n { font-size: 14px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+.item .fix { font-size: 14px; margin-top: 8px; padding: 8px 10px; background: var(--sunk); border-radius: 6px; overflow-wrap: anywhere; }
+.item .fix span { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-right: 8px; }
+.item .src { font-size: 12px; color: var(--muted); margin-top: 8px; overflow-wrap: anywhere; }
+.item .src a, .chips a.chip { color: var(--accent); }
+.chips a.chip { text-decoration: none; }
+.chips a.chip:hover { text-decoration: underline; }
+details.fold > summary { cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 19px; padding: 4px 0; }
+details.fold[open] > summary { margin-bottom: 10px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 13px; padding: 4px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); }
+.chip.found { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.chip.found::before { content: "\2713\00a0"; }
+.chip.partial { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.chip.missing { border-style: dashed; color: var(--muted); }
+.chip.missing::before { content: "\2212\00a0"; }
+.chip.kfound { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.chip.kmiss { border-style: dashed; color: var(--muted); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); }
+.cvview { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 0; max-height: 440px; overflow: auto; }
+.ln { padding: 0 14px 0 11px; border-left: 3px solid transparent; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 1.6em; }
+.ln.h { background: var(--accent-soft); color: var(--accent); font-weight: 500; border-left-color: var(--accent); }
+.ln.nonum { border-left-color: var(--warn); border-left-style: dotted; }
+mark { background: none; color: inherit; text-decoration: underline wavy var(--warn); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+mark.c { text-decoration-color: var(--bad); }
+.key-h { display: inline-block; width: 22px; height: 10px; background: var(--accent-soft); border-left: 3px solid var(--accent); vertical-align: -1px; }
+.key-w { text-decoration: underline wavy var(--warn); text-underline-offset: 3px; }
+.key-c { text-decoration: underline wavy var(--bad); text-underline-offset: 3px; }
+.key-n { display: inline-block; width: 0; height: 12px; border-left: 3px dotted var(--warn); vertical-align: -2px; margin-right: 2px; }
+
+.deep { gap: 12px; display: flex; flex-direction: column; }
+.deep h3 { font-family: var(--font-display); font-weight: 600; font-size: 21px; }
+.deep .out p { margin-top: 10px; font-weight: 600; }
+.deep .out p.plain { font-weight: 400; color: var(--muted); }
+.deep .out ul { margin: 4px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.deep .err { color: var(--bad); font-size: 14px; }
+.limits { font-size: 12.5px; color: var(--muted); }
+.copybox { margin-top: 8px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>CV Checker</h1>
+    <p>Paste your CV or upload a PDF, DOCX or text file. The page lists missing sections, weak wording and keyword gaps for the role you pick. The checks run in your browser.</p>
+  </header>
+
+  <main class="grid">
+    <section class="panel input" aria-label="CV input">
+      <div class="field">
+        <label for="profile">Target role</label>
+        <select id="profile">
+          <option value="ds">Data science / ML (industry)</option>
+          <option value="quant">Quantitative research</option>
+          <option value="acad">Academic / postdoc</option>
+          <option value="gen">General industry</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="srcLbl">CV source</span>
+        <div class="tabs" role="tablist" aria-labelledby="srcLbl">
+          <button type="button" role="tab" id="tabPaste" aria-selected="true" aria-controls="paneText">Paste text</button>
+          <button type="button" role="tab" id="tabUpload" aria-selected="false" aria-controls="paneUpload">Upload file</button>
+        </div>
+        <div id="paneText" role="tabpanel" aria-labelledby="tabPaste">
+          <textarea id="cvText" spellcheck="false" aria-label="CV text"></textarea>
+        </div>
+        <div id="paneUpload" role="tabpanel" aria-labelledby="tabUpload" hidden>
+          <label class="drop" id="drop" for="cvFile">
+            <strong>Drop a file here or click to choose</strong>
+            <span>PDF, DOCX, TXT or MD</span>
+            <input type="file" id="cvFile" accept=".pdf,.docx,.txt,.md,.text,application/pdf,text/plain">
+          </label>
+        </div>
+        <p class="srcnote" id="srcNote" aria-live="polite"></p>
+      </div>
+
+      <div class="field">
+        <label for="extra">Your own checklist (optional)</label>
+        <textarea id="extra" spellcheck="false" placeholder="One requirement per line.&#10;Separate alternatives with commas.&#10;LinkedIn, github.com&#10;leadership, led, managed"></textarea>
+        <p class="hint">Paste advice points from the sites you follow. Each line is checked against your CV.</p>
+      </div>
+
+      <div class="btns">
+        <button type="button" class="btn primary" id="checkBtn">Check CV</button>
+        <button type="button" class="btn" id="exampleBtn">Load example</button>
+        <button type="button" class="btn" id="clearBtn">Clear</button>
+      </div>
+      <p class="privacy">Your CV stays in this browser tab. Nothing is uploaded or stored by this page.</p>
+    </section>
+
+    <section class="panel report" aria-label="Review" aria-live="polite">
+      <div id="report"></div>
+      <div id="deep" class="deep" hidden>
+        <h3>Deeper review with Claude</h3>
+        <p class="hint">Sends your CV text and the findings above to Claude for rewrites of weak lines and a list of gaps. You are asked for permission the first time.</p>
+        <div class="btns"><button type="button" class="btn" id="deepBtn">Ask Claude to review</button></div>
+        <div class="out" id="deepOut"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script>
+// ==ANALYSIS START==
+// Pages that were read on 16 Oct 2026 and support at least one rule. com = sells a service tied to its advice.
+const SRC = {
+  cornell: { n: 'Cornell', u: 'https://postdocs.cornell.edu/postdoc-careers/academic-job-search/curriculum-vitaes-cvs-101/' },
+  ucdcv: { n: 'UC Davis CV', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/cv-curriculum-vitae' },
+  umich: { n: 'Michigan CV', u: 'https://careercenter.umich.edu/article/writing-your-curriculum-vita' },
+  usc: { n: 'USC', u: 'https://careers.usc.edu/resources/when-to-use-a-curriculum-vitae-cv/' },
+  efc: { n: 'eFinancialCareers', u: 'https://www.efinancialcareers.com/news/how-to-write-a-cv-for-a-job-in-quant-finance' },
+  quantt: { n: 'Quantt', u: 'https://www.quantt.co.uk/resources/quant-resume-guide', com: true },
+  fca: { n: 'Finance CV Audit', u: 'https://finance-cv-audit.com/blog/quant-finance-cv-guide', com: true },
+  cs: { n: 'CareerStanding', u: 'https://careerstanding.com/resume-for/quantitative-researcher', com: true },
+  wsp: { n: 'Wall Street Playbook', u: 'https://www.wallstreetplaybook.org/quantitative-finance-resume?category=Career+Guides', com: true },
+  informs: { n: 'INFORMS', u: 'https://connect.informs.org/careercenter/resources/steps-to-craft-data-science-resumes' },
+  washu: { n: 'WashU', u: 'https://careers.washu.edu/resume-building-for-tech-data-and-engineering-community/' },
+  ucdres: { n: 'UC Davis resumes', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/resumes' },
+  aucc: { n: 'American University', u: 'https://www.american.edu/careercenter/resumes.cfm' },
+  fincv: { n: 'FinanceCV', u: 'https://financecv.fr/en/blog/cv-data-scientist-finance-quantitative', com: true },
+  harvard: { n: 'Harvard FAS', u: 'https://careerservices.fas.harvard.edu/channels/create-a-resume-cv-or-cover-letter/' },
+  aps: { n: 'APS Careers', u: 'https://www.aps.org/careers/advice/effective-resumes' },
+  columbia: { n: 'Columbia Career Education', u: 'https://www.careereducation.columbia.edu/resources/optimizing-your-resume-applicant-tracking-systems' },
+  ecfa: { n: 'ECFA evaluation memo', u: 'https://iupap.org/wp-content/uploads/2021/03/C11-ecfa-291_ECFA-HEP-evaluation.pdf' },
+  iupap: { n: 'IUPAP Commission 11', u: 'https://iupap.org/wp-content/uploads/2021/03/wg-assessment-08.pdf' }
+};
+const CHECK_SRC = {
+  github: ['washu', 'efc'], summary: ['ucdres', 'aucc', 'fincv'], education: ['ucdres', 'ucdcv', 'umich'], edudetail: ['ucdcv', 'ucdres'],
+  experience: ['ucdres', 'ucdcv', 'umich'], projects: ['washu', 'ucdres', 'efc'], skills: ['informs', 'ucdres', 'washu'],
+  publications: ['ucdcv', 'umich', 'usc'], awards: ['ucdcv', 'umich'], talks: ['ucdcv'], service: ['ucdcv', 'umich'], references: ['ucdres', 'harvard'],
+  datefmt: ['umich', 'harvard', 'cs'], bullets: ['ucdres'], verbs: ['informs', 'aucc', 'harvard', 'ucdres'],
+  numbers: ['informs', 'harvard', 'aucc', 'fincv', 'efc'], weak: ['harvard'], pronoun: ['harvard'], personal: ['harvard', 'aps'], refline: ['ucdres'], phdname: ['columbia'], collabrole: ['ecfa', 'iupap'],
+  chrono: ['cornell', 'usc', 'ucdres', 'washu', 'aucc', 'harvard'], publinks: ['ucdcv'], mentor: ['ucdcv'],
+  quantval: ['quantt', 'fca', 'wsp'], quantcost: ['quantt', 'fca', 'wsp'], comps: ['quantt', 'fca']
+};
+const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich'], gen: ['ucdres', 'aucc', 'aps'] };
+const KW_SRC = { ds: ['ucdres', 'washu', 'informs'], quant: ['quantt', 'fca', 'wsp'], acad: [], gen: ['ucdres', 'aucc'] };
+
+const PROFILES = {
+  ds: {
+    label: 'Data science / ML', pages: [250, 900], serviceName: 'Leadership & activities', kwWeight: 1.5,
+    level: { summary: 'rec', education: 'req', experience: 'req', projects: 'rec', skills: 'req', publications: 'opt', awards: 'opt', talks: 'opt', service: 'opt', references: 'avoid' },
+    kw: [
+      ['Python', /\bpython\b/i], ['SQL', /\bsql\b/i], ['pandas / NumPy', /\b(pandas|numpy)\b/i],
+      ['scikit-learn', /\b(scikit[- ]?learn|sklearn)\b/i], ['PyTorch / TensorFlow', /\b(pytorch|tensorflow|keras|jax)\b/i],
+      ['Machine learning', /\bmachine learning\b/i], ['Deep learning', /\bdeep learning|neural network/i],
+      ['Statistics', /\bstatistic/i], ['A/B tests, causal inference', /\b(a\/b test|hypothesis test|experiment design|causal)/i],
+      ['Data visualization', /\b(matplotlib|seaborn|plotly|tableau|power ?bi|visuali[sz]ation)/i], ['Git', /\bgit\b/i],
+      ['Docker / containers', /\b(docker|kubernetes|container)/i], ['Cloud (AWS, GCP, Azure)', /\b(aws|gcp|azure|google cloud)\b/i],
+      ['Big data (Spark, batch systems)', /\b(spark|hadoop|dask|big data|hpc|batch system|htcondor)\b/i]
+    ]
+  },
+  quant: {
+    label: 'Quantitative research', pages: [250, 750], serviceName: 'Leadership & activities', kwWeight: 1.5,
+    level: { summary: 'opt', education: 'req', experience: 'req', projects: 'rec', skills: 'req', publications: 'rec', awards: 'rec', talks: 'opt', service: 'opt', references: 'avoid' },
+    kw: [
+      ['Python', /\bpython\b/i], ['C++', /c\+\+/i], ['Probability', /\bprobabilit/i], ['Statistics', /\bstatistic/i],
+      ['Time series', /\btime[- ]series/i], ['Monte Carlo / stochastic', /\b(monte carlo|stochastic|markov)/i],
+      ['Optimization', /\boptimi[sz]ation/i], ['Linear algebra', /\blinear algebra|matrix|matrices/i],
+      ['Machine learning', /\bmachine learning\b/i], ['Regression / inference', /\b(regression|bayesian|inference|likelihood)/i],
+      ['Numerical methods / simulation', /\b(numerical|simulation|simulat)/i], ['NumPy / pandas', /\b(numpy|pandas)\b/i],
+      ['Linux / Git', /\b(linux|git)\b/i]
+    ]
+  },
+  acad: {
+    label: 'Academic / postdoc', pages: [500, 100000], serviceName: 'Teaching & service', kwWeight: 1,
+    level: { summary: 'opt', education: 'req', experience: 'req', projects: 'opt', skills: 'opt', publications: 'req', awards: 'rec', talks: 'rec', service: 'rec', references: 'opt' },
+    kw: [
+      ['Papers / preprints', /\b(arxiv|doi|journal|proceedings|phys\.? rev|jhep|et al)/i], ['Citations / h-index', /\b(citation|h-index)/i],
+      ['Grants / fellowships', /\b(grant|fellowship|funding)/i], ['Teaching', /\bteach|lecture|teaching assistant/i],
+      ['Mentoring / supervision', /\b(mentor|supervis)/i], ['Invited talks', /\binvited (talk|seminar|lecture)/i],
+      ['Peer review / refereeing', /\b(referee|peer[- ]review|reviewer)/i], ['Collaboration', /\bcollaborat/i],
+      ['Software / open source', /\b(open[- ]source|software|github)/i]
+    ]
+  },
+  gen: {
+    label: 'General industry', pages: [250, 800], serviceName: 'Leadership & activities', kwWeight: 0.5,
+    level: { summary: 'rec', education: 'req', experience: 'req', projects: 'opt', skills: 'req', publications: 'opt', awards: 'opt', talks: 'opt', service: 'opt', references: 'avoid' },
+    kw: [
+      ['Leadership', /\b(led|lead|leadership|managed|supervis)/i], ['Communication', /\b(communicat|presented|presentation)/i],
+      ['Project management', /\b(project management|managed projects?|roadmap|timeline)/i],
+      ['Cross-functional work', /\b(cross[- ]functional|collaborat|stakeholder)/i], ['Data analysis', /\b(data analysis|analy[sz]ed|excel|dashboard)/i],
+      ['Problem solving', /\bproblem[- ]solving|troubleshoot/i]
+    ]
+  }
+};
+
+const SECTIONS = [
+  { id: 'summary', name: 'Summary / profile', re: /^(professional\s+|career\s+|executive\s+)?(summary|profile|about( me)?|research interests?|research summary)$/i,
+    why: 'A 2 to 3 line summary tells a recruiter who you are before they read the details.',
+    fix: "Add a 'Summary' under your name with your field, your two strongest skills and the role you want." },
+  { id: 'education', name: 'Education', re: /^(education|academic (background|qualifications)|qualifications|education (&|and) training)$/i,
+    why: 'Degrees are the first thing screeners look for.',
+    fix: 'List each degree with institution, field and year. Write "expected Month Year" for a degree in progress.' },
+  { id: 'experience', name: 'Experience', re: /^((professional|work|relevant|research|industry|selected|academic)\s+)?(experience|employment( history)?|work history|positions?( held)?|appointments|career history|research (&|and) (professional )?experience)$/i,
+    why: 'Employers need to see what you did, where and when.',
+    fix: "Add an 'Experience' section with role, organization, dates and 3 to 5 bullets per role." },
+  { id: 'projects', name: 'Projects', re: /^((selected|key|personal|technical|research|side)\s+)?projects?$/i,
+    why: 'Projects show applied skills that a research record alone does not.',
+    fix: 'Add 2 or 3 projects. For each give the problem, your method and tools, a result with a number, and a link to code.' },
+  { id: 'skills', name: 'Skills', re: /^((technical|core|key|computing|programming)\s+)?(skills|competencies|expertise|technologies|tools( (&|and) technologies)?|skills (&|and) (tools|technologies|expertise))$/i,
+    why: 'Applicant tracking systems match this section against the job posting.',
+    fix: "Add a 'Skills' section grouped by type: languages, libraries, tools, methods." },
+  { id: 'publications', name: 'Publications', re: /^((selected|key|peer[- ]reviewed|recent)\s+)?(publications?|papers|articles|journal articles|research output|selected papers|preprints)$/i,
+    why: 'Papers are evidence of finished, independent work.',
+    fix: 'List papers in one citation style. Show your author position and add an arXiv or DOI link.' },
+  { id: 'awards', name: 'Awards & honors', re: /^(honou?rs?(\s+(&|and)\s+awards?)?|awards?(\s+(&|and)\s+(honou?rs?|grants?|fellowships?|scholarships?))?|fellowships?|grants?|scholarships?|achievements?|recognition|honou?rs,? awards.*)$/i,
+    why: 'Recognition separates similar candidates.',
+    fix: 'Add fellowships, scholarships, prizes and grants, each with the year.' },
+  { id: 'talks', name: 'Talks & presentations', re: /^((invited|selected|conference|recent)\s+)?(talks?|presentations?|posters?|talks (&|and) presentations|conference (talks|presentations)|invited talks)$/i,
+    why: 'Talks show communication skill and visibility in your field.',
+    fix: 'List talks with title, venue and year. Mark invited talks.' },
+  { id: 'service', name: 'Leadership & activities', re: /^(teaching( experience)?|mentoring|leadership( (&|and) service)?|service|community( service)?|volunteer(ing)?( experience)?|outreach|extracurricular activities|activities|professional (service|activities|affiliations)|teaching (&|and) mentoring|leadership (&|and) activities)$/i,
+    why: 'It shows you can work with and lead other people.',
+    fix: 'Add teaching, mentoring or leadership roles with scale (people, duration).' },
+  { id: 'references', name: 'References', re: /^references?$/i,
+    why: 'A references section uses space that bullets about your work could use. Employers ask when they need it.',
+    fix: 'Delete the section.' }
+];
+
+const VERBS = new Set(('developed built led designed implemented created analyzed analysed managed improved reduced increased launched optimized optimised automated trained deployed engineered architected authored published presented mentored coordinated established delivered achieved conducted performed investigated measured calibrated simulated modeled modelled validated evaluated streamlined spearheaded directed supervised organized organised collaborated contributed proposed formulated derived extended initiated drove owned maintained migrated refactored scaled processed extracted discovered identified resolved secured won awarded taught tutored wrote produced applied integrated tested debugged reviewed planned prototyped shipped generated assembled executed instituted pioneered revamped forecasted mapped quantified characterized characterised classified constructed devised expanded headed oversaw supported advised guided administered compiled configured customized enhanced benchmarked interpreted reconstructed selected computed parallelized accelerated reported summarized communicated lead build design develop implement create analyze analyse manage improve reduce increase launch optimize automate train deploy engineer write run drive own maintain teach mentor present publish conduct perform search').split(' '));
+
+const WEAK_SRC = "\\b(?:responsible for|worked on|helped (?:with|to)|duties (?:included|include)|assisted (?:with|in)|involved in|tasked with|in charge of|familiar with|participated in)\\b";
+const CLICHE_SRC = "\\b(?:team player|hard[- ]?working|detail[- ]oriented|self[- ]motivated|results[- ]driven|go[- ]getter|think outside the box|synergy|fast learner|motivated individual|passionate about|excellent communication skills)\\b";
+const PRON_SRC = "\\b(?:I|I'm|I've|I'd|my|me|myself)\\b";
+const BULLET_RE = /^\s*([•●▪■◦○▸▹►·*]|[-–—]|\d{1,2}[.)])\s+\S/;
+const BULLET_STRIP = /^\s*([•●▪■◦○▸▹►·*]|[-–—]|\d{1,2}[.)])\s+/;
+
+function normHeading(line) {
+  return line.trim().replace(/^[#*•·\-–—_\s]+/, '').replace(/[:*_\s]+$/, '').replace(/\s+/g, ' ');
+}
+function detectHeading(line) {
+  const s = normHeading(line);
+  if (!s || s.length > 48 || /[.!?]$/.test(s)) return null;
+  for (const d of SECTIONS) if (d.re.test(s)) return d.id;
+  return null;
+}
+function isVerbStart(text) {
+  const m = text.match(/^[A-Za-z][A-Za-z-]*/);
+  if (!m) return false;
+  const w = m[0].toLowerCase();
+  return VERBS.has(w) || /ed$/.test(w);
+}
+function hasNumber(s) { return /\d/.test(s.replace(/\b(19|20)\d{2}\b/g, '')); }
+function uniqueMatches(re, text) {
+  const out = {};
+  (text.match(re) || []).forEach(m => { const k = m.toLowerCase(); out[k] = (out[k] || 0) + 1; });
+  return Object.keys(out);
+}
+
+function analyzeCV(raw, profileKey, extraText) {
+  const P = PROFILES[profileKey] || PROFILES.ds;
+  const text = String(raw).replace(/\r\n?/g, '\n').replace(/ /g, ' ').trim();
+  const lines = text.split('\n');
+  const lower = text.toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const pages = words / 500;
+
+  // headings and section bodies
+  const kind = new Array(lines.length).fill('');
+  const headList = [];
+  lines.forEach((l, i) => {
+    const id = detectHeading(l);
+    if (id) { kind[i] = 'h'; headList.push({ id, i, label: normHeading(l) }); }
+  });
+  const found = {};
+  headList.forEach((h, k) => {
+    const end = k + 1 < headList.length ? headList[k + 1].i : lines.length;
+    const body = lines.slice(h.i + 1, end).filter(x => x.trim());
+    if (!found[h.id]) found[h.id] = { label: h.label, line: h.i, count: body.length, text: body.join('\n') };
+  });
+  const lineSection = new Array(lines.length).fill(null);
+  headList.forEach((h, k) => {
+    const end = k + 1 < headList.length ? headList[k + 1].i : lines.length;
+    for (let i = h.i; i < end; i++) lineSection[i] = h.id;
+  });
+
+  // bullet items
+  const items = [];
+  let cur = null;
+  lines.forEach((line, i) => {
+    if (kind[i] === 'h' || !line.trim()) { cur = null; return; }
+    if (BULLET_RE.test(line)) {
+      cur = { start: i, end: i, text: line.replace(BULLET_STRIP, '').trim() };
+      items.push(cur);
+    } else if (cur && /^\s*[a-z(]/.test(line)) {
+      cur.text += ' ' + line.trim(); cur.end = i;
+    } else cur = null;
+  });
+  const ACH = new Set(['experience', 'projects', 'service']);
+  const anyHeadings = headList.length > 0;
+  let ach = items.filter(it => !anyHeadings || ACH.has(lineSection[it.start]));
+  let inferred = false;
+  if (ach.length < 3) {
+    const alt = [];
+    lines.forEach((line, i) => {
+      if (kind[i] === 'h' || !ACH.has(lineSection[i])) return;
+      if (line.trim().split(/\s+/).length >= 7) alt.push({ start: i, end: i, text: line.replace(BULLET_STRIP, '').trim() });
+    });
+    if (alt.length > ach.length) { ach = alt; inferred = true; }
+  }
+  const nVerb = ach.filter(it => isVerbStart(it.text)).length;
+  const nNum = ach.filter(it => hasNumber(it.text)).length;
+  const flags = lines.map(() => ({}));
+  ach.forEach(it => { if (!hasNumber(it.text)) for (let i = it.start; i <= it.end; i++) flags[i].noNum = true; });
+
+  const checks = [];
+  const add = (group, id, title, status, note, fix, weight) =>
+    checks.push({ group, id, title, status, note, fix: fix || '', weight: weight == null ? 1 : weight });
+
+  // contact and header
+  const firstLine = (lines.find(l => l.trim()) || '').trim();
+  const nameWords = firstLine.split(/\s+/).filter(Boolean);
+  const nameOk = nameWords.length >= 2 && nameWords.length <= 5 && firstLine.length <= 40 && !/[@\d]/.test(firstLine) && !detectHeading(firstLine);
+  add('Header', 'name', 'Name at the top', nameOk ? 'pass' : 'warn',
+    nameOk ? 'The first line looks like your name.' : 'The first line does not look like a name.',
+    nameOk ? '' : 'Put your full name alone on the first line, in larger type.', 0.5);
+  const hasEmail = /[\w.+-]+@[\w-]+\.[\w.-]+/.test(text);
+  add('Header', 'email', 'Email address', hasEmail ? 'pass' : 'fail',
+    hasEmail ? 'Email found.' : 'No email address found.', hasEmail ? '' : 'Add a professional email address under your name.');
+  const hasPhone = /(\+?\d{1,3}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/.test(text) || /\+\d[\d\s().-]{7,}\d/.test(text);
+  add('Header', 'phone', 'Phone number', hasPhone ? 'pass' : 'warn',
+    hasPhone ? 'Phone number found.' : 'No phone number found.', hasPhone ? '' : 'Add a phone number with country code if you apply abroad.', 0.5);
+  const hasLinkedin = /linkedin/i.test(text);
+  const hasSite = /https?:\/\/|www\.|\.(io|dev|me|com|org|net|edu)\b/i.test(text);
+  add('Header', 'linkedin', 'LinkedIn or personal site', hasLinkedin || hasSite ? 'pass' : 'warn',
+    hasLinkedin ? 'LinkedIn found.' : hasSite ? 'A website link found.' : 'No LinkedIn or website link found.',
+    hasLinkedin || hasSite ? '' : 'Add your LinkedIn URL or a personal page next to your email.', 0.5);
+  const hasGithub = /github/i.test(text);
+  if (profileKey === 'ds' || profileKey === 'quant') {
+    add('Header', 'github', 'GitHub or code portfolio', hasGithub ? 'pass' : (profileKey === 'ds' ? 'warn' : 'info'),
+      hasGithub ? 'GitHub found.' : 'No GitHub link found.', hasGithub ? '' : 'Link a GitHub profile with 2 or 3 clean, documented repositories.', 0.5);
+  }
+  if (profileKey === 'acad') {
+    const hasId = /scholar\.google|orcid|inspirehep|researchgate|semantic ?scholar|arxiv\.org\/a\//i.test(text);
+    add('Header', 'rid', 'Researcher profile link', hasId ? 'pass' : 'warn',
+      hasId ? 'A researcher profile link found.' : 'No ORCID, Google Scholar or INSPIRE link found.',
+      hasId ? '' : 'Add your ORCID, Google Scholar or INSPIRE profile so committees can see your full record.', 0.5);
+  }
+
+  // sections
+  const looseIds = new Set();
+  SECTIONS.forEach(def => {
+    const level = P.level[def.id];
+    const f = found[def.id];
+    const name = def.id === 'service' ? P.serviceName : def.name;
+    if (f) {
+      if (level === 'avoid') {
+        add('Sections', def.id, name, 'warn', "A '" + f.label + "' section is present. " + def.why, def.fix, 0.5);
+      } else if (f.text.split(/\s+/).filter(Boolean).length < 3) {
+        add('Sections', def.id, name, 'warn', "'" + f.label + "' is present but has almost no content.", 'Add concrete entries under it or remove the heading.', 0.75);
+      } else {
+        add('Sections', def.id, name, 'pass', "Found '" + f.label + "' with " + f.count + (f.count === 1 ? ' line.' : ' lines.'), '', level === 'req' ? 1 : 0.5);
+      }
+      return;
+    }
+    if (level === 'avoid') return;
+    // content without a heading
+    let loose = false;
+    if (def.id === 'education') loose = /\b(ph\.?d|m\.?sc|b\.?sc|m\.?s\b|b\.?s\b|bachelor|master|doctor)/i.test(text);
+    if (def.id === 'publications') loose = /\b(arxiv|doi:|phys\.? rev|jhep|et al\.)/i.test(text);
+    if (loose) {
+      looseIds.add(def.id);
+      add('Sections', def.id, name, 'warn', 'The content seems to exist, but there is no clear ' + name + ' heading.', "Add a plain heading such as '" + name + "' so parsers and readers can find it.", 0.75);
+      return;
+    }
+    if (level === 'req') add('Sections', def.id, name, 'fail', 'Expected in a CV for this role and not found. ' + def.why, def.fix, 1);
+    else if (level === 'rec') add('Sections', def.id, name, 'warn', 'Recommended for this role and not found. ' + def.why, def.fix, 0.75);
+    else add('Sections', def.id, name, 'info', 'Optional for this role. ' + def.why, def.fix, 0);
+  });
+
+  const edu = found.education;
+  if (edu) {
+    const degree = /\b(ph\.?d|m\.?sc|b\.?sc|m\.?s\b|b\.?s\b|m\.?a\b|b\.?a\b|b\.?tech|m\.?tech|bachelor|master|doctor|diploma)/i.test(edu.text);
+    const yr = /\b(19|20)\d{2}\b|expected|present/i.test(edu.text);
+    const ok = degree && yr;
+    add('Sections', 'edudetail', 'Education details', ok ? 'pass' : 'warn',
+      ok ? 'Degrees and years are both present.' : (!degree ? 'No degree name recognised in the Education section.' : 'No year or expected date in the Education section.'),
+      ok ? '' : 'Write each entry as: Degree, Field, Institution, Year (or expected Month Year).', 0.75);
+  }
+
+  // content quality
+  const years = text.match(/\b(19|20)\d{2}\b/g) || [];
+  add('Content', 'dates', 'Dates on roles and degrees', years.length >= 4 ? 'pass' : years.length >= 1 ? 'warn' : 'fail',
+    years.length >= 4 ? years.length + ' years found.' : years.length ? 'Only ' + years.length + ' year(s) found.' : 'No dates found.',
+    years.length >= 4 ? '' : 'Give every role and degree a start and end date (Month Year to Month Year, or Present).');
+  const monthName = (text.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(19|20)\d{2}/gi) || []).length;
+  const numeric = (text.match(/\b\d{1,2}\/(19|20)\d{2}\b|\b(19|20)\d{2}-\d{2}\b/g) || []).length;
+  if (monthName && numeric) add('Content', 'datefmt', 'Consistent date format', 'warn', 'Both "Jan 2023" and "01/2023" styles are used.', 'Pick one format and use it everywhere.', 0.5);
+
+  const bulletCount = items.length;
+  if (found.experience || found.projects) {
+    const okB = ach.length >= 4 && !inferred;
+    add('Content', 'bullets', 'Bullet points under roles', okB ? 'pass' : 'warn',
+      okB ? ach.length + ' bullets found under experience and projects.' : (inferred ? 'No bullet markers found. Entries were read as plain lines.' : 'Few bullet points found (' + ach.length + ').'),
+      okB ? '' : 'Write 3 to 5 short bullets per role. Each should state what you did and what it achieved.', 0.75);
+  }
+  if (ach.length >= 3) {
+    const vs = nVerb / ach.length, ns = nNum / ach.length;
+    add('Content', 'verbs', 'Bullets start with an action verb', vs >= 0.7 ? 'pass' : vs >= 0.45 ? 'warn' : 'fail',
+      Math.round(vs * 100) + '% of bullets start with a verb.',
+      vs >= 0.7 ? '' : 'Start each bullet with a past-tense verb such as Built, Led, Reduced, Trained.');
+    add('Content', 'numbers', 'Results with numbers', ns >= 0.4 ? 'pass' : ns >= 0.2 ? 'warn' : 'fail',
+      nNum + ' of ' + ach.length + ' bullets contain a number (' + Math.round(ns * 100) + '%).',
+      ns >= 0.4 ? '' : 'Add scale or impact to bullets: data size, speed-up, accuracy, team size, users, money, time saved. Lines marked with a dotted bar in the CV view have none.', 1.25);
+  }
+  const weak = uniqueMatches(new RegExp(WEAK_SRC, 'gi'), text);
+  add('Content', 'weak', 'Weak phrasing', weak.length ? 'warn' : 'pass',
+    weak.length ? 'Found: ' + weak.map(w => '"' + w + '"').join(', ') + '.' : 'No weak openers such as "responsible for" found.',
+    weak.length ? 'Replace with what you did: "Responsible for analysis of X" becomes "Analyzed X and cut Y by Z".' : '', 0.75);
+  const clich = uniqueMatches(new RegExp(CLICHE_SRC, 'gi'), text);
+  add('Content', 'cliche', 'Buzzwords', clich.length ? 'warn' : 'pass',
+    clich.length ? 'Found: ' + clich.map(w => '"' + w + '"').join(', ') + '.' : 'No stock buzzwords found.',
+    clich.length ? 'Delete these and show the trait through a result instead.' : '', 0.5);
+  const pron = (text.match(new RegExp(PRON_SRC, 'g')) || []).length;
+  add('Content', 'pronoun', 'No first-person pronouns', pron >= 3 ? 'warn' : 'pass',
+    pron >= 3 ? pron + ' uses of I / my / me found.' : 'Pronouns are kept out of the text.',
+    pron >= 3 ? 'Drop "I" and "my". Write "Built a classifier" instead of "I built my own classifier".' : '', 0.5);
+  if (/^\s*(career\s+)?objective\s*:?\s*$/im.test(text)) {
+    add('Content', 'objective', 'Objective statement', 'warn', 'An "Objective" heading is used.', "Replace it with a 'Summary' that says what you offer, not what you want.", 0.5);
+  }
+  if (/\b(date of birth|d\.o\.b\.?|marital status|nationality:|religion|passport (no|number))/i.test(text)) {
+    add('Content', 'personal', 'Personal details', 'warn', 'Birth date, marital status or similar details found.', 'Remove them for US and UK applications. They are not used in hiring decisions there.', 0.5);
+  }
+  if (/references (available )?(upon|on) request/i.test(text)) {
+    add('Content', 'refline', '"References on request" line', 'warn', 'The line is present.', 'Delete it. Employers assume you will provide references when asked.', 0.25);
+  }
+  const [minW, maxW] = P.pages;
+  const lenOk = words >= minW && words <= maxW;
+  const lenNote = words + ' words, about ' + pages.toFixed(1) + ' pages.';
+  add('Content', 'length', 'Length', lenOk ? 'pass' : 'warn',
+    lenOk ? lenNote : lenNote + (words < minW ? ' That is thin for this role.' : ' That is long for this role.'),
+    lenOk ? '' : (words < minW ? 'Add detail to your strongest roles and projects.' : (profileKey === 'quant' ? 'Quant firms expect one page. Cut older or minor items.' : 'Trim to the most relevant 1 to 2 pages. Cut older or minor items.')), 0.75);
+
+  if (/\bph\.?\s?d\b/i.test(firstLine) && profileKey !== 'acad') {
+    add('Header', 'phdname', 'Degree in the name line', 'warn', 'The name line contains "PhD".',
+      'Move the degree to Education. One university career office warns that a tracking system may read it as part of your name.', 0.25);
+  }
+  if (profileKey === 'acad' && /\b(collaboration|cms|atlas|lhcb|alice|ligo|icecube|auger)\b/i.test(text)) {
+    const role = /\b(contribution|convener|contact person|coordinator|editorial board|co-?lead|led the|lead analyst|main analyst|principal analyst|analysis lead)\b/i.test(text);
+    add('Content', 'collabrole', 'Your role in collaboration work', role ? 'pass' : 'warn',
+      role ? 'A personal role or contribution is named.' : 'Collaboration work is mentioned without your own role.',
+      role ? '' : 'Author lists of large collaborations do not show who did what. Name the papers where you were a main contributor and say what you did.', 1);
+  }
+
+  // order of dated entries, newest first
+  const yearVal = l => {
+    if (/\b(present|current|ongoing|now)\b/i.test(l)) return 3000;
+    const ys = l.match(/\b(?:19|20)\d{2}\b/g);
+    return ys ? Math.max.apply(null, ys.map(Number)) : null;
+  };
+  const unordered = [];
+  let datedSections = 0;
+  ['experience', 'education'].forEach(secId => {
+    const vals = [];
+    lines.forEach((l, i) => {
+      if (lineSection[i] !== secId || kind[i] === 'h' || BULLET_RE.test(l)) return;
+      if (!/\b(?:19|20)\d{2}\b|\b(present|current|ongoing)\b/i.test(l)) return;
+      const v = yearVal(l);
+      if (v != null) vals.push(v);
+    });
+    if (vals.length >= 2) {
+      datedSections++;
+      if (vals.some((v, k) => k > 0 && v > vals[k - 1])) unordered.push(found[secId] ? found[secId].label : secId);
+    }
+  });
+  if (datedSections) {
+    add('Content', 'chrono', 'Newest entries first', unordered.length ? 'warn' : 'pass',
+      unordered.length ? 'Entries under ' + unordered.join(' and ') + ' are not in reverse chronological order.' : 'Dated entries run from newest to oldest.',
+      unordered.length ? 'Reorder so the most recent role or degree comes first.' : '', 0.75);
+  }
+
+  // publication entries with links
+  const pubs = found.publications;
+  if (pubs && (profileKey === 'acad' || profileKey === 'quant' || profileKey === 'ds')) {
+    const entries = pubs.text.split('\n').filter(x => x.trim().length > 25);
+    if (entries.length >= 2) {
+      const linked = entries.filter(x => /arxiv|doi|https?:\/\/|inspirehep/i.test(x)).length;
+      const okP = linked / entries.length >= 0.5;
+      add('Content', 'publinks', 'Publication links', okP ? 'pass' : 'warn',
+        linked + ' of ' + entries.length + ' publication entries carry an arXiv, DOI or web link.',
+        okP ? '' : 'Add an arXiv or DOI link to each entry, and give the full citation.', 0.5);
+    }
+  }
+  if (profileKey === 'acad') {
+    const mentored = /\b(mentor|supervis)/i.test(text);
+    add('Content', 'mentor', 'Mentoring and supervision', mentored ? 'pass' : 'warn',
+      mentored ? 'Mentoring or supervision is mentioned.' : 'No mentoring or supervision found.',
+      mentored ? '' : 'List students or junior colleagues you mentored, with the project and what came of it.', 0.5);
+  }
+  if (profileKey === 'quant') {
+    const val = /\b(backtest|back-test|out[- ]of[- ]sample|cross[- ]validation|walk[- ]forward|validation)\b/i.test(text);
+    const met = /\b(sharpe|drawdown|information ratio|annuali[sz]ed)\b/i.test(text);
+    add('Content', 'quantval', 'Validation and metrics named', val || met ? 'pass' : 'warn',
+      val || met ? 'A validation method or performance metric is named.' : 'No validation method or performance metric found.',
+      val || met ? '' : 'For each project state how it was validated (out-of-sample, cross-validation) and which metric you used. Label results as historical or simulated.', 1);
+    if (/\b(backtest|back-test|trading strateg|systematic strateg)/i.test(text)) {
+      const cost = /\b(transaction costs?|net of costs?|slippage|market impact|after costs?)/i.test(text);
+      add('Content', 'quantcost', 'Costs in backtests', cost ? 'pass' : 'warn',
+        cost ? 'Costs are mentioned.' : 'A backtest is mentioned without transaction costs.',
+        cost ? '' : 'State whether results are net of transaction costs and slippage.', 0.75);
+    }
+    const comp = /\b(putnam|imo|icpc|codeforces|kaggle|olympiad|competition)/i.test(text);
+    add('Content', 'comps', 'Competition results', comp ? 'pass' : 'info',
+      comp ? 'A competition is mentioned.' : 'None found. Two commercial sources recommend listing real, notable results.', '', 0);
+  }
+
+  // keywords
+  const kwFound = [], kwMissing = [];
+  P.kw.forEach(([label, re]) => (re.test(text) ? kwFound : kwMissing).push(label));
+  const cov = kwFound.length / P.kw.length;
+  add('Keywords', 'keywords', 'Keywords for ' + P.label, cov >= 0.6 ? 'pass' : cov >= 0.3 ? 'warn' : 'fail',
+    kwFound.length + ' of ' + P.kw.length + ' typical keywords found.',
+    cov >= 0.6 ? '' : 'If you really use them, name these in Skills or in a bullet: ' + kwMissing.slice(0, 6).join(', ') + '.', P.kwWeight);
+
+  // user checklist
+  const extra = String(extraText || '').split('\n').map(s => s.trim()).filter(Boolean);
+  extra.forEach((line, k) => {
+    const alts = line.split(/[,|]/).map(s => s.trim().toLowerCase()).filter(Boolean);
+    const hit = alts.find(a => lower.includes(a));
+    add('Your checklist', 'x' + k, line, hit ? 'pass' : 'fail',
+      hit ? 'Found "' + hit + '".' : 'Not found in your CV.',
+      hit ? '' : 'Mention ' + (alts.length > 1 ? 'one of: ' + alts.join(', ') : '"' + alts[0] + '"') + ' if it applies to you.', 1);
+  });
+
+  checks.forEach(c => {
+    c.src = c.id === 'length' ? LEN_SRC[profileKey] : c.id === 'keywords' ? KW_SRC[profileKey] : (CHECK_SRC[c.id] || []);
+  });
+
+  // score
+  let num = 0, den = 0;
+  checks.forEach(c => {
+    if (c.status === 'info' || c.weight <= 0) return;
+    den += c.weight; num += c.weight * (c.status === 'pass' ? 1 : c.status === 'warn' ? 0.5 : 0);
+  });
+  const score = den ? Math.round(100 * num / den) : 0;
+  const sectionMap = SECTIONS.filter(d => P.level[d.id] !== 'avoid' || found[d.id]).map(d => ({
+    id: d.id, name: d.id === 'service' ? P.serviceName : d.name,
+    state: found[d.id] ? 'found' : (looseIds.has(d.id) ? 'partial' : 'missing'), level: P.level[d.id]
+  }));
+
+  return {
+    score, checks, lines, kind, flags, profile: P, profileKey,
+    stats: { words, pages, bullets: bulletCount, achievements: ach.length, numShare: ach.length ? nNum / ach.length : null, verbShare: ach.length ? nVerb / ach.length : null },
+    sectionMap, kw: { found: kwFound, missing: kwMissing }
+  };
+}
+// ==ANALYSIS END==
+
+/* ---------- UI ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const TAGS = { fail: 'Missing', warn: 'Improve', pass: 'Good', info: 'Optional' };
+const EXAMPLE = [
+  'Jordan Ellis',
+  'Washington, DC · jordan.ellis@example.com · github.com/jellis-example',
+  '',
+  'EDUCATION',
+  'Ph.D. in Physics, Midlands State University, expected Dec 2026',
+  'Thesis: Searches for heavy resonances in boosted final states',
+  'M.Sc. Physics, Eastbridge Institute of Science, 2021',
+  '',
+  'RESEARCH EXPERIENCE',
+  'Graduate Research Assistant, Midlands State University, Sep 2021 – Present',
+  '• Responsible for the analysis of 140 fb-1 of collision data with a team of 6 people',
+  '• Worked on a machine learning classifier to separate signal from background',
+  '• Developed a C++ and Python framework for large-scale sample production on a batch system',
+  '• Presented results at 3 international conferences',
+  '• Helped with detector calibration studies',
+  'Research Intern, Eastbridge Institute, Jun 2020 – Jul 2021',
+  '• Wrote simulation code for particle tracking',
+  '• Analyzed test-beam data and found a 12% improvement in resolution',
+  '',
+  'SKILLS',
+  'Python, C++, ROOT, NumPy, scikit-learn, Git, Linux, HTCondor',
+  '',
+  'PUBLICATIONS',
+  '• J. Ellis et al., "Search for heavy resonances", Phys. Rev. D 110 (2024)',
+  '• J. Ellis et al., "Boosted jet tagging with graph networks", arXiv:2401.00000',
+  '',
+  'AWARDS',
+  'Graduate Teaching Fellowship, 2022'
+].join('\n');
+
+let last = null;
+
+function setNote(msg, isErr) { const n = $('#srcNote'); n.textContent = msg || ''; n.classList.toggle('err', !!isErr); }
+function selectTab(which) {
+  const paste = which === 'paste';
+  $('#tabPaste').setAttribute('aria-selected', String(paste));
+  $('#tabUpload').setAttribute('aria-selected', String(!paste));
+  $('#paneText').hidden = !paste;
+  $('#paneUpload').hidden = paste;
+}
+
+function ringHTML(score) {
+  const C = 2 * Math.PI * 48;
+  const cls = score >= 75 ? 'good' : score >= 50 ? 'warn' : 'bad';
+  return '<div class="ring ' + cls + '" role="img" aria-label="Score ' + score + ' out of 100">' +
+    '<svg viewBox="0 0 116 116"><circle class="track" cx="58" cy="58" r="48"></circle>' +
+    '<circle class="bar" cx="58" cy="58" r="48" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - score / 100)).toFixed(1) + '"></circle></svg>' +
+    '<div class="num"><span>' + score + '<small>OF 100</small></span></div></div>';
+}
+function verdictOf(score) {
+  return score >= 85 ? 'Strong CV, only small fixes left' : score >= 70 ? 'Solid CV with a few gaps' : score >= 50 ? 'Needs work before you send it' : 'Major gaps to fill first';
+}
+function srcLine(c) {
+  if (c.group === 'Your checklist') return '';
+  if (!c.src || !c.src.length) return '<p class="src">Recommendation, not taken from a specific source.</p>';
+  return '<p class="src">Sources: ' + c.src.map(k => {
+    const s = SRC[k];
+    return '<a href="' + s.u + '" target="_blank" rel="noopener">' + esc(s.n) + '</a>' + (s.com ? ' (commercial)' : '');
+  }).join(', ') + '</p>';
+}
+function itemHTML(c) {
+  return '<li class="item ' + c.status + '"><span class="tag">' + TAGS[c.status] + '</span><div>' +
+    '<p class="t">' + esc(c.title) + '<span class="grp">' + esc(c.group) + '</span></p>' +
+    '<p class="n">' + esc(c.note) + '</p>' +
+    (c.fix ? '<p class="fix"><span>Add</span>' + esc(c.fix) + '</p>' : '') + srcLine(c) + '</div></li>';
+}
+function sourcesBlock() {
+  return '<div class="block"><h3>Sources behind the rules</h3><p class="sub">Each rule links to the pages that support it. Rules with no link are my own recommendation. Pages that sell a service are marked commercial.</p><div class="chips">' +
+    Object.keys(SRC).map(k => '<a class="chip" href="' + SRC[k].u + '" target="_blank" rel="noopener">' + esc(SRC[k].n) + (SRC[k].com ? ' (commercial)' : '') + '</a>').join('') + '</div></div>';
+}
+function listBlock(title, sub, arr) {
+  if (!arr.length) return '';
+  return '<div class="block"><h3>' + title + '</h3>' + (sub ? '<p class="sub">' + sub + '</p>' : '') + '<ul class="items">' + arr.map(itemHTML).join('') + '</ul></div>';
+}
+function foldBlock(title, arr, open) {
+  if (!arr.length) return '';
+  return '<details class="fold"' + (open ? ' open' : '') + '><summary>' + title + ' (' + arr.length + ')</summary><ul class="items">' + arr.map(itemHTML).join('') + '</ul></details>';
+}
+
+const HL = new RegExp('(' + WEAK_SRC + ')|(' + CLICHE_SRC + ')|(' + PRON_SRC + ')', 'gi');
+function markLine(line) {
+  let out = '', pos = 0, m;
+  HL.lastIndex = 0;
+  while ((m = HL.exec(line)) !== null) {
+    if (m[0] === '') { HL.lastIndex++; continue; }
+    out += esc(line.slice(pos, m.index));
+    const cls = m[2] ? ' class="c" title="Buzzword"' : m[3] ? ' title="First person"' : ' title="Weak phrase"';
+    out += '<mark' + cls + '>' + esc(m[0]) + '</mark>';
+    pos = m.index + m[0].length;
+  }
+  return out + esc(line.slice(pos));
+}
+function cvViewHTML(res) {
+  return res.lines.map((l, i) => {
+    const cls = 'ln' + (res.kind[i] === 'h' ? ' h' : '') + (res.flags[i].noNum ? ' nonum' : '');
+    return '<div class="' + cls + '">' + (l.trim() ? markLine(l) : '&nbsp;') + '</div>';
+  }).join('');
+}
+
+function render(res) {
+  const S = res.stats;
+  const fails = res.checks.filter(c => c.status === 'fail');
+  const warns = res.checks.filter(c => c.status === 'warn');
+  const goods = res.checks.filter(c => c.status === 'pass');
+  const infos = res.checks.filter(c => c.status === 'info');
+  const pct = v => (v == null ? '–' : Math.round(v * 100) + '%');
+  const html =
+    '<div class="scorecard">' + ringHTML(res.score) +
+      '<div class="verdict"><h2>' + esc(verdictOf(res.score)) + '</h2>' +
+      '<div class="counts"><span class="count fail">' + fails.length + ' missing</span><span class="count warn">' + warns.length + ' to improve</span><span class="count pass">' + goods.length + ' good</span></div>' +
+      '<p class="hint">Checked against: ' + esc(res.profile.label) + '</p></div></div>' +
+    '<dl class="stats"><div><dt>Words</dt><dd>' + S.words + '</dd></div><div><dt>Pages</dt><dd>~' + S.pages.toFixed(1) + '</dd></div>' +
+      '<div><dt>Bullets</dt><dd>' + S.bullets + '</dd></div><div><dt>With numbers</dt><dd>' + pct(S.numShare) + '</dd></div>' +
+      '<div><dt>Verb first</dt><dd>' + pct(S.verbShare) + '</dd></div></dl>' +
+    (fails.length ? listBlock('Fix first', 'Missing components and gaps that screeners notice.', fails) : '<div class="block"><h3>Fix first</h3><p class="sub">Nothing required is missing.</p></div>') +
+    listBlock('Improve', 'Present, but weaker than it should be.', warns) +
+    foldBlock('Looks good', goods, false) +
+    foldBlock('Optional for this role', infos, false) +
+    '<div class="block"><h3>Sections</h3><div class="chips">' +
+      res.sectionMap.map(s => '<span class="chip ' + s.state + '">' + esc(s.name) + (s.state === 'missing' && s.level === 'opt' ? ' (optional)' : '') + '</span>').join('') + '</div></div>' +
+    '<div class="block"><h3>Keywords</h3><p class="sub">Typical terms for ' + esc(res.profile.label) + '. Use only the ones that are true for you.</p><div class="chips">' +
+      res.kw.found.map(k => '<span class="chip kfound">' + esc(k) + '</span>').join('') +
+      res.kw.missing.map(k => '<span class="chip kmiss">' + esc(k) + '</span>').join('') + '</div></div>' +
+    '<div class="block"><h3>Marked-up CV</h3>' +
+      '<div class="legend"><span><i class="key-h"></i> section heading</span><span><span class="key-w">weak phrase</span></span><span><span class="key-c">buzzword</span></span><span><i class="key-n"></i> bullet without a number</span></div>' +
+      '<div class="cvview" tabindex="0" role="region" aria-label="Marked-up CV">' + cvViewHTML(res) + '</div></div>' +
+    sourcesBlock() +
+    '<div class="block"><div class="btns"><button type="button" class="btn" id="copyBtn">Copy report</button></div><div class="copybox" id="copyBox"></div>' +
+      '<p class="limits">The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.</p></div>';
+  $('#report').innerHTML = html;
+  $('#copyBtn').addEventListener('click', copyReport);
+}
+
+function reportText(res) {
+  const sec = (title, arr) => arr.length ? '\n' + title + '\n' + arr.map(c => '- ' + c.title + ': ' + c.note + (c.fix ? ' Add: ' + c.fix : '')).join('\n') + '\n' : '';
+  return 'CV check, ' + res.profile.label + ': ' + res.score + '/100\n' +
+    sec('MISSING', res.checks.filter(c => c.status === 'fail')) +
+    sec('TO IMPROVE', res.checks.filter(c => c.status === 'warn')) +
+    sec('GOOD', res.checks.filter(c => c.status === 'pass'));
+}
+async function copyReport() {
+  if (!last) return;
+  const text = reportText(last), box = $('#copyBox'), btn = $('#copyBtn');
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = 'Copy report'; }, 1600);
+    box.innerHTML = '';
+  } catch (e) {
+    box.innerHTML = '<textarea id="copyArea" readonly rows="8" aria-label="Report text"></textarea><p class="hint">Copy is blocked here. The text is selected: press Ctrl+C or Cmd+C.</p>';
+    const ta = $('#copyArea'); ta.value = text; ta.focus(); ta.select();
+  }
+}
+
+function showEmpty() {
+  last = null;
+  $('#report').innerHTML = '<p class="empty">Paste your CV text or upload a file, then press Check CV.</p>';
+  $('#deepOut').innerHTML = '';
+}
+function run() {
+  const t = $('#cvText').value;
+  if (t.trim().length < 40) { showEmpty(); return; }
+  last = analyzeCV(t, $('#profile').value, $('#extra').value);
+  render(last);
+}
+
+/* ---------- file reading ---------- */
+async function readPdf(file) {
+  if (!window.pdfjsLib) throw new Error('The PDF reader did not load. Paste the text instead.');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+  const out = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    let line = '', lastY = null, prev = null;
+    for (const it of tc.items) {
+      if (typeof it.str !== 'string') continue;
+      const x = it.transform[4], y = it.transform[5];
+      if (lastY !== null && Math.abs(y - lastY) > 3) { out.push(line); line = ''; prev = null; }
+      if (prev && x - (prev.transform[4] + prev.width) > 1 && line && !line.endsWith(' ') && !it.str.startsWith(' ')) line += ' ';
+      line += it.str;
+      lastY = y; prev = it;
+    }
+    if (line) out.push(line);
+    out.push('');
+  }
+  return { text: out.join('\n').replace(/\n{3,}/g, '\n\n').trim(), pages: pdf.numPages };
+}
+async function readDocx(file) {
+  if (!window.mammoth) throw new Error('The DOCX reader did not load. Paste the text instead.');
+  const r = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+  return { text: r.value.replace(/\n{3,}/g, '\n\n').trim() };
+}
+async function loadFile(file) {
+  if (!file) return;
+  const name = file.name.toLowerCase();
+  setNote('Reading ' + file.name + '…');
+  try {
+    let r;
+    if (name.endsWith('.pdf')) r = await readPdf(file);
+    else if (name.endsWith('.docx')) r = await readDocx(file);
+    else if (/\.(txt|md|text)$/.test(name) || (file.type || '').startsWith('text/')) r = { text: (await file.text()).trim() };
+    else throw new Error('This file type is not supported. Use PDF, DOCX, TXT or MD. For .doc files, save as DOCX or PDF first.');
+    if (r.text.length < 40) throw new Error('No readable text found. A scanned PDF has no text layer, so paste the text or export a text-based PDF.');
+    $('#cvText').value = r.text;
+    selectTab('paste');
+    setNote('Read from ' + file.name + (r.pages ? ' (' + r.pages + ' page' + (r.pages > 1 ? 's' : '') + ')' : '') + '. Edit the text if the extraction missed anything.');
+    run();
+  } catch (e) {
+    setNote(e && e.message ? e.message : 'The file could not be read.', true);
+  }
+}
+
+/* ---------- Claude review (optional capability) ---------- */
+let sample = null, ctrl = null;
+(async () => {
+  try { if (window.claude && claude.use) sample = await claude.use('sample'); } catch (e) { sample = null; }
+  if (sample) $('#deep').hidden = false;
+})();
+
+function renderDeep(text) {
+  const out = $('#deepOut');
+  const parts = [];
+  let list = null;
+  String(text).split('\n').forEach(raw => {
+    const l = raw.replace(/[*#`]/g, '').trim();
+    if (!l) { list = null; return; }
+    if (/^[-•]\s+/.test(l)) {
+      if (!list) { list = []; parts.push(list); }
+      list.push(l.replace(/^[-•]\s+/, ''));
+    } else {
+      list = null; parts.push(l);
+    }
+  });
+  out.innerHTML = parts.map(p => Array.isArray(p)
+    ? '<ul>' + p.map(li => '<li>' + esc(li) + '</li>').join('') + '</ul>'
+    : '<p' + (/:$/.test(p) ? '' : ' class="plain"') + '>' + esc(p) + '</p>').join('');
+}
+async function deepReview() {
+  if (!sample || !last) { if (!last) $('#deepOut').innerHTML = '<p class="err">Run the check first.</p>'; return; }
+  const btn = $('#deepBtn'), out = $('#deepOut');
+  if (ctrl) ctrl.abort();
+  ctrl = new AbortController();
+  btn.disabled = true; btn.textContent = 'Reviewing…';
+  out.innerHTML = '<p class="plain">Waiting for Claude…</p>';
+  const issues = last.checks.filter(c => c.status === 'fail' || c.status === 'warn').map(c => '- ' + c.title + ': ' + c.note).join('\n') || '- none';
+  const prompt =
+    'You are reviewing a CV for a ' + last.profile.label + ' application. A rule-based checker already flagged:\n' + issues + '\n\n' +
+    'Reply in plain text. Use no markdown except "- " at the start of list lines. Use these parts, each starting with a line that ends with a colon:\n' +
+    'Biggest gaps: (3 bullets)\n' +
+    'Rewrites: (up to 5 bullets; quote the weak line in a few words, then give a stronger rewrite that keeps only facts the CV states, using [number] where a metric is missing)\n' +
+    'Missing components: (bullets, only if something important is absent)\n' +
+    'Keep it under 350 words.\n\nCV text:\n"""\n' + $('#cvText').value.slice(0, 14000) + '\n"""';
+  try {
+    const r = await sample(prompt, { signal: ctrl.signal, cache: false, modelTier: 'default', onText: ({ text }) => { if (text) renderDeep(text); } });
+    if (r && r.text) renderDeep(r.text);
+  } catch (e) {
+    if (e && e.text) renderDeep(e.text);
+    const msg = e && e.code === 'not_granted' ? 'Permission was not granted, so the review did not run.'
+      : e && e.code === 'rate_limited' ? 'Too many requests. Wait a minute and try again.'
+      : (e && e.message) || 'The review failed.';
+    out.insertAdjacentHTML('beforeend', '<p class="err">' + esc(msg) + '</p>');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Review again';
+  }
+}
+
+/* ---------- wiring ---------- */
+$('#tabPaste').addEventListener('click', () => selectTab('paste'));
+$('#tabUpload').addEventListener('click', () => selectTab('upload'));
+$('#checkBtn').addEventListener('click', run);
+$('#exampleBtn').addEventListener('click', () => { $('#cvText').value = EXAMPLE; selectTab('paste'); setNote('Example CV for a fictional person. Replace it with yours.'); run(); });
+$('#clearBtn').addEventListener('click', () => { $('#cvText').value = ''; $('#cvFile').value = ''; setNote(''); selectTab('paste'); showEmpty(); $('#cvText').focus(); });
+$('#profile').addEventListener('change', () => { if ($('#cvText').value.trim()) run(); });
+$('#extra').addEventListener('change', () => { if ($('#cvText').value.trim()) run(); });
+$('#cvText').addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') run(); });
+$('#cvFile').addEventListener('change', e => loadFile(e.target.files && e.target.files[0]));
+const drop = $('#drop');
+['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => loadFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]));
+$('#deepBtn').addEventListener('click', deepReview);
+
+// open with a worked example so the first view shows what the tool does
+$('#cvText').value = EXAMPLE;
+setNote('Example CV for a fictional person. Replace it with yours.');
+run();
+</script>
