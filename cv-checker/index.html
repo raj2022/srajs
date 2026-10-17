@@ -1,173 +1,174 @@
-<title>CV Checker</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b1118">
+<title>CV checker | Shivam Raj</title>
+<meta name="description" content="Paste a CV or upload a file. The page lists missing sections, weak wording and keyword gaps for postdoc, quant and data science roles, and links each rule to the page it comes from.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:wght@500;600&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400&family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
 <style>
-/* Layout: input column on the left, a marked-up review report on the right.
-   Report reads like a reviewer's pass over a manuscript: fix-first list, then a squiggle-marked copy of the CV. */
+/* Dark navy first, to sit beside the main site; light when the system asks for it. */
 :root {
-  --bg: #F3F5F8;
-  --surface: #FFFFFF;
-  --sunk: #EBEFF4;
-  --ink: #141922;
-  --muted: #586272;
-  --line: #D8DEE6;
-  --accent: #2447C9;
-  --accent-ink: #FFFFFF;
-  --accent-soft: #E3E9FB;
-  --good: #17754A;
-  --good-soft: #E1F3E9;
-  --warn: #965A00;
-  --warn-soft: #FBEFD6;
-  --bad: #B02A22;
-  --bad-soft: #FBE4E1;
-  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
-  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0E1218; --surface: #161B23; --sunk: #1D232D; --ink: #E7EBF1; --muted: #9AA5B5; --line: #2B3340;
-    --accent: #8AA4FF; --accent-ink: #0E1218; --accent-soft: #222C4D;
-    --good: #5CC48D; --good-soft: #15291F; --warn: #E8B04A; --warn-soft: #302514; --bad: #FF8F85; --bad-soft: #341A18;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0E1218; --surface: #161B23; --sunk: #1D232D; --ink: #E7EBF1; --muted: #9AA5B5; --line: #2B3340;
-  --accent: #8AA4FF; --accent-ink: #0E1218; --accent-soft: #222C4D;
-  --good: #5CC48D; --good-soft: #15291F; --warn: #E8B04A; --warn-soft: #302514; --bad: #FF8F85; --bad-soft: #341A18;
+  --bg: #0b1118;
+  --surface: #111923;
+  --raised: #172230;
+  --line: #243242;
+  --ink: #e4eaf0;
+  --muted: #94a5b8;
+  --accent: #7db8e8;
+  --accent-ink: #08121c;
+  --accent-soft: #162a3e;
+  --good: #6ccb9b;
+  --warn: #e5b25d;
+  --bad: #f0847a;
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --sans: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Source Code Pro', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f5f7; --surface: #ffffff; --raised: #eaeef2; --line: #d3dbe3; --ink: #0f1822; --muted: #4c5b6c;
+    --accent: #1b5a88; --accent-ink: #ffffff; --accent-soft: #dfeaf4;
+    --good: #12704a; --warn: #8a5a00; --bad: #a8281f;
+    color-scheme: light;
+  }
 }
 
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.55;
-  padding-block: 28px 56px;
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.55;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.wrap { max-width: 1180px; margin: 0 auto; }
-h1, h2, h3, p { margin: 0; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3, h4, p, ul, ol, dl, dd { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+.wrap { max-width: 1160px; margin: 0 auto; }
 
-.top { display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px; max-width: 70ch; }
-.top h1 { font-family: var(--font-display); font-weight: 600; font-size: 34px; line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; }
-.top p { color: var(--muted); }
+.crumbs { display: flex; gap: 10px; align-items: baseline; padding: 18px 0; font-size: 15px; color: var(--muted); }
+.crumbs a { color: var(--ink); text-decoration: none; font-weight: 600; }
+.crumbs a:hover { text-decoration: underline; }
 
-.grid { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 24px; align-items: start; }
-@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } }
-@media (min-width: 901px) { .input { position: sticky; top: 16px; } }
+.top { padding: 22px 0 28px; max-width: 64ch; }
+.top h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(32px, 5vw, 44px); line-height: 1.08; letter-spacing: -0.012em; }
+.top p { margin-top: 12px; color: var(--muted); font-size: 17px; }
 
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; min-width: 0; }
-.input { display: flex; flex-direction: column; gap: 16px; }
-.field { display: flex; flex-direction: column; gap: 6px; }
-label, .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.hint { font-size: 12.5px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); gap: 36px; align-items: start; padding-bottom: 64px; }
+@media (max-width: 920px) { .grid { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+@media (min-width: 921px) { .input { position: sticky; top: 16px; } }
+
+.input { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.field { display: flex; flex-direction: column; gap: 7px; }
+label, .lbl { font-size: 14px; font-weight: 600; }
+.hint { font-size: 14px; color: var(--muted); }
 select, textarea {
-  width: 100%; font: inherit; color: var(--ink); background: var(--bg);
-  border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px;
+  width: 100%; font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
 }
-textarea { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5; resize: vertical; }
-#cvText { min-height: 300px; }
-#extra { min-height: 72px; }
+select { font-size: 15px; }
+textarea { font-family: var(--mono); font-size: 13px; line-height: 1.55; resize: vertical; }
+#cvText { min-height: 320px; }
+#extra { min-height: 76px; }
 
-.tabs { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; align-self: flex-start; }
-.tabs button { font: inherit; font-size: 13px; padding: 7px 14px; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; }
-.tabs button + button { border-left: 1px solid var(--line); }
-.tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--line); }
+.tabs button { font: inherit; font-size: 15px; padding: 6px 0 9px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; color: var(--muted); cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.tabs button:hover { color: var(--ink); }
 
 .drop {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
-  min-height: 150px; padding: 20px; border: 1.5px dashed var(--line); border-radius: 8px; background: var(--bg);
-  cursor: pointer; color: var(--muted); text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center;
+  min-height: 160px; padding: 20px; border: 1.5px dashed var(--line); border-radius: 8px; background: var(--surface);
+  cursor: pointer; color: var(--muted); font-weight: 400; font-size: 15px;
 }
 .drop strong { color: var(--ink); font-weight: 600; }
 .drop.over { border-color: var(--accent); background: var(--accent-soft); }
 .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .drop:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
-.srcnote { font-size: 12.5px; color: var(--muted); min-height: 1.4em; }
+.srcnote { font-size: 14px; color: var(--muted); min-height: 1.5em; }
 .srcnote.err { color: var(--bad); }
 
-.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; }
 button.btn {
-  font: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 6px; cursor: pointer;
-  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: inherit; font-size: 15px; font-weight: 500; padding: 9px 18px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--ink);
 }
-button.btn:hover { background: var(--sunk); }
+button.btn:hover { background: var(--raised); }
 button.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
 button.btn.primary:hover { filter: brightness(1.08); }
-button.btn:disabled { opacity: 0.6; cursor: default; }
-.privacy { font-size: 12.5px; color: var(--muted); }
+.privacy { font-size: 14px; color: var(--muted); }
 
-/* report */
-.report { display: flex; flex-direction: column; gap: 22px; }
-.empty { color: var(--muted); padding: 36px 8px; text-align: center; }
+/* ---------- report ---------- */
+.report { min-width: 0; }
+.report-in { display: flex; flex-direction: column; gap: 36px; }
+.empty { color: var(--muted); padding: 32px 0; }
 
-.scorecard { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
-.ring { position: relative; width: 116px; height: 116px; flex: none; }
-.ring svg { width: 116px; height: 116px; transform: rotate(-90deg); }
-.ring .track { fill: none; stroke: var(--line); stroke-width: 9; }
-.ring .bar { fill: none; stroke-width: 9; stroke-linecap: round; }
-.ring.good .bar { stroke: var(--good); } .ring.warn .bar { stroke: var(--warn); } .ring.bad .bar { stroke: var(--bad); }
-@media (prefers-reduced-motion: no-preference) { .ring .bar { transition: stroke-dashoffset 0.6s ease; } }
-.ring .num { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 600; font-size: 38px; line-height: 1; font-variant-numeric: tabular-nums; }
-.ring .num small { display: block; font-family: var(--font-mono); font-weight: 400; font-size: 10px; color: var(--muted); text-align: center; margin-top: 2px; }
-.verdict { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1 1 260px; }
-.verdict h2 { font-family: var(--font-display); font-weight: 600; font-size: 26px; line-height: 1.15; text-wrap: balance; }
-.counts { display: flex; flex-wrap: wrap; gap: 8px; }
-.count { font-family: var(--font-mono); font-size: 12px; padding: 3px 9px; border-radius: 99px; font-variant-numeric: tabular-nums; }
-.count.fail { background: var(--bad-soft); color: var(--bad); }
-.count.warn { background: var(--warn-soft); color: var(--warn); }
-.count.pass { background: var(--good-soft); color: var(--good); }
+.scorecard { display: flex; gap: 36px; align-items: center; flex-wrap: wrap; }
+.detector { position: relative; width: 176px; height: 176px; flex: none; }
+.detector svg { width: 176px; height: 176px; display: block; }
+.detector .track { fill: none; stroke: var(--line); stroke-width: 7; opacity: 0.75; }
+.detector .bar { fill: none; stroke: var(--accent); stroke-width: 7; stroke-linecap: round; }
+@media (prefers-reduced-motion: no-preference) { .detector .bar { transition: stroke-dashoffset 0.9s cubic-bezier(.2,.7,.2,1); } }
+.detector .num { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--serif); font-weight: 600; font-size: 40px; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.detector .num small { display: block; font-family: var(--sans); font-weight: 400; font-size: 12px; color: var(--muted); text-align: center; margin-top: 3px; }
+.detector.good .num span { color: var(--good); } .detector.warn .num span { color: var(--warn); } .detector.bad .num span { color: var(--bad); }
+.verdict { display: flex; flex-direction: column; gap: 14px; min-width: 0; flex: 1 1 280px; }
+.verdict h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(24px, 3.4vw, 30px); line-height: 1.15; text-wrap: balance; }
+.layers { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 24px; font-size: 15px; }
+.layers li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding: 3px 0; }
+.layers b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.layers .sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-right: 8px; }
+.tally { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 15px; }
+.tally span::before { margin-right: 6px; font-weight: 600; }
+.tally .fail { color: var(--bad); } .tally .fail::before { content: "\2715"; }
+.tally .warn { color: var(--warn); } .tally .warn::before { content: "!"; }
+.tally .pass { color: var(--good); } .tally .pass::before { content: "\2713"; }
 
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 0; }
-.stats div { background: var(--surface); padding: 10px 12px; }
-.stats dt { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.stats dd { margin: 2px 0 0; font-family: var(--font-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.stats { display: flex; flex-wrap: wrap; gap: 14px 40px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stats div { min-width: 0; }
+.stats dt { font-size: 14px; color: var(--muted); }
+.stats dd { font-family: var(--serif); font-size: 26px; line-height: 1.2; font-variant-numeric: lining-nums tabular-nums; }
 
-.block { display: flex; flex-direction: column; gap: 10px; }
-.block > h3 { font-family: var(--font-display); font-weight: 600; font-size: 21px; line-height: 1.2; }
-.block > .sub { font-size: 13px; color: var(--muted); margin-top: -6px; }
-.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.item { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
-@media (max-width: 480px) { .item { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
-.tag { align-self: start; justify-self: start; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
-.item.fail .tag { background: var(--bad-soft); color: var(--bad); }
-.item.warn .tag { background: var(--warn-soft); color: var(--warn); }
-.item.pass .tag { background: var(--good-soft); color: var(--good); }
-.item.info .tag { background: var(--sunk); color: var(--muted); }
-.item .t { font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
-.item .grp { font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.item .n { font-size: 14px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
-.item .fix { font-size: 14px; margin-top: 8px; padding: 8px 10px; background: var(--sunk); border-radius: 6px; overflow-wrap: anywhere; }
-.item .fix span { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-right: 8px; }
-.item .src { font-size: 12px; color: var(--muted); margin-top: 8px; overflow-wrap: anywhere; }
-.item .src a, .chips a.chip { color: var(--accent); }
-.chips a.chip { text-decoration: none; }
-.chips a.chip:hover { text-decoration: underline; }
-details.fold > summary { cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 19px; padding: 4px 0; }
-details.fold[open] > summary { margin-bottom: 10px; }
+.block { display: flex; flex-direction: column; gap: 14px; }
+.block > h3 { font-family: var(--serif); font-weight: 600; font-size: 24px; line-height: 1.2; }
+.block > .sub { font-size: 15px; color: var(--muted); margin-top: -8px; max-width: 64ch; }
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; }
+.item { border-left: 3px solid var(--line); padding: 1px 0 1px 18px; }
+.item.fail { border-left-color: var(--bad); } .item.warn { border-left-color: var(--warn); } .item.pass { border-left-color: var(--good); }
+.item .meta { display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: baseline; font-size: 14px; }
+.item .st { font-weight: 600; }
+.item.fail .st { color: var(--bad); } .item.warn .st { color: var(--warn); } .item.pass .st { color: var(--good); } .item.info .st { color: var(--muted); }
+.item .grp { color: var(--muted); }
+.item .t { font-size: 17px; font-weight: 600; margin-top: 2px; }
+.item .n { color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; max-width: 68ch; }
+.item .fix { margin-top: 10px; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow-wrap: anywhere; max-width: 68ch; }
+.item .fix b { font-weight: 600; margin-right: 6px; color: var(--accent); }
+.item .src { font-size: 14px; color: var(--muted); margin-top: 9px; overflow-wrap: anywhere; }
+details.fold > summary { cursor: pointer; font-family: var(--serif); font-weight: 600; font-size: 20px; padding: 4px 0; }
+details.fold[open] > summary { margin-bottom: 16px; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { font-size: 13px; padding: 4px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); }
-.chip.found { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.chip { font-size: 14px; padding: 3px 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); }
+.chip.found { border-color: var(--good); color: var(--good); }
 .chip.found::before { content: "\2713\00a0"; }
-.chip.partial { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.chip.partial { border-color: var(--warn); color: var(--warn); }
+.chip.partial::before { content: "~\00a0"; }
 .chip.missing { border-style: dashed; color: var(--muted); }
 .chip.missing::before { content: "\2212\00a0"; }
-.chip.kfound { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.chip.kfound { border-color: var(--accent); color: var(--accent); }
+.chip.kfound::before { content: "\2713\00a0"; }
 .chip.kmiss { border-style: dashed; color: var(--muted); }
 
-.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); }
-.cvview { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 0; max-height: 440px; overflow: auto; }
-.ln { padding: 0 14px 0 11px; border-left: 3px solid transparent; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 1.6em; }
-.ln.h { background: var(--accent-soft); color: var(--accent); font-weight: 500; border-left-color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 14px; color: var(--muted); }
+.cvview { font-family: var(--mono); font-size: 13px; line-height: 1.65; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 0; max-height: 460px; overflow: auto; }
+.ln { padding: 0 16px 0 13px; border-left: 3px solid transparent; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 1.65em; }
+.ln.h { background: var(--accent-soft); color: var(--accent); font-weight: 400; border-left-color: var(--accent); }
 .ln.nonum { border-left-color: var(--warn); border-left-style: dotted; }
 mark { background: none; color: inherit; text-decoration: underline wavy var(--warn); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 mark.c { text-decoration-color: var(--bad); }
@@ -176,24 +177,28 @@ mark.c { text-decoration-color: var(--bad); }
 .key-c { text-decoration: underline wavy var(--bad); text-underline-offset: 3px; }
 .key-n { display: inline-block; width: 0; height: 12px; border-left: 3px dotted var(--warn); vertical-align: -2px; margin-right: 2px; }
 
-.deep { gap: 12px; display: flex; flex-direction: column; }
-.deep h3 { font-family: var(--font-display); font-weight: 600; font-size: 21px; }
-.deep .out p { margin-top: 10px; font-weight: 600; }
-.deep .out p.plain { font-weight: 400; color: var(--muted); }
-.deep .out ul { margin: 4px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
-.deep .err { color: var(--bad); font-size: 14px; }
-.limits { font-size: 12.5px; color: var(--muted); }
-.copybox { margin-top: 8px; }
-</style>
+.srcs { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px 32px; }
+.srcs li { min-width: 0; font-size: 15px; }
+.srcs a { font-weight: 600; }
+.srcs .by { display: block; color: var(--muted); font-size: 14px; }
+.srcs .com { color: var(--warn); }
 
+.limits { font-size: 14px; color: var(--muted); max-width: 70ch; }
+.copybox { margin-top: 8px; }
+.foot { border-top: 1px solid var(--line); padding: 20px 0 40px; font-size: 14px; color: var(--muted); max-width: 70ch; }
+</style>
+</head>
+<body>
 <div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="../">Shivam Raj</a><span aria-hidden="true">/</span><span>CV checker</span></nav>
+
   <header class="top">
-    <h1>CV Checker</h1>
-    <p>Paste your CV or upload a PDF, DOCX or text file. The page lists missing sections, weak wording and keyword gaps for the role you pick. The checks run in your browser.</p>
+    <h1>CV checker</h1>
+    <p>Paste a CV or upload a PDF, DOCX or text file. The page lists missing sections, weak wording and keyword gaps for the role you pick, and links each rule to the page it comes from.</p>
   </header>
 
   <main class="grid">
-    <section class="panel input" aria-label="CV input">
+    <section class="input" aria-label="CV input">
       <div class="field">
         <label for="profile">Target role</label>
         <select id="profile">
@@ -234,19 +239,17 @@ mark.c { text-decoration-color: var(--bad); }
         <button type="button" class="btn" id="exampleBtn">Load example</button>
         <button type="button" class="btn" id="clearBtn">Clear</button>
       </div>
-      <p class="privacy">Your CV stays in this browser tab. Nothing is uploaded or stored by this page.</p>
+      <p class="privacy">Your CV stays in this browser tab. This page uploads and stores nothing.</p>
     </section>
 
-    <section class="panel report" aria-label="Review" aria-live="polite">
+    <section class="report" aria-label="Review" aria-live="polite">
       <div id="report"></div>
-      <div id="deep" class="deep" hidden>
-        <h3>Deeper review with Claude</h3>
-        <p class="hint">Sends your CV text and the findings above to Claude for rewrites of weak lines and a list of gaps. You are asked for permission the first time.</p>
-        <div class="btns"><button type="button" class="btn" id="deepBtn">Ask Claude to review</button></div>
-        <div class="out" id="deepOut"></div>
-      </div>
     </section>
   </main>
+
+  <footer class="foot">
+    <p>Pages were read on 16 and 17 October 2026. Pages change, so open the link behind a rule before you rely on it. Rules without a link are my own recommendation.</p>
+  </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
@@ -256,33 +259,37 @@ mark.c { text-decoration-color: var(--bad); }
 // ==ANALYSIS START==
 // Pages that were read on 16 Oct 2026 and support at least one rule. com = sells a service tied to its advice.
 const SRC = {
-  cornell: { n: 'Cornell', u: 'https://postdocs.cornell.edu/postdoc-careers/academic-job-search/curriculum-vitaes-cvs-101/' },
-  ucdcv: { n: 'UC Davis CV', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/cv-curriculum-vitae' },
-  umich: { n: 'Michigan CV', u: 'https://careercenter.umich.edu/article/writing-your-curriculum-vita' },
-  usc: { n: 'USC', u: 'https://careers.usc.edu/resources/when-to-use-a-curriculum-vitae-cv/' },
-  efc: { n: 'eFinancialCareers', u: 'https://www.efinancialcareers.com/news/how-to-write-a-cv-for-a-job-in-quant-finance' },
-  quantt: { n: 'Quantt', u: 'https://www.quantt.co.uk/resources/quant-resume-guide', com: true },
-  fca: { n: 'Finance CV Audit', u: 'https://finance-cv-audit.com/blog/quant-finance-cv-guide', com: true },
-  cs: { n: 'CareerStanding', u: 'https://careerstanding.com/resume-for/quantitative-researcher', com: true },
-  wsp: { n: 'Wall Street Playbook', u: 'https://www.wallstreetplaybook.org/quantitative-finance-resume?category=Career+Guides', com: true },
-  informs: { n: 'INFORMS', u: 'https://connect.informs.org/careercenter/resources/steps-to-craft-data-science-resumes' },
-  washu: { n: 'WashU', u: 'https://careers.washu.edu/resume-building-for-tech-data-and-engineering-community/' },
-  ucdres: { n: 'UC Davis resumes', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/resumes' },
-  aucc: { n: 'American University', u: 'https://www.american.edu/careercenter/resumes.cfm' },
-  fincv: { n: 'FinanceCV', u: 'https://financecv.fr/en/blog/cv-data-scientist-finance-quantitative', com: true },
-  harvard: { n: 'Harvard FAS', u: 'https://careerservices.fas.harvard.edu/channels/create-a-resume-cv-or-cover-letter/' },
-  aps: { n: 'APS Careers', u: 'https://www.aps.org/careers/advice/effective-resumes' },
-  columbia: { n: 'Columbia Career Education', u: 'https://www.careereducation.columbia.edu/resources/optimizing-your-resume-applicant-tracking-systems' },
-  ecfa: { n: 'ECFA evaluation memo', u: 'https://iupap.org/wp-content/uploads/2021/03/C11-ecfa-291_ECFA-HEP-evaluation.pdf' },
-  iupap: { n: 'IUPAP Commission 11', u: 'https://iupap.org/wp-content/uploads/2021/03/wg-assessment-08.pdf' }
+  cornell: { n: 'Cornell', by: 'Cornell University Postdoc Office', u: 'https://postdocs.cornell.edu/postdoc-careers/academic-job-search/curriculum-vitaes-cvs-101/' },
+  ucdcv: { n: 'UC Davis CV', by: 'UC Davis Career Center', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/cv-curriculum-vitae' },
+  umich: { n: 'Michigan CV', by: 'University of Michigan Career Center', u: 'https://careercenter.umich.edu/article/writing-your-curriculum-vita' },
+  usc: { n: 'USC', by: 'USC Career Center', u: 'https://careers.usc.edu/resources/when-to-use-a-curriculum-vitae-cv/' },
+  tibbs: { n: 'UNC TIBBS', by: 'UNC-Chapel Hill career development office', u: 'https://tibbs.unc.edu/cv-dos-and-donts/' },
+  jhu: { n: 'Johns Hopkins', by: 'Johns Hopkins Imagine Center, page dated Feb 2025', u: 'https://imagine.jhu.edu/resources/how-to-write-effective-resumes-and-cvs-for-doctoral-students-and-postdocs/' },
+  harvardres: { n: 'Harvard resume guide', by: 'Harvard FAS Mignone Center, updated Jul 2026', u: 'https://careerservices.fas.harvard.edu/resources/create-a-strong-resume/' },
+  harvardcv: { n: 'Harvard GSAS CV guide', by: 'Harvard Mignone Center, PDF dated Aug 2025', u: 'https://cdn-careerservices.fas.harvard.edu/wp-content/uploads/sites/161/2025/08/gsas-cvs-and-cover-letters-2025.pdf' },
+  efc: { n: 'eFinancialCareers', by: 'eFinancialCareers, article dated Feb 2026', u: 'https://www.efinancialcareers.com/news/how-to-write-a-cv-for-a-job-in-quant-finance' },
+  quantt: { n: 'Quantt', by: 'Quantt learning platform', u: 'https://www.quantt.co.uk/resources/quant-resume-guide', com: true },
+  fca: { n: 'Finance CV Audit', by: 'Finance CV Audit', u: 'https://finance-cv-audit.com/blog/quant-finance-cv-guide', com: true },
+  cs: { n: 'CareerStanding', by: 'CareerStanding', u: 'https://careerstanding.com/resume-for/quantitative-researcher', com: true },
+  wsp: { n: 'Wall Street Playbook', by: 'Wall Street Playbook', u: 'https://www.wallstreetplaybook.org/quantitative-finance-resume?category=Career+Guides', com: true },
+  informs: { n: 'INFORMS', by: 'INFORMS Career Center', u: 'https://connect.informs.org/careercenter/resources/steps-to-craft-data-science-resumes' },
+  washu: { n: 'WashU', by: 'Washington University in St. Louis, updated Sep 2025', u: 'https://careers.washu.edu/resume-building-for-tech-data-and-engineering-community/' },
+  ucdres: { n: 'UC Davis resumes', by: 'UC Davis Career Center', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/resumes' },
+  aucc: { n: 'American University', by: 'American University Career Center', u: 'https://www.american.edu/careercenter/resumes.cfm' },
+  fincv: { n: 'FinanceCV', by: 'FinanceCV', u: 'https://financecv.fr/en/blog/cv-data-scientist-finance-quantitative', com: true },
+  aps: { n: 'APS Careers', by: 'American Physical Society', u: 'https://www.aps.org/careers/advice/effective-resumes' },
+  columbia: { n: 'Columbia Career Education', by: 'Columbia Center for Career Education', u: 'https://www.careereducation.columbia.edu/resources/optimizing-your-resume-applicant-tracking-systems' },
+  ecfa: { n: 'ECFA evaluation memo', by: 'ECFA, memo of May 2015', u: 'https://iupap.org/wp-content/uploads/2021/03/C11-ecfa-291_ECFA-HEP-evaluation.pdf' },
+  iupap: { n: 'IUPAP Commission 11', by: 'IUPAP working group, report of 2008', u: 'https://iupap.org/wp-content/uploads/2021/03/wg-assessment-08.pdf' }
 };
 const CHECK_SRC = {
   github: ['washu', 'efc'], summary: ['ucdres', 'aucc', 'fincv'], education: ['ucdres', 'ucdcv', 'umich'], edudetail: ['ucdcv', 'ucdres'],
   experience: ['ucdres', 'ucdcv', 'umich'], projects: ['washu', 'ucdres', 'efc'], skills: ['informs', 'ucdres', 'washu'],
-  publications: ['ucdcv', 'umich', 'usc'], awards: ['ucdcv', 'umich'], talks: ['ucdcv'], service: ['ucdcv', 'umich'], references: ['ucdres', 'harvard'],
-  datefmt: ['umich', 'harvard', 'cs'], bullets: ['ucdres'], verbs: ['informs', 'aucc', 'harvard', 'ucdres'],
-  numbers: ['informs', 'harvard', 'aucc', 'fincv', 'efc'], weak: ['harvard'], pronoun: ['harvard'], personal: ['harvard', 'aps'], refline: ['ucdres'], phdname: ['columbia'], collabrole: ['ecfa', 'iupap'],
-  chrono: ['cornell', 'usc', 'ucdres', 'washu', 'aucc', 'harvard'], publinks: ['ucdcv'], mentor: ['ucdcv'],
+  publications: ['ucdcv', 'umich', 'usc', 'tibbs'], awards: ['ucdcv', 'umich'], talks: ['ucdcv'], service: ['ucdcv', 'umich'], references: ['ucdres', 'harvardres', 'harvardcv'],
+  datefmt: ['umich', 'cs'], bullets: ['ucdres'], verbs: ['informs', 'aucc', 'harvardres', 'harvardcv', 'ucdres', 'jhu'],
+  numbers: ['informs', 'harvardres', 'aucc', 'fincv', 'efc', 'jhu'], weak: ['jhu', 'harvardres'], pronoun: ['harvardres', 'harvardcv', 'tibbs'], personal: ['harvardres', 'jhu', 'tibbs', 'aps'],
+  refline: ['ucdres'], phdname: ['columbia'], collabrole: ['ecfa', 'iupap'], inprep: ['tibbs'],
+  chrono: ['cornell', 'usc', 'ucdres', 'washu', 'aucc', 'harvardres', 'harvardcv', 'tibbs'], publinks: ['ucdcv'], mentor: ['ucdcv'],
   quantval: ['quantt', 'fca', 'wsp'], quantcost: ['quantt', 'fca', 'wsp'], comps: ['quantt', 'fca']
 };
 const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich'], gen: ['ucdres', 'aucc', 'aps'] };
@@ -640,6 +647,10 @@ function analyzeCV(raw, profileKey, extraText) {
       mentored ? 'Mentoring or supervision is mentioned.' : 'No mentoring or supervision found.',
       mentored ? '' : 'List students or junior colleagues you mentored, with the project and what came of it.', 0.5);
   }
+  if (profileKey === 'acad' && /\bin preparation\b/i.test(text)) {
+    add('Content', 'inprep', 'Manuscripts in preparation', 'info', 'Entries marked "in preparation" were found.',
+      'One source says to list submitted, in-review and in-press work, and to leave work still in preparation out of the CV and mention it in the cover letter. Treat this as optional.', 0);
+  }
   if (profileKey === 'quant') {
     const val = /\b(backtest|back-test|out[- ]of[- ]sample|cross[- ]validation|walk[- ]forward|validation)\b/i.test(text);
     const met = /\b(sharpe|drawdown|information ratio|annuali[sz]ed)\b/i.test(text);
@@ -702,7 +713,7 @@ function analyzeCV(raw, profileKey, extraText) {
 /* ---------- UI ---------- */
 const $ = (s, r) => (r || document).querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const TAGS = { fail: 'Missing', warn: 'Improve', pass: 'Good', info: 'Optional' };
+const TAGS = { fail: 'Missing', warn: 'Improve', pass: 'Good', info: 'Note' };
 const EXAMPLE = [
   'Jordan Ellis',
   'Washington, DC · jordan.ellis@example.com · github.com/jellis-example',
@@ -745,13 +756,32 @@ function selectTab(which) {
   $('#paneUpload').hidden = paste;
 }
 
-function ringHTML(score) {
-  const C = 2 * Math.PI * 48;
-  const cls = score >= 75 ? 'good' : score >= 50 ? 'warn' : 'bad';
-  return '<div class="ring ' + cls + '" role="img" aria-label="Score ' + score + ' out of 100">' +
-    '<svg viewBox="0 0 116 116"><circle class="track" cx="58" cy="58" r="48"></circle>' +
-    '<circle class="bar" cx="58" cy="58" r="48" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - score / 100)).toFixed(1) + '"></circle></svg>' +
-    '<div class="num"><span>' + score + '<small>OF 100</small></span></div></div>';
+function groupScores(res) {
+  const g = {};
+  res.checks.forEach(c => {
+    if (c.status === 'info' || c.weight <= 0) return;
+    const o = g[c.group] || (g[c.group] = { n: 0, d: 0 });
+    o.d += c.weight; o.n += c.weight * (c.status === 'pass' ? 1 : c.status === 'warn' ? 0.5 : 0);
+  });
+  return ['Header', 'Sections', 'Content', 'Keywords', 'Your checklist'].filter(k => g[k]).map(k => ({ name: k, pct: Math.round(100 * g[k].n / g[k].d) }));
+}
+const LAYER_OPACITY = [1, 0.8, 0.62, 0.48, 0.36];
+function detectorHTML(res) {
+  const gs = groupScores(res), cx = 88, r0 = 80, step = 12;
+  const cls = res.score >= 75 ? 'good' : res.score >= 50 ? 'warn' : 'bad';
+  let svg = '';
+  gs.forEach((g, i) => {
+    const r = r0 - i * step, C = 2 * Math.PI * r, off = C * (1 - g.pct / 100);
+    svg += '<circle class="track" cx="' + cx + '" cy="' + cx + '" r="' + r + '"></circle>' +
+      '<circle class="bar" cx="' + cx + '" cy="' + cx + '" r="' + r + '" stroke-opacity="' + LAYER_OPACITY[i] + '" stroke-dasharray="' + C.toFixed(1) + '" style="stroke-dashoffset:' + C.toFixed(1) + '" data-off="' + off.toFixed(1) + '"></circle>';
+  });
+  return '<div class="detector ' + cls + '" role="img" aria-label="Score ' + res.score + ' out of 100. ' + gs.map(g => g.name + ' ' + g.pct + ' percent').join(', ') + '">' +
+    '<svg viewBox="0 0 176 176" style="transform:rotate(-90deg)">' + svg + '</svg>' +
+    '<div class="num"><span>' + res.score + '<small>out of 100</small></span></div></div>';
+}
+function layersHTML(res) {
+  return '<ul class="layers">' + groupScores(res).map((g, i) =>
+    '<li><span><i class="sw" style="opacity:' + LAYER_OPACITY[i] + '"></i>' + esc(g.name) + '</span><b>' + g.pct + '%</b></li>').join('') + '</ul>';
 }
 function verdictOf(score) {
   return score >= 85 ? 'Strong CV, only small fixes left' : score >= 70 ? 'Solid CV with a few gaps' : score >= 50 ? 'Needs work before you send it' : 'Major gaps to fill first';
@@ -765,14 +795,17 @@ function srcLine(c) {
   }).join(', ') + '</p>';
 }
 function itemHTML(c) {
-  return '<li class="item ' + c.status + '"><span class="tag">' + TAGS[c.status] + '</span><div>' +
-    '<p class="t">' + esc(c.title) + '<span class="grp">' + esc(c.group) + '</span></p>' +
+  return '<li class="item ' + c.status + '"><div class="meta"><span class="st">' + TAGS[c.status] + '</span><span class="grp">' + esc(c.group) + '</span></div>' +
+    '<h4 class="t">' + esc(c.title) + '</h4>' +
     '<p class="n">' + esc(c.note) + '</p>' +
-    (c.fix ? '<p class="fix"><span>Add</span>' + esc(c.fix) + '</p>' : '') + srcLine(c) + '</div></li>';
+    (c.fix ? '<p class="fix"><b>' + (c.status === 'info' ? 'Note:' : 'To fix:') + '</b>' + esc(c.fix) + '</p>' : '') + srcLine(c) + '</li>';
 }
 function sourcesBlock() {
-  return '<div class="block"><h3>Sources behind the rules</h3><p class="sub">Each rule links to the pages that support it. Rules with no link are my own recommendation. Pages that sell a service are marked commercial.</p><div class="chips">' +
-    Object.keys(SRC).map(k => '<a class="chip" href="' + SRC[k].u + '" target="_blank" rel="noopener">' + esc(SRC[k].n) + (SRC[k].com ? ' (commercial)' : '') + '</a>').join('') + '</div></div>';
+  return '<div class="block"><h3>Sources behind the rules</h3><p class="sub">Each rule links to the pages that support it. Pages marked commercial sell a service tied to their advice, so I weigh them less.</p><ul class="srcs">' +
+    Object.keys(SRC).map(k => {
+      const s = SRC[k];
+      return '<li><a href="' + s.u + '" target="_blank" rel="noopener">' + esc(s.n) + '</a><span class="by">' + esc(s.by) + (s.com ? '. <span class="com">Commercial</span>' : '') + '</span></li>';
+    }).join('') + '</ul></div>';
 }
 function listBlock(title, sub, arr) {
   if (!arr.length) return '';
@@ -810,30 +843,34 @@ function render(res) {
   const goods = res.checks.filter(c => c.status === 'pass');
   const infos = res.checks.filter(c => c.status === 'info');
   const pct = v => (v == null ? '–' : Math.round(v * 100) + '%');
-  const html =
-    '<div class="scorecard">' + ringHTML(res.score) +
+  const html = '<div class="report-in">' +
+    '<div class="scorecard">' + detectorHTML(res) +
       '<div class="verdict"><h2>' + esc(verdictOf(res.score)) + '</h2>' +
-      '<div class="counts"><span class="count fail">' + fails.length + ' missing</span><span class="count warn">' + warns.length + ' to improve</span><span class="count pass">' + goods.length + ' good</span></div>' +
-      '<p class="hint">Checked against: ' + esc(res.profile.label) + '</p></div></div>' +
+      '<div class="tally"><span class="fail">' + fails.length + ' missing</span><span class="warn">' + warns.length + ' to improve</span><span class="pass">' + goods.length + ' good</span></div>' +
+      layersHTML(res) +
+      '<p class="hint">Checked against: ' + esc(res.profile.label) + '. Each ring is one group of checks, outermost first.</p></div></div>' +
     '<dl class="stats"><div><dt>Words</dt><dd>' + S.words + '</dd></div><div><dt>Pages</dt><dd>~' + S.pages.toFixed(1) + '</dd></div>' +
-      '<div><dt>Bullets</dt><dd>' + S.bullets + '</dd></div><div><dt>With numbers</dt><dd>' + pct(S.numShare) + '</dd></div>' +
-      '<div><dt>Verb first</dt><dd>' + pct(S.verbShare) + '</dd></div></dl>' +
+      '<div><dt>Bullets</dt><dd>' + S.bullets + '</dd></div><div><dt>Bullets with numbers</dt><dd>' + pct(S.numShare) + '</dd></div>' +
+      '<div><dt>Bullets starting with a verb</dt><dd>' + pct(S.verbShare) + '</dd></div></dl>' +
     (fails.length ? listBlock('Fix first', 'Missing components and gaps that screeners notice.', fails) : '<div class="block"><h3>Fix first</h3><p class="sub">Nothing required is missing.</p></div>') +
     listBlock('Improve', 'Present, but weaker than it should be.', warns) +
     foldBlock('Looks good', goods, false) +
-    foldBlock('Optional for this role', infos, false) +
+    foldBlock('Notes for this role', infos, false) +
     '<div class="block"><h3>Sections</h3><div class="chips">' +
       res.sectionMap.map(s => '<span class="chip ' + s.state + '">' + esc(s.name) + (s.state === 'missing' && s.level === 'opt' ? ' (optional)' : '') + '</span>').join('') + '</div></div>' +
     '<div class="block"><h3>Keywords</h3><p class="sub">Typical terms for ' + esc(res.profile.label) + '. Use only the ones that are true for you.</p><div class="chips">' +
       res.kw.found.map(k => '<span class="chip kfound">' + esc(k) + '</span>').join('') +
       res.kw.missing.map(k => '<span class="chip kmiss">' + esc(k) + '</span>').join('') + '</div></div>' +
     '<div class="block"><h3>Marked-up CV</h3>' +
-      '<div class="legend"><span><i class="key-h"></i> section heading</span><span><span class="key-w">weak phrase</span></span><span><span class="key-c">buzzword</span></span><span><i class="key-n"></i> bullet without a number</span></div>' +
+      '<div class="legend"><span><i class="key-h"></i> section heading</span><span class="key-w">weak phrase</span><span class="key-c">buzzword</span><span><i class="key-n"></i> bullet without a number</span></div>' +
       '<div class="cvview" tabindex="0" role="region" aria-label="Marked-up CV">' + cvViewHTML(res) + '</div></div>' +
     sourcesBlock() +
     '<div class="block"><div class="btns"><button type="button" class="btn" id="copyBtn">Copy report</button></div><div class="copybox" id="copyBox"></div>' +
-      '<p class="limits">The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.</p></div>';
+      '<p class="limits">The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.</p></div></div>';
   $('#report').innerHTML = html;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('.detector .bar').forEach(b => { b.style.strokeDashoffset = b.dataset.off; });
+  }));
   $('#copyBtn').addEventListener('click', copyReport);
 }
 
@@ -861,8 +898,7 @@ async function copyReport() {
 function showEmpty() {
   last = null;
   $('#report').innerHTML = '<p class="empty">Paste your CV text or upload a file, then press Check CV.</p>';
-  $('#deepOut').innerHTML = '';
-}
+  }
 function run() {
   const t = $('#cvText').value;
   if (t.trim().length < 40) { showEmpty(); return; }
@@ -919,60 +955,6 @@ async function loadFile(file) {
   }
 }
 
-/* ---------- Claude review (optional capability) ---------- */
-let sample = null, ctrl = null;
-(async () => {
-  try { if (window.claude && claude.use) sample = await claude.use('sample'); } catch (e) { sample = null; }
-  if (sample) $('#deep').hidden = false;
-})();
-
-function renderDeep(text) {
-  const out = $('#deepOut');
-  const parts = [];
-  let list = null;
-  String(text).split('\n').forEach(raw => {
-    const l = raw.replace(/[*#`]/g, '').trim();
-    if (!l) { list = null; return; }
-    if (/^[-•]\s+/.test(l)) {
-      if (!list) { list = []; parts.push(list); }
-      list.push(l.replace(/^[-•]\s+/, ''));
-    } else {
-      list = null; parts.push(l);
-    }
-  });
-  out.innerHTML = parts.map(p => Array.isArray(p)
-    ? '<ul>' + p.map(li => '<li>' + esc(li) + '</li>').join('') + '</ul>'
-    : '<p' + (/:$/.test(p) ? '' : ' class="plain"') + '>' + esc(p) + '</p>').join('');
-}
-async function deepReview() {
-  if (!sample || !last) { if (!last) $('#deepOut').innerHTML = '<p class="err">Run the check first.</p>'; return; }
-  const btn = $('#deepBtn'), out = $('#deepOut');
-  if (ctrl) ctrl.abort();
-  ctrl = new AbortController();
-  btn.disabled = true; btn.textContent = 'Reviewing…';
-  out.innerHTML = '<p class="plain">Waiting for Claude…</p>';
-  const issues = last.checks.filter(c => c.status === 'fail' || c.status === 'warn').map(c => '- ' + c.title + ': ' + c.note).join('\n') || '- none';
-  const prompt =
-    'You are reviewing a CV for a ' + last.profile.label + ' application. A rule-based checker already flagged:\n' + issues + '\n\n' +
-    'Reply in plain text. Use no markdown except "- " at the start of list lines. Use these parts, each starting with a line that ends with a colon:\n' +
-    'Biggest gaps: (3 bullets)\n' +
-    'Rewrites: (up to 5 bullets; quote the weak line in a few words, then give a stronger rewrite that keeps only facts the CV states, using [number] where a metric is missing)\n' +
-    'Missing components: (bullets, only if something important is absent)\n' +
-    'Keep it under 350 words.\n\nCV text:\n"""\n' + $('#cvText').value.slice(0, 14000) + '\n"""';
-  try {
-    const r = await sample(prompt, { signal: ctrl.signal, cache: false, modelTier: 'default', onText: ({ text }) => { if (text) renderDeep(text); } });
-    if (r && r.text) renderDeep(r.text);
-  } catch (e) {
-    if (e && e.text) renderDeep(e.text);
-    const msg = e && e.code === 'not_granted' ? 'Permission was not granted, so the review did not run.'
-      : e && e.code === 'rate_limited' ? 'Too many requests. Wait a minute and try again.'
-      : (e && e.message) || 'The review failed.';
-    out.insertAdjacentHTML('beforeend', '<p class="err">' + esc(msg) + '</p>');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Review again';
-  }
-}
-
 /* ---------- wiring ---------- */
 $('#tabPaste').addEventListener('click', () => selectTab('paste'));
 $('#tabUpload').addEventListener('click', () => selectTab('upload'));
@@ -987,10 +969,11 @@ const drop = $('#drop');
 ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
 ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
 drop.addEventListener('drop', e => loadFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]));
-$('#deepBtn').addEventListener('click', deepReview);
 
 // open with a worked example so the first view shows what the tool does
 $('#cvText').value = EXAMPLE;
 setNote('Example CV for a fictional person. Replace it with yours.');
 run();
 </script>
+</body>
+</html>
