@@ -442,7 +442,7 @@ const SECTIONS = [
   { id: 'awards', name: 'Awards & honors', re: /^(honou?rs?(\s+(&|and)\s+awards?)?|awards?(\s+(&|and)\s+(honou?rs?|grants?|fellowships?|scholarships?))?|fellowships?|grants?|scholarships?|achievements?|recognition|honou?rs,? awards.*)$/i,
     why: 'Recognition separates similar candidates.',
     fix: 'Add fellowships, scholarships, prizes and grants, each with the year.' },
-  { id: 'talks', name: 'Talks & presentations', re: /^((invited|selected|conference|recent)\s+)?(talks?|presentations?|posters?|talks (&|and) presentations|conference (talks|presentations)|invited talks)$/i,
+  { id: 'talks', name: 'Talks & presentations', re: /^((invited|selected|conference|recent|contributed|select)\s+)?(talks?|presentations?|posters?|seminars?)(\s*(,|&|and)\s*(talks?|presentations?|posters?|seminars?|workshops?|conferences?|lectures?))*$|^(conference (talks|presentations)|invited talks|talks (&|and) presentations)$/i,
     why: 'Talks show communication skill and visibility in your field.',
     fix: 'List talks with title, venue and year. Mark invited talks.' },
   { id: 'service', name: 'Leadership & activities', re: /^(teaching( experience)?|mentoring|leadership( (&|and) service)?|service|community( service)?|volunteer(ing)?( experience)?|outreach|extracurricular activities|activities|professional (service|activities|affiliations)|teaching (&|and) mentoring|leadership (&|and) activities)$/i,
@@ -453,7 +453,7 @@ const SECTIONS = [
     fix: 'Delete the section.' }
 ];
 
-const VERBS = new Set(('developed built led designed implemented created analyzed analysed managed improved reduced increased launched optimized optimised automated trained deployed engineered architected authored published presented mentored coordinated established delivered achieved conducted performed investigated measured calibrated simulated modeled modelled validated evaluated streamlined spearheaded directed supervised organized organised collaborated contributed proposed formulated derived extended initiated drove owned maintained migrated refactored scaled processed extracted discovered identified resolved secured won awarded taught tutored wrote produced applied integrated tested debugged reviewed planned prototyped shipped generated assembled executed instituted pioneered revamped forecasted mapped quantified characterized characterised classified constructed devised expanded headed oversaw supported advised guided administered compiled configured customized enhanced benchmarked interpreted reconstructed selected computed parallelized accelerated reported summarized communicated lead build design develop implement create analyze analyse manage improve reduce increase launch optimize automate train deploy engineer write run drive own maintain teach mentor present publish conduct perform search').split(' '));
+const VERBS = new Set(('developed built led designed implemented created analyzed analysed managed improved reduced increased launched optimized optimised automated trained deployed engineered architected authored published presented mentored coordinated established delivered achieved conducted performed investigated measured calibrated simulated modeled modelled validated evaluated streamlined spearheaded directed supervised organized organised collaborated contributed proposed formulated derived extended initiated drove owned maintained migrated refactored scaled processed extracted discovered identified resolved secured won awarded taught tutored wrote produced applied integrated tested debugged reviewed planned prototyped shipped generated assembled executed instituted pioneered revamped forecasted mapped quantified characterized characterised classified constructed devised expanded headed oversaw supported advised guided administered compiled configured customized enhanced benchmarked interpreted reconstructed selected computed parallelized accelerated reported summarized communicated lead build design develop implement create analyze analyse manage improve reduce increase launch optimize automate train deploy engineer write run drive own maintain teach mentor present publish conduct perform search serve guide diagnose assemble audit complete fix monitor participate respond incorporate contribute coordinate supervise mentor investigate validate calibrate collaborate').split(' '));
 
 const WEAK_SRC = "\\b(?:responsible for|worked on|helped (?:with|to)|duties (?:included|include)|assisted (?:with|in)|involved in|tasked with|in charge of|familiar with|participated in)\\b";
 const CLICHE_SRC = "\\b(?:team player|hard[- ]?working|detail[- ]oriented|self[- ]motivated|results[- ]driven|go[- ]getter|think outside the box|synergy|fast learner|motivated individual|passionate about|excellent communication skills)\\b";
@@ -464,17 +464,20 @@ const BULLET_STRIP = /^\s*([•●▪■◦○▸▹►·*]|[-–—]|\d{1,2}[.)
 function normHeading(line) {
   return line.trim().replace(/^[#*•·\-–—_\s]+/, '').replace(/[:*_\s]+$/, '').replace(/\s+/g, ' ');
 }
-function detectHeading(line) {
+function detectHeading(line, extra) {
   const s = normHeading(line);
   if (!s || s.length > 48 || /[.!?]$/.test(s)) return null;
   for (const d of SECTIONS) if (d.re.test(s)) return d.id;
+  if (extra && extra.has(s.toLowerCase())) return 'other';
   return null;
 }
 function isVerbStart(text) {
   const m = text.match(/^[A-Za-z][A-Za-z-]*/);
   if (!m) return false;
   const w = m[0].toLowerCase();
-  return VERBS.has(w) || /ed$/.test(w);
+  if (VERBS.has(w) || /ed$/.test(w)) return true;
+  if (/ing$/.test(w)) { const b = w.slice(0, -3); return VERBS.has(b) || VERBS.has(b + 'e') || (/(.)\1$/.test(b) && VERBS.has(b.slice(0, -1))); }
+  return false;
 }
 function hasNumber(s) { return /\d/.test(s.replace(/\b(19|20)\d{2}\b/g, '')); }
 function uniqueMatches(re, text) {
@@ -483,7 +486,8 @@ function uniqueMatches(re, text) {
   return Object.keys(out);
 }
 
-function analyzeCV(raw, profileKey, extraText) {
+function analyzeCV(raw, profileKey, extraText, opts) {
+  const extraHeads = new Set(((opts && opts.heads) || []).map(x => x.toLowerCase()));
   const P = PROFILES[profileKey] || PROFILES.ds;
   const text = String(raw).replace(/\r\n?/g, '\n').replace(/ /g, ' ').trim();
   const lines = text.split('\n');
@@ -495,7 +499,7 @@ function analyzeCV(raw, profileKey, extraText) {
   const kind = new Array(lines.length).fill('');
   const headList = [];
   lines.forEach((l, i) => {
-    const id = detectHeading(l);
+    const id = detectHeading(l, extraHeads);
     if (id) { kind[i] = 'h'; headList.push({ id, i, label: normHeading(l) }); }
   });
   const found = {};
@@ -708,7 +712,7 @@ function analyzeCV(raw, profileKey, extraText) {
   // publication entries with links
   const pubs = found.publications;
   if (pubs && (profileKey === 'acad' || profileKey === 'quant' || profileKey === 'ds')) {
-    const entries = pubs.text.split('\n').filter(x => x.trim().length > 25);
+    const entries = pubs.text.split('\n').filter(x => x.trim().length > 25 && !/^\s*(?:(?:full|complete|more|see|also)\b.{0,12}\b(?:list|publications?)|see\b)/i.test(x));
     if (entries.length >= 2) {
       const linked = entries.filter(x => /arxiv|doi|https?:\/\/|inspirehep/i.test(x)).length;
       const okP = linked / entries.length >= 0.5;
@@ -1207,6 +1211,38 @@ function texEnvArgs(s, NL) {
   }
   return (out + s.slice(last)).replace(/\\end\{(?:tabular\*|tabularx|tabular|array|minipage|multicols)\}/g, NL);
 }
+function texSections(src) {
+  const s = String(src).replace(/(^|[^\\])%.*$/gm, '$1'), out = [];
+  const re = /\\(?:sub)*section\*?(?:\[[^\]]*\])?/g; let m;
+  while ((m = re.exec(s)) !== null) {
+    const r = texArgs(s, re.lastIndex, 1);
+    if (r) out.push(r.args[0].replace(/\\&/g, '&').replace(/\\[a-zA-Z]+\*?/g, ' ').replace(/[{}$~]/g, ' ').replace(/\s+/g, ' ').trim());
+  }
+  return out.filter(Boolean);
+}
+// Custom CV classes keep name, email, phone and links in macros before \begin{document}.
+function texHeader(pre, body) {
+  const name = [], mail = [], tel = [], link = [], where = [];
+  const NOTNAME = /^(file|job|page|bib|contents|ref|figure|table|part|chapter|appendix|abstract|index|list|proof|section|subsection)name$/;
+  const re = /\\([a-zA-Z]+)\*?/g; let m;
+  while ((m = re.exec(pre)) !== null) {
+    const c = m[1].toLowerCase();
+    let p = re.lastIndex;
+    const opt = /^\s*\[[^\]]*\]/.exec(pre.slice(p)); if (opt) p += opt[0].length;
+    const args = [];
+    for (let k = 0; k < 4; k++) { const r = texArgs(pre, p, 1); if (!r) break; args.push(r.args[0].trim()); p = r.end; }
+    const ne = args.filter(Boolean);
+    if (!ne.length) continue;
+    if ((c === 'author' || /name$/.test(c)) && !NOTNAME.test(c) && !/^(new|renew|provide|set|def)/.test(c)) name.push(ne.slice(0, 3).join(' ').replace(/\\thanks\{[^}]*\}/g, ''));
+    else if (/e?-?mail$/.test(c)) mail.push(ne[0]);
+    else if (/(phone|tel|telephone|mobile|cell)$/.test(c)) tel.push(ne[ne.length - 1]);
+    else if (/(website|homepage|webpage|linkedin|github|gitlab|orcid|scholar|twitter|social|inspire)$/.test(c)) link.push(ne.join(' '));
+    else if (/(address|location)$/.test(c)) where.push(ne.join(', '));
+  }
+  const fresh = a => a.filter(x => x && body.indexOf(x) < 0);
+  const first = fresh(name.slice(0, 1)), rest = fresh([].concat(where.slice(0, 1), mail.slice(0, 1), tel.slice(0, 1), link.slice(0, 3)));
+  return (first.length ? first[0] + '\n\n' : '') + (rest.length ? rest.join(' | ') + '\n\n' : '');
+}
 function latexToText(src) {
   let s = String(src).replace(/\r\n?/g, '\n').replace(/(^|[^\\])%.*$/gm, '$1');
   // user macros
@@ -1219,7 +1255,11 @@ function latexToText(src) {
   }
   for (let k = cuts.length - 1; k >= 0; k--) s = s.slice(0, cuts[k][0]) + s.slice(cuts[k][1]);
   const bi = s.indexOf('\\begin{document}');
-  if (bi >= 0) { s = s.slice(bi + 16); const ei = s.indexOf('\\end{document}'); if (ei >= 0) s = s.slice(0, ei); }
+  if (bi >= 0) {
+    const pre = s.slice(0, bi); s = s.slice(bi + 16);
+    const ei = s.indexOf('\\end{document}'); if (ei >= 0) s = s.slice(0, ei);
+    s = texHeader(pre, s) + s;
+  }
   s = s.replace(/\\(?:documentclass|usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\{[^}]*\}/g, '');
   for (let pass = 0; pass < 3; pass++) {
     Object.keys(macros).forEach(k => {
@@ -1255,7 +1295,7 @@ function latexToText(src) {
   s = s.replace(/\\v\s*\{([a-zA-Z])\}/g, (_, ch) => (ch + '̌').normalize('NFC'));
   s = s.replace(/\\([a-zA-Z]+)\*?/g, (_, n) => (TEX_SYMBOLS[n] != null ? TEX_SYMBOLS[n] : ' '));
   s = s.replace(/\\[,;:! \/]/g, ' ').replace(/\\-/g, '').replace(/\\/g, ' ');
-  s = s.replace(/\$/g, '').replace(/[{}]/g, '').replace(/~/g, ' ').replace(/&/g, ' | ');
+  s = s.replace(/\}[ \t]*\{/g, '} {').replace(/\$/g, '').replace(/[{}]/g, '').replace(/~/g, ' ').replace(/&/g, ' | ');
   s = s.replace(/---/g, '—').replace(/--/g, '–').replace(/``/g, '"').replace(/''/g, '"');
   s = s.replace(//g, '$').replace(//g, '%').replace(//g, '&').replace(//g, '#').replace(//g, '_').replace(//g, '{').replace(//g, '}');
   s = s.replace(/[ \t\n]+/g, ' ').replace(new RegExp(PP, 'g'), '\n\n').replace(new RegExp(NL, 'g'), '\n');
@@ -1771,7 +1811,7 @@ function run() {
   const isTex = looksLikeLatex(raw);
   const t = isTex ? latexToText(raw) : raw;
   if (t.trim().length < 40) { showEmpty(); return; }
-  last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value) : analyzeDoc(t, curMode(), $('#extra').value, { employer: $('#employer').value });
+  last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value, { heads: isTex ? texSections(raw) : [] }) : analyzeDoc(t, curMode(), $('#extra').value, { employer: $('#employer').value });
   last.fromLatex = isTex;
   render(last);
 }
