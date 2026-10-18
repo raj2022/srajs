@@ -898,8 +898,9 @@ function analyzeDoc(raw, mode, extraText, opts) {
         words < 250 ? 'This is shorter than a page.' : words <= 1000 ? 'This runs to about a page and a half. Sources allow that only when no separate research statement is requested.' : 'This is longer than the 2 pages that every source treats as the limit.'),
       st === 'pass' ? '' : words < 250 ? 'Add what the position needs: your main result, your role and why this group.' : 'Cut to one page. Let the research statement and CV carry the detail.', 1);
     }
-    const hasDear = /\b(?:dear|to whom it may concern)\b/i.test(lines.filter(l => l.trim()).slice(0, 8).join(' '));
-    const hasClose = /\b(?:sincerely|regards|respectfully|yours|best wishes|cordially|with thanks)\b/i.test(lines.filter(l => l.trim()).slice(-6).join(' '));
+    const nonEmpty = lines.filter(l => l.trim());
+    const hasDear = nonEmpty.slice(0, 25).some(l => /^\W*(?:dear\b|to whom it may concern|hello\b|greetings\b)/i.test(l));
+    const hasClose = /\b(?:sincerely|regards|respectfully|yours|best wishes|cordially|with thanks)\b/i.test(nonEmpty.slice(-10).join(' '));
     add('Format', 'l_greet', 'Greeting and sign-off', hasDear && hasClose ? 'pass' : hasDear || hasClose ? 'warn' : 'fail',
       hasDear && hasClose ? 'A greeting and a sign-off found.' : hasDear ? 'A greeting was found, but no sign-off near the end.' : hasClose ? 'A sign-off was found, but no greeting near the top.' : 'No greeting and no sign-off found.',
       hasDear && hasClose ? '' : (IND ? 'Address a named person if you can, and end with "Sincerely," and your name.' : 'Start with "Dear Professor [name]" or "Dear Search Committee" and end with "Sincerely," and your name.'), 0.5);
@@ -1185,7 +1186,8 @@ function texExpand(s, name, n, fn) {
     if (opt) p += opt[0].length;
     const r = texArgs(s, p, n);
     if (!r) continue;
-    out += s.slice(last, m.index) + fn(r.args);
+    const rep = fn(r.args), head = out + s.slice(last, m.index);
+    out = head + (/\\[a-zA-Z]+$/.test(head) && /^[a-zA-Z]/.test(rep) ? ' ' : '') + rep;
     last = r.end;
     re.lastIndex = r.end;
   }
@@ -1239,7 +1241,7 @@ function texHeader(pre, body) {
     else if (/(website|homepage|webpage|linkedin|github|gitlab|orcid|scholar|twitter|social|inspire)$/.test(c)) link.push(ne.join(' '));
     else if (/(address|location)$/.test(c)) where.push(ne.join(', '));
   }
-  const fresh = a => a.filter(x => x && body.indexOf(x) < 0);
+  const top = body.slice(0, 700), fresh = a => a.filter(x => x && top.indexOf(x) < 0);
   const first = fresh(name.slice(0, 1)), rest = fresh([].concat(where.slice(0, 1), mail.slice(0, 1), tel.slice(0, 1), link.slice(0, 3)));
   return (first.length ? first[0] + '\n\n' : '') + (rest.length ? rest.join(' | ') + '\n\n' : '');
 }
@@ -1293,6 +1295,7 @@ function latexToText(src) {
   s = s.replace(/\\(['`^"~])\s*\{?\\?([a-zA-Z])\}?/g, (_, mk, ch) => (ch + MARK[mk]).normalize('NFC'));
   s = s.replace(/\\c\s*\{?([cCsStT])\}?/g, (_, ch) => (ch + '̧').normalize('NFC'));
   s = s.replace(/\\v\s*\{([a-zA-Z])\}/g, (_, ch) => (ch + '̌').normalize('NFC'));
+  s = s.replace(/\\[a-zA-Z]+\s*=\s*-?[\d.]+\s*(?:pt|em|ex|mm|cm|in|bp|sp|fil)?/g, ' ');
   s = s.replace(/\\([a-zA-Z]+)\*?/g, (_, n) => (TEX_SYMBOLS[n] != null ? TEX_SYMBOLS[n] : ' '));
   s = s.replace(/\\[,;:! \/]/g, ' ').replace(/\\-/g, '').replace(/\\/g, ' ');
   s = s.replace(/\}[ \t]*\{/g, '} {').replace(/\$/g, '').replace(/[{}]/g, '').replace(/~/g, ' ').replace(/&/g, ' | ');
