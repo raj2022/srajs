@@ -69,7 +69,7 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .field[hidden] { display: none; }
 label, .lbl { font-size: 14px; font-weight: 600; }
 .hint { font-size: 14px; color: var(--muted); }
-select, textarea {
+input[type=text], select, textarea {
   width: 100%; font: inherit; color: var(--ink); background: var(--surface);
   border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
 }
@@ -184,6 +184,9 @@ mark.c { text-decoration-color: var(--bad); }
 .srcs .by { display: block; color: var(--muted); font-size: 14px; }
 .srcs .com { color: var(--warn); }
 
+.banner { margin: 18px 0 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; max-width: 78ch; }
+.banner p { margin: 0; }
+.banner .bsrc { margin-top: 8px; font-size: 14px; color: var(--muted); }
 .fixarea { width: 100%; max-width: 78ch; margin-bottom: 12px; }
 .cl-group { margin-top: 18px; }
 .cl-group h4 { font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 0 0 6px; }
@@ -217,6 +220,8 @@ mark.c { text-decoration-color: var(--bad); }
           <option value="cv">CV</option>
           <option value="statement">Research statement (experimental HEP postdoc)</option>
           <option value="letter">Cover letter (experimental HEP postdoc)</option>
+          <option value="letterds">Cover letter (data science, industry)</option>
+          <option value="letterq">Cover letter (quant researcher)</option>
         </select>
       </div>
 
@@ -228,6 +233,12 @@ mark.c { text-decoration-color: var(--bad); }
           <option value="acad">Academic / postdoc</option>
           <option value="gen">General industry</option>
         </select>
+      </div>
+
+      <div class="field" id="employerField" hidden>
+        <label for="employer">Company or firm (optional)</label>
+        <input type="text" id="employer" autocomplete="off" spellcheck="false" placeholder="For example: Citadel Securities, Citadel">
+        <p class="hint">The page checks that the letter names it, and warns if it names another one. Separate alternatives with commas.</p>
       </div>
 
       <div class="field">
@@ -315,6 +326,19 @@ const SRC = {
   berkeley: { n: 'UC Berkeley cover letter', by: 'UC Berkeley career site, academic cover letter page', u: 'https://www.career.berkeley.edu/grad-students-postdocs/academic-job-search/the-cover-letter/' },
   unc: { n: 'UNC faculty panel', by: 'UNC Office of Research, advice from faculty, PDF of 2025', u: 'https://research.unc.edu/wp-content/uploads/2025/03/Faculty-Application-Materials_Advice-from-Faculty.pdf' },
   ucla: { n: 'UCLA cover letter', by: 'UCLA Career Center, modified May 2026', u: 'https://career.ucla.edu/resources/academic-cover-letter-for-phd-students/' },
+  washuc: { n: 'WashU cover letters (tech, data)', by: 'WashU Center for Career Engagement, modified Jun 2026', u: 'https://careers.washu.edu/cover-letters-for-tech-data-and-engineering-community/' },
+  mitc: { n: 'MIT CAPD cover letters', by: 'MIT Career Advising & Professional Development, modified Feb 2026', u: 'https://capd.mit.edu/resources/how-to-write-an-effective-cover-letter/' },
+  hblog: { n: 'Harvard cover letter article', by: 'Harvard FAS Mignone Center, republished from WayUp, 10 Aug 2026', u: 'https://careerservices.fas.harvard.edu/blog/2026/08/10/how-to-write-a-cover-letter-that-actually-gets-you-hired-in-2026/' },
+  penn: { n: 'Penn grad and postdoc advice', by: 'Penn Career Services, modified Jun 2026', u: 'https://careerservices.upenn.edu/resources/resume-and-cover-letter-advice-for-grad-students-postdocs/' },
+  ucdcl: { n: 'UC Davis cover letters', by: 'UC Davis Career Center, modified Apr 2026', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/cover-letters' },
+  ucr: { n: 'UC Riverside grad handout', by: 'UC Riverside Career Center, 2025-26 graduate cover letter handout', u: 'https://careers.ucr.edu/sites/default/files/2026-02/25-26_grad_cover_letter_handout.pdf' },
+  msn: { n: 'Morgan Stanley cover letters', by: 'Morgan Stanley students and graduates site, modified Oct 2025', u: 'https://www.morganstanley.com/articles/are-cover-letters-important' },
+  jsapp: { n: 'Jane Street researcher application', by: 'Jane Street application page, no date shown', u: 'https://janestreet.com/apply-quantitative-researcher' },
+  citq: { n: 'Citadel Securities PhD posting', by: 'Citadel Securities, Quantitative Researcher PhD Graduate (US), no date shown', u: 'https://www.citadelsecurities.com/careers/details/quantitative-researcher-phd-graduate-us/' },
+  citref: { n: 'Citadel Securities EMEA posting', by: 'Citadel Securities, Campus Referrals Quantitative Research (EMEA), page modified 18 Oct 2026', u: 'https://www.citadelsecurities.com/?p=33932' },
+  optq: { n: 'Optiver graduate researcher posting', by: 'Optiver, Graduate Quantitative Researcher 2027 start (Amsterdam), no date shown', u: 'https://www.optiver.com/join-us/jobs/quantitative-research-and-machine-learning/amsterdam/graduate-quantitative-researcher-2027-start/' },
+  optqa: { n: 'Optiver campus recruiting Q&A', by: 'Optiver, page dated 11 Jun 2026', u: 'https://optiver.com/working-at-optiver/career-hub/optiver-eu-campus-recruiting-qa/' },
+  sigq: { n: 'SIG PhD posting', by: 'Susquehanna International Group, Quantitative Researcher PhD 2025, no date shown', u: 'https://careers-sig.icims.com/jobs/8452/quantitative-researcher-%E2%80%93-phd%3A-2025/job' },
   uva: { n: 'UVA sample letter', by: 'University of Virginia PhD+, sample postdoc letter dated 2006', u: 'https://phdplus.virginia.edu/sites/phdplus/files/documents/Sample_Cover_Letter-Unsolicited_Postdoc.pdf' }
 };
 const CHECK_SRC = {
@@ -334,10 +358,17 @@ const CHECK_SRC = {
   // cover letter
   l_position: ['berkeley', 'uva'], l_host: ['lapa', 'berkeley', 'unc'], l_specific: ['fleming', 'lapa'], l_names: ['unc', 'lapa'],
   l_generic: ['unc', 'berkeley'], l_role: ['fleming', 'chen'], l_science: ['uva', 'berkeley'], l_cv: ['berkeley', 'unc'],
-  l_close: ['uva'], l_tone: ['berkeley', 'ucla']
+  l_close: ['uva'], l_tone: ['berkeley', 'ucla'],
+  l_greet: ['ucdcl', 'mitc'], l_contact: ['mitc', 'ucdcl'],
+  // industry letters (data science and quant)
+  n_role: ['ucr', 'ucdcl', 'hblog', 'washuc'], n_employer: ['hblog', 'ucr', 'msn'], n_other: ['msn'], n_greet: ['washuc', 'mitc', 'ucdcl'],
+  n_numbers: ['hblog', 'ucr', 'washuc'], n_tools: ['washuc', 'ucr'], n_qskills: ['citq', 'sigq', 'optq'], n_own: ['hblog', 'ucr'],
+  n_weak: ['hblog'], n_resume: ['mitc', 'ucdcl', 'ucr', 'penn', 'msn'], n_close: ['ucr', 'mitc', 'ucdcl', 'msn'], n_tone: ['ucr', 'hblog'],
+  n_acro: ['aps'], n_labels: ['quantt', 'fca', 'wsp']
 };
 const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich'], gen: ['ucdres', 'aucc', 'aps'],
-  statement: ['lapa', 'uw', 'cornellgrad', 'northwestern', 'fleming'], letter: ['fleming', 'mit', 'berkeley', 'unc', 'ucla'] };
+  statement: ['lapa', 'uw', 'cornellgrad', 'northwestern', 'fleming'], letter: ['fleming', 'mit', 'berkeley', 'unc', 'ucla'],
+  letterds: ['hblog', 'mitc', 'ucr'], letterq: ['hblog', 'mitc', 'ucr'] };
 const KW_SRC = { ds: ['ucdres', 'washu', 'informs'], quant: ['quantt', 'fca', 'wsp'], acad: [], gen: ['ucdres', 'aucc'] };
 
 const PROFILES = {
@@ -760,7 +791,9 @@ function analyzeCV(raw, profileKey, extraText) {
 const DOCS = {
   cv: { label: null, noun: 'CV', groups: ['Header', 'Sections', 'Content', 'Keywords', 'Your checklist'] },
   statement: { label: 'Research statement, experimental HEP postdoc', noun: 'statement', groups: ['Format', 'Structure', 'Your role', 'Clarity', 'Your checklist'] },
-  letter: { label: 'Cover letter, experimental HEP postdoc', noun: 'letter', groups: ['Format', 'Fit', 'Content', 'Your checklist'] }
+  letter: { label: 'Cover letter, experimental HEP postdoc', noun: 'letter', groups: ['Format', 'Fit', 'Content', 'Your checklist'] },
+  letterds: { label: 'Cover letter, data science (industry)', noun: 'letter', groups: ['Format', 'Fit', 'Content', 'Your checklist'] },
+  letterq: { label: 'Cover letter, quantitative researcher', noun: 'letter', groups: ['Format', 'Fit', 'Content', 'Your checklist'] }
 };
 const PLACE_SRC = "\\[(?=[^\\]\\n]*[A-Za-z])[^\\]\\n]{2,60}\\]|\\b(?:TBD|TODO|XXX+|lorem ipsum)\\b|\\binsert [a-z ]{2,30} here\\b";
 const GENERIC_SRC = "\\b(?:to whom it may concern|dear sirs?(?: or madam)?|dear madam|your (?:esteemed|prestigious) (?:group|institution|university|institute|laboratory|team|department))\\b";
@@ -792,13 +825,17 @@ function hostNames(t) {
   }
   return Array.from(out);
 }
-function unexplainedAcronyms(text) {
+const ACRO_IND = new Set(['PHD', 'USA', 'UK', 'EU', 'AI', 'ML', 'NLP', 'SQL', 'API', 'AWS', 'GCP', 'GPU', 'CPU', 'ETL', 'KPI', 'CV', 'PDF', 'GPA', 'NYC', 'LLM', 'CI', 'CD', 'UI', 'UX', 'ROI', 'OKR', 'SAS', 'PCA', 'SVM', 'CNN', 'RNN', 'ARIMA', 'GARCH', 'IMO', 'ICPC', 'MIT', 'NYU', 'UCLA', 'USC', 'CMU', 'ETH', 'EPFL', 'CERN', 'II', 'III', 'IV', 'TBD', 'TODO', 'DC', 'NY', 'CA', 'TX', 'MA', 'WA', 'IL', 'FL', 'VA', 'MD', 'PA', 'NJ', 'SF', 'TB', 'GB', 'PB', 'MB', 'USD', 'EUR', 'GBP']);
+const QUANT_FIRMS = ['Jane Street', 'Citadel Securities', 'Citadel', 'Optiver', 'Susquehanna', 'SIG', 'Two Sigma', 'Hudson River Trading', 'HRT', 'IMC', 'DRW', 'Jump Trading', 'Virtu', 'Five Rings', 'Squarepoint', 'Millennium', 'Point72', 'D. E. Shaw', 'Renaissance Technologies', 'AQR', 'Man Group', 'Goldman Sachs', 'Morgan Stanley', 'JPMorgan', 'J.P. Morgan', 'Barclays', 'UBS', 'Deutsche Bank', 'Bank of America', 'Tower Research', 'XTX', 'G-Research', 'Akuna', 'Flow Traders', 'Balyasny', 'WorldQuant', 'Schonfeld'];
+const TECH_FIRMS = ['Google', 'Alphabet', 'Meta', 'Facebook', 'Amazon', 'Microsoft', 'Apple', 'Netflix', 'Uber', 'Lyft', 'Airbnb', 'Stripe', 'OpenAI', 'Anthropic', 'NVIDIA', 'Nvidia', 'Tesla', 'LinkedIn', 'Spotify', 'Salesforce', 'Databricks', 'Snowflake', 'Palantir', 'IBM', 'Oracle', 'Adobe', 'Walmart', 'Capital One', 'JPMorgan', 'Goldman Sachs', 'McKinsey', 'Deloitte', 'Accenture', 'Intel', 'Pinterest', 'TikTok', 'ByteDance', 'Dropbox', 'Shopify', 'PayPal', 'Mastercard'];
+function unexplainedAcronyms(text, okSet) {
+  okSet = okSet || ACRO_OK;
   const seen = new Set(), out = [];
   text.split('\n').forEach(line => {
     const letters = line.replace(/[^A-Za-z]/g, '');
     if (letters.length > 3 && letters === letters.toUpperCase()) return;
     (line.match(/\b[A-Z][A-Z]+(?:-[A-Z]+)*\b/g) || []).forEach(tok => {
-      if (ACRO_OK.has(tok) || seen.has(tok) || tok.length > 10) return;
+      if (okSet.has(tok) || seen.has(tok) || tok.length > 10) return;
       seen.add(tok);
       const e = tok.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
       if (new RegExp('\\(' + e + '\\)|\\b' + e + '\\s*\\(').test(text)) return;
@@ -813,8 +850,9 @@ function uniqueList(re, text, n) {
   return n ? out.slice(0, n) : out;
 }
 
-function analyzeDoc(raw, mode, extraText) {
+function analyzeDoc(raw, mode, extraText, opts) {
   const D = DOCS[mode];
+  const IND = mode === 'letterds' || mode === 'letterq';
   const text = String(raw).replace(/\r\n?/g, '\n').replace(/ /g, ' ').trim();
   const lines = text.split('\n');
   const flat = text.replace(/\s*\n+\s*/g, ' ');
@@ -829,6 +867,7 @@ function analyzeDoc(raw, mode, extraText) {
   const nonEmpty = lines.filter(l => l.trim()).length;
   const hardWrapped = nonEmpty >= 12 && words / nonEmpty < 16 && paras.length <= 3;
   const names = hostNames(text);
+  const head8 = lines.filter(l => l.trim()).slice(0, 8).join(' ');
   const checks = [];
   const add = (group, id, title, status, note, fix, weight) =>
     checks.push({ group, id, title, status, note, fix: fix || '', weight: weight == null ? 1 : weight });
@@ -842,16 +881,24 @@ function analyzeDoc(raw, mode, extraText) {
         words < 450 ? 'This is shorter than the 1 to 3 pages the postdoc-specific sources give.' : 'This is longer than the 1 to 3 pages the postdoc-specific sources give. Faculty pages run to 3 to 5.'),
       st === 'pass' ? '' : words < 450 ? 'Add your role in each result and one or two specific future directions.' : 'Cut to about two pages unless the advertisement sets a different limit. Keep a three-page version in reserve.', 1);
   } else {
+    if (IND) {
+      const st = words < 120 ? 'fail' : words < 200 ? 'warn' : words <= 450 ? 'pass' : words <= 600 ? 'warn' : 'fail';
+      add('Format', 'length', 'Length', st,
+        words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This fits on one page. The Harvard article suggests roughly 250 to 400 words.' :
+          words < 200 ? 'This is shorter than the 250 to 400 words the Harvard article suggests.' : words <= 600 ? 'This runs over the roughly 250 to 400 words that fit one page.' : 'This is well over one page, which every source treats as the limit.'),
+        st === 'pass' ? '' : words < 200 ? 'Add one or two achievements with what you did, how and the result.' : 'Cut to one page. Keep two or three themes and drop what the resume already says.', 1);
+    } else {
     const st = words < 150 ? 'fail' : words < 250 ? 'warn' : words <= 600 ? 'pass' : words <= 1000 ? 'warn' : 'fail';
     add('Format', 'length', 'Length', st,
       words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This fits on one page, which is the length most sources give.' :
         words < 250 ? 'This is shorter than a page.' : words <= 1000 ? 'This runs to about a page and a half. Sources allow that only when no separate research statement is requested.' : 'This is longer than the 2 pages that every source treats as the limit.'),
       st === 'pass' ? '' : words < 250 ? 'Add what the position needs: your main result, your role and why this group.' : 'Cut to one page. Let the research statement and CV carry the detail.', 1);
+    }
     const hasDear = /\b(?:dear|to whom it may concern)\b/i.test(lines.filter(l => l.trim()).slice(0, 8).join(' '));
     const hasClose = /\b(?:sincerely|regards|respectfully|yours|best wishes|cordially|with thanks)\b/i.test(lines.filter(l => l.trim()).slice(-6).join(' '));
     add('Format', 'l_greet', 'Greeting and sign-off', hasDear && hasClose ? 'pass' : hasDear || hasClose ? 'warn' : 'fail',
       hasDear && hasClose ? 'A greeting and a sign-off found.' : hasDear ? 'A greeting was found, but no sign-off near the end.' : hasClose ? 'A sign-off was found, but no greeting near the top.' : 'No greeting and no sign-off found.',
-      hasDear && hasClose ? '' : 'Start with "Dear Professor [name]" or "Dear Search Committee" and end with "Sincerely," and your name.', 0.5);
+      hasDear && hasClose ? '' : (IND ? 'Address a named person if you can, and end with "Sincerely," and your name.' : 'Start with "Dear Professor [name]" or "Dear Search Committee" and end with "Sincerely," and your name.'), 0.5);
     const hasContact = /[\w.+-]+@[\w-]+\.[\w.-]+/.test(text) || /\+?\d[\d\s().-]{8,}\d/.test(text);
     add('Format', 'l_contact', 'Contact details', hasContact ? 'pass' : 'warn',
       hasContact ? 'An email address or phone number found.' : 'No email address or phone number found in the letter.',
@@ -875,7 +922,7 @@ function analyzeDoc(raw, mode, extraText) {
     add('Format', 'advert', 'The advertisement comes first', 'info',
       'These rules combine career-office advice, mostly written for faculty applications, with two postdoc-specific sources. They do not replace the advertisement.',
       'Check its length limit, file format and list of documents before you use any score from this page.', 0);
-  } else {
+  } else if (mode === 'letter') {
     add('Format', 'advert', 'The advertisement comes first', 'info',
       'These rules combine career-office advice, mostly written for faculty applications, with one sample postdoc letter. They do not replace the advertisement.',
       'Check which documents it asks for. A letter that must carry the whole case can run longer than one page.', 0);
@@ -988,6 +1035,92 @@ function analyzeDoc(raw, mode, extraText) {
       tn.length ? 'Sound like a colleague, not a student. Replace praise with one specific reason this group fits.' : '', 0.75);
   }
 
+  // industry letters: data science and quant
+  let banner = null;
+  if (IND) {
+    const q = mode === 'letterq';
+    const emp = String((opts && opts.employer) || '').split(/[,|]/).map(x => x.trim()).filter(Boolean);
+    const who = q ? 'firm' : 'company';
+    const first90 = flat.split(/\s+/).slice(0, 90).join(' ');
+    const roleRe = q ? /\b(?:quantitative|quant|research analyst|researcher|trader|trading|position|role|opening|internship|graduate|programme|program)\b/i
+      : /\b(?:data scien\w+|machine learning|ml engineer|applied scien\w+|research scien\w+|data analyst|analytics|position|role|opening|job|internship)\b/i;
+    const roleOk = roleRe.test(first90);
+    add('Fit', 'n_role', 'Names the role early', roleOk ? 'pass' : 'fail',
+      roleOk ? 'The first lines name the role or the position.' : 'The first 90 words do not name the role.',
+      roleOk ? '' : 'Name the exact role in the opening, with the reference code if the posting gives one, and say why you want it.', 1);
+    const cnt = emp.reduce((n, e) => n + (lower.split(e.toLowerCase()).length - 1), 0);
+    if (emp.length) {
+      add('Fit', 'n_employer', 'Names the ' + who, cnt >= 2 ? 'pass' : cnt === 1 ? 'warn' : 'fail',
+        cnt ? 'The ' + who + ' is named ' + cnt + (cnt === 1 ? ' time.' : ' times.') : 'The ' + who + ' name does not appear in the letter.',
+        cnt >= 2 ? '' : 'Name the ' + who + ' in the opening and again where you say why you want to work there.', 1);
+    } else {
+      add('Fit', 'n_employer', 'Names the ' + who, 'info', 'No ' + who + ' name was entered, so this check was skipped.',
+        'Type the ' + who + ' name in the field on the left. The page then checks that the letter names it and no other.', 0);
+    }
+    const esc2 = f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const others = (q ? QUANT_FIRMS : TECH_FIRMS).filter(f => new RegExp('\\b' + esc2(f) + '(?![\\w-])').test(text))
+      .filter(f => !emp.some(e => e.toLowerCase().indexOf(f.toLowerCase()) >= 0 || f.toLowerCase().indexOf(e.toLowerCase()) >= 0));
+    const otherBad = emp.length ? others.length >= 1 : others.length >= 2;
+    add('Fit', 'n_other', 'No other ' + who + ' named by mistake', otherBad ? 'warn' : 'pass',
+      otherBad ? 'The letter also names ' + others.slice(0, 4).join(', ') + '. If that is a past employer, ignore this. If it is left over from another letter, remove it.' : 'No other ' + who + ' name found' + (emp.length ? '.' : ' (no ' + who + ' name was entered, so only repeated names count).'),
+      otherBad ? 'Search the letter for every company name before you send it.' : '', 0.75);
+    const gg = /\bdear (?:hiring manager|hiring team|recruit\w+|sir|madam|team)\b|to whom it may concern/i.test(head8);
+    if (/\bdear\b|to whom it may concern/i.test(head8)) {
+      add('Fit', 'n_greet', 'Greeting names a person', gg ? 'warn' : 'pass', gg ? 'The greeting is generic.' : 'The greeting is not a generic one.',
+        gg ? 'Try to find the name of the recruiter or hiring manager. "Dear Hiring Manager" is a last resort.' : '', 0.5);
+    }
+
+    const numS = sents.filter(x => /\d/.test(x.replace(/arxiv:\s*\S+|doi:\s*\S+|\b(?:19|20)\d{2}\b/gi, ''))).length;
+    add('Content', 'n_numbers', 'Results with numbers', numS >= 2 ? 'pass' : numS === 1 ? 'warn' : 'fail',
+      numS + (numS === 1 ? ' sentence has' : ' sentences have') + ' a number such as a size, a count or an improvement.',
+      numS >= 2 ? '' : 'Give each achievement as what you did, how, and the result with a number you can defend.', 1);
+    add('Content', 'n_own', 'Your own contribution', ownS.length >= 2 ? 'pass' : ownS.length === 1 ? 'warn' : 'fail',
+      ownS.length + (ownS.length === 1 ? ' sentence says' : ' sentences say') + ' what you did, such as "I built" or "I led".',
+      ownS.length >= 2 ? '' : (q ? 'Describe an independent research project: your question, your method, your data and your result.' : 'Say what you did yourself in each achievement. Use verbs such as "built", "led" or "measured".'), 1);
+    const kws = PROFILES[q ? 'quant' : 'ds'].kw;
+    const kwFound = kws.filter(k => k[1].test(text)).map(k => k[0]);
+    const kwMiss = kws.filter(k => !k[1].test(text)).map(k => k[0]);
+    add('Content', q ? 'n_qskills' : 'n_tools', q ? 'Skills the firms ask for' : 'Tools and methods named', kwFound.length >= 3 ? 'pass' : kwFound.length >= 1 ? 'warn' : 'fail',
+      kwFound.length + ' of the typical terms for this role appear' + (kwFound.length ? ': ' + kwFound.slice(0, 6).join(', ') + '.' : '.'),
+      kwFound.length >= 3 ? '' : 'If you really use them, name the ones the posting asks for, such as: ' + kwMiss.slice(0, 5).join(', ') + '.', 0.75);
+    const wk = uniqueList(new RegExp(WEAK_SRC, 'gi'), text, 4);
+    add('Content', 'n_weak', 'Weak phrases', wk.length ? 'warn' : 'pass',
+      wk.length ? 'Found: ' + wk.map(x => '"' + x + '"').join(', ') + '.' : 'No weak phrases such as "helped with" found.',
+      wk.length ? 'Replace each with a strong verb that says what you did.' : '', 0.75);
+    const yrs = (flat.match(/\b(?:19|20)\d{2}\b/g) || []).length;
+    const bul = lines.filter(l => BULLET_RE.test(l)).length;
+    const rs = bul >= 6 || yrs >= 7;
+    add('Content', 'n_resume', 'Adds to the resume', rs ? 'warn' : 'pass',
+      rs ? 'The text has ' + (bul >= 6 ? bul + ' bullet points' : yrs + ' years') + ', which reads like the resume.' : 'The letter does not read like the resume repeated.',
+      rs ? 'Keep two or three themes and add detail the resume has no room for.' : '', 0.75);
+    const cl = /\b(?:look forward|happy to|glad to|available|interview|hear from you|discuss|be in touch|thank you|thanks for)\b/i.test(flat);
+    add('Content', 'n_close', 'Closing with a next step', cl ? 'pass' : 'warn',
+      cl ? 'The letter thanks the reader or invites a reply.' : 'No thanks or invitation to reply found.',
+      cl ? '' : 'Close by restating your interest, thanking the reader and saying you are glad to talk.', 0.5);
+    const tn = uniqueList(new RegExp(HEDGE_SRC + '|' + CLICHE_SRC, 'gi'), text, 4);
+    add('Content', 'n_tone', 'Confident, specific tone', tn.length ? 'warn' : 'pass',
+      tn.length ? 'Found tentative or stock phrases: ' + tn.join(', ') + '.' : 'No tentative or stock phrases found.',
+      tn.length ? 'Say what you did and what it achieved. Replace praise for the ' + who + ' with one specific reason you want this role.' : '', 0.75);
+    const acr = unexplainedAcronyms(text, ACRO_IND);
+    add('Content', 'n_acro', 'Plain language for a reader outside physics', acr.length <= 3 ? 'pass' : acr.length <= 8 ? 'warn' : 'fail',
+      acr.length ? acr.length + (acr.length === 1 ? ' acronym is' : ' acronyms are') + ' not spelled out: ' + acr.slice(0, 8).join(', ') + '.' : 'No unexplained acronyms found.',
+      acr.length <= 3 ? '' : 'Spell out each on first use, or cut it. Recruiters and hiring managers may not know your field.', 0.75);
+    if (q) {
+      const money = /\b(?:backtest|back-test|sharpe|returns?|alpha|pnl|strateg(?:y|ies))\b/i.test(flat);
+      const lab = /\b(?:simulated|historical|out[- ]of[- ]sample|in[- ]sample|live|paper trad\w+)\b/i.test(flat);
+      if (money) {
+        add('Content', 'n_labels', 'Trading results labelled', lab ? 'pass' : 'warn',
+          lab ? 'Results are labelled as simulated, historical, out-of-sample or live.' : 'A strategy or backtest is mentioned without saying whether the result is simulated, historical, out-of-sample or live.',
+          lab ? '' : 'Label each result, state costs and assumptions, and do not present simulated results as returns you earned. These three sources are commercial.', 0.75);
+      }
+      banner = { text: 'Check first whether the firm wants a letter. Of the five application pages I read on 18 October 2026, none asks for one. Jane Street’s researcher form says a cover letter is not needed. Citadel Securities’ PhD and EMEA forms ask for a resume, Optiver’s graduate posting asks for a CV and its recruiting page says materials must come through the application form, and the SIG PhD posting does not mention a letter. A page that does not mention a letter does not prove that none is read, and no page says what happens to one sent anyway. Banks and asset managers may ask for one: Morgan Stanley says that when a letter is required it matters. If the form has no place for it, follow the form.',
+        src: ['jsapp', 'citq', 'citref', 'optq', 'optqa', 'sigq', 'msn'] };
+    } else {
+      banner = { text: 'Check the posting first. WashU says to follow it: if it says not to include a letter, do not write one, and if a letter is optional, one can help when it adds to your resume. The Harvard article says recruiters often spend under 30 seconds on a first read, but that is the author’s advice and not research.',
+        src: ['washuc', 'hblog'] };
+    }
+  }
+
   // user checklist
   const extra = String(extraText || '').split('\n').map(s => s.trim()).filter(Boolean);
   extra.forEach((line, k) => {
@@ -998,7 +1131,7 @@ function analyzeDoc(raw, mode, extraText) {
       hit ? '' : 'Mention ' + (alts.length > 1 ? 'one of: ' + alts.join(', ') : '"' + alts[0] + '"') + ' if it applies to you.', 1);
   });
 
-  checks.forEach(c => { c.src = c.id === 'length' ? LEN_SRC[mode] : (CHECK_SRC[c.id] || []); });
+  checks.forEach(c => { c.src = c.id === 'length' ? LEN_SRC[mode] : (c.id === 'n_own' && mode === 'letterq') ? ['citq', 'sigq'] : (CHECK_SRC[c.id] || []); });
   let num = 0, den = 0;
   checks.forEach(c => {
     if (c.status === 'info' || c.weight <= 0) return;
@@ -1011,7 +1144,7 @@ function analyzeDoc(raw, mode, extraText) {
   if (mode === 'statement') statsList.push(['Sentences about the future', sents.length ? pct(sents.filter(s => FUT_RE.test(s)).length / sents.length) : '–']);
   return {
     score, checks, lines, kind: lines.map(() => ''), flags: lines.map(() => ({})), profile: { label: D.label }, profileKey: mode,
-    mode, noun: D.noun, groupOrder: D.groups, statsList, sectionMap: null, kw: null
+    mode, noun: D.noun, groupOrder: D.groups, statsList, sectionMap: null, kw: null, banner
   };
 }
 
@@ -1209,16 +1342,58 @@ const EXAMPLE_LETTER = [
   'Sincerely,',
   'Jordan Ellis'
 ].join('\n');
-const EXAMPLES = { cv: EXAMPLE, statement: EXAMPLE_STATEMENT, letter: EXAMPLE_LETTER };
+const EXAMPLE_LETTER_DS = [
+  'Jordan Ellis',
+  'Washington, DC | jordan.ellis@example.com | github.com/jellis-example',
+  '',
+  'Dear Hiring Manager,',
+  '',
+  'I am writing to apply for the Data Scientist position on the Customer Analytics team at Northgate Analytics. I will finish my PhD in physics at Midlands State University in December 2026, and I want to apply my experience with large, noisy datasets to your products.',
+  '',
+  'In my PhD research I led an analysis of 140 TB of detector data. I built a data-driven model of the dominant background and validated it on two held-out samples, which cut the background uncertainty by 18%. I documented the method in an internal note and presented it to a group of 40 physicists. I also trained a gradient-boosted classifier in Python with scikit-learn and tracked its performance with a BDT closure test.',
+  '',
+  'I wrote the C++ and Python pipeline that produces our simulated data on a batch system. It processes 200 million events per week, and 6 analysts use it. I also helped with the calibration of the jet mass scale. The work taught me to find problems early, to keep experiments reproducible and to explain results to people who did not run them.',
+  '',
+  'Your team’s work on churn prediction is close to what I know: forecasting rare events with careful validation. I believe I could learn a lot from your team, and I am excited to join Northgate Analytics.',
+  '',
+  'I would be happy to discuss my application. Thank you for your time.',
+  '',
+  'Sincerely,',
+  'Jordan Ellis'
+].join('\n');
+const EXAMPLE_LETTER_Q = [
+  'Jordan Ellis',
+  'Washington, DC | jordan.ellis@example.com',
+  '',
+  'Dear Recruiting Team,',
+  '',
+  'I am applying for the Quantitative Researcher (PhD Graduate) role at Redfield Capital. I will complete my PhD in physics at Midlands State University in December 2026, and I would like to use my research in statistics and numerical methods on your trading problems.',
+  '',
+  'My thesis is a search for a narrow excess in a large dataset with a steeply falling background. I developed a data-driven background estimate and a likelihood fit with 12 nuisance parameters, and I validated them on pseudo-data and on two orthogonal control regions. The work needed probability, statistics and careful treatment of time-varying detector conditions, and I wrote the C++ and Python code myself. I presented the result at 3 conferences and answered detailed questions on the fit from specialists in the field.',
+  '',
+  'Outside my thesis I built a mean-reversion strategy on daily futures data. The backtest has a Sharpe ratio of 1.8, and I believe it shows that I can find signals in noisy data. I was also responsible for a framework used by 6 analysts, which taught me to write code that other people can trust and maintain under deadline.',
+  '',
+  'Redfield Capital’s research on short-horizon forecasting is what draws me to the firm.',
+  '',
+  'Thank you for your time. I look forward to hearing from you.',
+  '',
+  'Sincerely,',
+  'Jordan Ellis'
+].join('\n');
+const EXAMPLES = { cv: EXAMPLE, statement: EXAMPLE_STATEMENT, letter: EXAMPLE_LETTER, letterds: EXAMPLE_LETTER_DS, letterq: EXAMPLE_LETTER_Q };
+const EXAMPLE_EMPLOYER = { letterds: 'Northgate Analytics', letterq: 'Redfield Capital' };
 const MODE_TEXT = {
   cv: { btn: 'Check CV', empty: 'Paste your CV text or upload a file, then press Check CV.', ex: 'Example CV for a fictional person. Replace it with yours.' },
   statement: { btn: 'Check statement', empty: 'Paste your research statement or upload a file, then press Check statement.', ex: 'Example statement for a fictional person, with some problems left in on purpose. Replace it with yours.' },
-  letter: { btn: 'Check letter', empty: 'Paste your cover letter or upload a file, then press Check letter.', ex: 'Example letter for a fictional person, with some problems left in on purpose. Replace it with yours.' }
+  letter: { btn: 'Check letter', empty: 'Paste your cover letter or upload a file, then press Check letter.', ex: 'Example letter for a fictional person, with some problems left in on purpose. Replace it with yours.' },
+  letterds: { btn: 'Check letter', empty: 'Paste your cover letter or upload a file, then press Check letter.', ex: 'Example letter for a fictional person and a fictional company, with some problems left in on purpose. Replace it with yours.' },
+  letterq: { btn: 'Check letter', empty: 'Paste your cover letter or upload a file, then press Check letter.', ex: 'Example letter for a fictional person and a fictional firm, with some problems left in on purpose. Replace it with yours.' }
 };
 const curMode = () => $('#doc').value;
 function applyMode() {
   const m = curMode();
   $('#profileField').hidden = m !== 'cv';
+  $('#employerField').hidden = !EXAMPLE_EMPLOYER[m];
   $('#checkBtn').textContent = MODE_TEXT[m].btn;
 }
 function isExample(t) { return Object.keys(EXAMPLES).some(k => EXAMPLES[k] === t); }
@@ -1282,6 +1457,7 @@ function sourcesBlock(res) {
   const used = new Set();
   res.checks.forEach(c => (c.src || []).forEach(k => used.add(k)));
   checklistGroups(res).forEach(G => G.items.forEach(it => { if (Array.isArray(it)) it[1].forEach(k => used.add(k)); }));
+  if (res.banner) res.banner.src.forEach(k => used.add(k));
   return '<div class="block"><h3>Sources behind the rules</h3><p class="sub">Each rule links to the pages that support it. This list shows the pages behind the checks in this report. Pages marked commercial sell a service tied to their advice, so I weigh them less.</p><ul class="srcs">' +
     Object.keys(SRC).filter(k => used.has(k)).map(k => {
       const s = SRC[k];
@@ -1418,7 +1594,43 @@ const CL_LAST = { g: 'Last step before every send', items: [
   'Read the top third of page one as if you had ten seconds. Does it show why you fit this role?',
   'Compare the CV with your master document. Is anything on it missing from, or different from, the truth recorded there?'] };
 
+const CL_LETTER_DS = [
+  { g: 'Content', items: [
+    ['The posting asks for a letter or marks it optional. If it says not to send one, you did not.', ['washuc']],
+    ['The exact role is named in the opening, with the reference code if the posting gives one.', ['mitc', 'ucr']],
+    ['It is written for this company, and the company name and role title are right.', ['hblog', 'ucdcl']],
+    ['It adds to the resume with two or three themes, each showing what you did, how and the result.', ['hblog', 'ucr', 'washuc']],
+    ['Tools and methods the posting names are in the letter where they are true.', ['ucr']],
+    ['A reader outside your field can follow it.', ['aps']],
+    'Every claim and number matches your resume and is one you could explain in an interview.',
+    ['Any AI-assisted text is edited into your own voice and has details only you would know.', ['hblog', 'ucdcl']]] },
+  { g: 'Submit', items: [
+    ['The greeting names a person if you could find one.', ['washuc', 'mitc']],
+    ['It fits on one page.', ['mitc', 'hblog', 'ucr']],
+    ['You send a PDF unless the posting says otherwise.', ['hblog']],
+    ['You proofread it and read it aloud once.', ['hblog']],
+    'You kept a copy of exactly what you sent.'] }
+];
+const CL_LETTER_Q = [
+  { g: 'Before you write', items: [
+    ['The application form has a place for a letter, or the posting asks for one. If it does not, you are not sending one another way.', ['optqa', 'jsapp']]] },
+  { g: 'Content', items: [
+    ['It opens with the role and the firm, and says why this firm and this role.', ['msn', 'ucr']],
+    ['The firm name is right throughout and no other firm’s name is left in.', ['msn']],
+    ['It shows independent research: a project, a method, data and a result you could defend.', ['sigq', 'citq']],
+    ['Probability, statistics, machine learning and coding that the posting asks for are visible in the letter or the resume.', ['citq', 'optq']],
+    ['Results from trading or backtests are labelled simulated, historical, out-of-sample or live, with costs stated.', ['quantt', 'fca', 'wsp']],
+    ['A reader outside your field can follow it.', ['aps']],
+    ['It does not repeat the resume.', ['mitc', 'msn']]] },
+  { g: 'Submit', items: [
+    ['It fits on one page.', ['mitc', 'hblog']],
+    ['You proofread it, and someone else has too.', ['msn']],
+    ['You know the next stage. Optiver’s posting says shortlisted candidates complete online assessments within 7 days.', ['optq']],
+    'You kept a copy of exactly what you sent.'] }
+];
 function checklistGroups(res) {
+  if (res.mode === 'letterds') return CL_LETTER_DS;
+  if (res.mode === 'letterq') return CL_LETTER_Q;
   if (res.mode === 'statement') return CL_STATEMENT;
   if (res.mode === 'letter') return CL_LETTER;
   return CL_CV_SHARED.concat([CL_CV_ROLE[res.profileKey] || CL_CV_ROLE.gen, CL_LAST]);
@@ -1480,6 +1692,7 @@ function render(res) {
       layersHTML(res) +
       '<p class="hint">Checked against: ' + esc(res.profile.label) + '. Each ring is one group of checks, outermost first.</p>' +
       (res.fromLatex ? '<p class="hint">Read as LaTeX source. Commands were removed and macros expanded before checking, so the marked-up text below is the converted version.</p>' : '') + '</div></div>' +
+    (res.banner ? '<div class="banner"><p>' + esc(res.banner.text) + '</p><p class="bsrc">Pages: ' + res.banner.src.map(k => '<a href="' + SRC[k].u + '" target="_blank" rel="noopener">' + esc(SRC[k].n) + '</a>').join(', ') + '</p></div>' : '') +
     '<dl class="stats">' + res.statsList.map(x => '<div><dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd></div>').join('') + '</dl>' +
     (fails.length ? listBlock('Fix first', 'Missing parts and gaps that readers notice.', fails) : '<div class="block"><h3>Fix first</h3><p class="sub">Nothing required is missing.</p></div>') +
     listBlock('Improve', 'Present, but weaker than it should be.', warns) +
@@ -1501,6 +1714,7 @@ function render(res) {
     '<div class="block">' +
       '<p class="limits">' + (isCV
         ? 'The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.'
+        : (res.mode === 'letterds' || res.mode === 'letterq') ? 'The checks read text only and cannot judge whether a claim is true. These rules come from university career offices and a few firm pages, which mostly say what to send and not what to write. Length is a guide, because the posting comes first. No page I read says how data science or quant employers use a letter once it arrives. The Jane Street page is one application form, and other forms at the same firm may differ.'
         : 'The checks read text only and cannot judge the physics or whether a claim is true. The evidence for statements and letters is thin: only two of the pages are about postdoc applications in physics, and the rest are written for faculty applications. Length rules are a guide, because the advertisement’s own limit comes first. The CMS collaboration’s job application guide could not be read, so no rule uses it.') + (res.fromLatex ? ' The LaTeX conversion is approximate: files pulled in with \\input, macros made with \\def and drawings are not followed. If something looks wrong in the marked-up text, paste the text from your compiled PDF instead.' : '') + '</p></div></div>';
   $('#report').innerHTML = html;
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -1557,7 +1771,7 @@ function run() {
   const isTex = looksLikeLatex(raw);
   const t = isTex ? latexToText(raw) : raw;
   if (t.trim().length < 40) { showEmpty(); return; }
-  last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value) : analyzeDoc(t, curMode(), $('#extra').value);
+  last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value) : analyzeDoc(t, curMode(), $('#extra').value, { employer: $('#employer').value });
   last.fromLatex = isTex;
   render(last);
 }
@@ -1615,16 +1829,17 @@ async function loadFile(file) {
 $('#tabPaste').addEventListener('click', () => selectTab('paste'));
 $('#tabUpload').addEventListener('click', () => selectTab('upload'));
 $('#checkBtn').addEventListener('click', run);
-$('#exampleBtn').addEventListener('click', () => { $('#cvText').value = EXAMPLES[curMode()]; selectTab('paste'); setNote(MODE_TEXT[curMode()].ex); run(); });
+$('#exampleBtn').addEventListener('click', () => { $('#cvText').value = EXAMPLES[curMode()]; $('#employer').value = EXAMPLE_EMPLOYER[curMode()] || $('#employer').value; selectTab('paste'); setNote(MODE_TEXT[curMode()].ex); run(); });
 $('#doc').addEventListener('change', () => {
   applyMode();
   const t = $('#cvText').value;
-  if (!t.trim() || isExample(t)) { $('#cvText').value = EXAMPLES[curMode()]; setNote(MODE_TEXT[curMode()].ex); run(); }
+  if (!t.trim() || isExample(t)) { $('#cvText').value = EXAMPLES[curMode()]; if (EXAMPLE_EMPLOYER[curMode()]) $('#employer').value = EXAMPLE_EMPLOYER[curMode()]; setNote(MODE_TEXT[curMode()].ex); run(); }
   else { setNote(''); run(); }
 });
-$('#clearBtn').addEventListener('click', () => { $('#cvText').value = ''; $('#cvFile').value = ''; setNote(''); selectTab('paste'); showEmpty(); $('#cvText').focus(); });
+$('#clearBtn').addEventListener('click', () => { $('#cvText').value = ''; $('#employer').value = ''; $('#cvFile').value = ''; setNote(''); selectTab('paste'); showEmpty(); $('#cvText').focus(); });
 $('#profile').addEventListener('change', () => { if ($('#cvText').value.trim()) run(); });
 $('#extra').addEventListener('change', () => { if ($('#cvText').value.trim()) run(); });
+$('#employer').addEventListener('change', () => { if ($('#cvText').value.trim()) run(); });
 $('#cvText').addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') run(); });
 $('#cvFile').addEventListener('change', e => loadFile(e.target.files && e.target.files[0]));
 const drop = $('#drop');
