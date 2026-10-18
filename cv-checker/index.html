@@ -184,6 +184,16 @@ mark.c { text-decoration-color: var(--bad); }
 .srcs .by { display: block; color: var(--muted); font-size: 14px; }
 .srcs .com { color: var(--warn); }
 
+.cl-group { margin-top: 18px; }
+.cl-group h4 { font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 0 0 6px; }
+.cl { list-style: none; padding: 0; margin: 0; max-width: 72ch; }
+.cl li { border-top: 1px solid var(--line); }
+.cl li:last-child { border-bottom: 1px solid var(--line); }
+.cl label { font-weight: 400; font-size: 16px; display: flex; gap: 12px; align-items: flex-start; padding: 9px 2px; cursor: pointer; }
+.cl input { flex: none; width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+.cl input:checked + span { color: var(--muted); }
+.clsrc { font-size: 14px; }
+#checklist .btns { margin-top: 16px; }
 .limits { font-size: 14px; color: var(--muted); max-width: 70ch; }
 .copybox { margin-top: 8px; }
 .foot { border-top: 1px solid var(--line); padding: 20px 0 40px; font-size: 14px; color: var(--muted); max-width: 70ch; }
@@ -1155,6 +1165,7 @@ function itemHTML(c) {
 function sourcesBlock(res) {
   const used = new Set();
   res.checks.forEach(c => (c.src || []).forEach(k => used.add(k)));
+  checklistGroups(res).forEach(G => G.items.forEach(it => { if (Array.isArray(it)) it[1].forEach(k => used.add(k)); }));
   return '<div class="block"><h3>Sources behind the rules</h3><p class="sub">Each rule links to the pages that support it. This list shows the pages behind the checks in this report. Pages marked commercial sell a service tied to their advice, so I weigh them less.</p><ul class="srcs">' +
     Object.keys(SRC).filter(k => used.has(k)).map(k => {
       const s = SRC[k];
@@ -1193,6 +1204,150 @@ function cvViewHTML(res) {
   }).join('');
 }
 
+/* ---------- tickable checklists ---------- */
+const CL_CV_SHARED = [
+  { g: 'Prepare', items: [
+    'Every placeholder from a template is replaced, and no illustrative example is left in.',
+    'Every number has a source you can name and a way it was measured.',
+    'Every claim is one you could explain for five minutes in an interview.',
+    'You read the advertisement and marked its must-haves.'] },
+  { g: 'Review', items: [
+    'Spelling and grammar are checked by software, and you read it aloud once.',
+    'One date format, one bullet style and one tense rule throughout, with no gaps you cannot explain.',
+    'Tool and method names are spelled and capitalised the same way every time, for example PyTorch, scikit-learn, C++.',
+    'Contact details are correct: email, phone, city and links.',
+    'Someone who knows your field has read it.'] },
+  { g: 'Links', items: [
+    'Every link opens in a private browser window without a login.',
+    'Links go to stable pages: a profile, a repository, a DOI or an arXiv abstract.',
+    'Linked repositories have a readme and nothing you would not want a reader to open.'] },
+  { g: 'Submit', items: [
+    'You followed the employer’s instructions on file type, file name and length.',
+    'If there were no instructions: you sent a text-based PDF, then copied its text into a plain-text editor and checked the order and characters.',
+    'The file name is clear, for example Surname_Firstname_CV_Role.pdf.',
+    'Every knockout question (work authorisation, degree, availability) is answered accurately.',
+    'You kept a copy of exactly what you sent, with the date and the posting.'] }
+];
+const CL_CV_ROLE = {
+  acad: { g: 'Postdoctoral CV', items: [
+    'Research interests (3 to 4 lines) fit this group or call and name the question you want to work on next.',
+    'Length fits the norm in your field and the call. The sources I read give 3 to 5 pages for a postdoc CV.',
+    'Publications are split into refereed, preprints and submitted, and each has a working link.',
+    'Your name is marked in author lists in the same way throughout.',
+    ['For large-collaboration papers, you selected your significant papers or added a line on your role to each, including convener or contact roles.', ['ecfa', 'iupap']],
+    'Preprints that are not yet accepted are labelled as preprints or submitted.',
+    'Grants, fellowships and awards show the funder and year, and say whether you applied for or were named on them.',
+    'Talks are split into invited and contributed, with the event and year.',
+    'Teaching and mentoring list courses, your role and the number of students mentored.',
+    ['Referees have agreed, have the current version of your CV and know the deadline.', ['fleming', 'chen']],
+    'The cover letter and research statement tell the same story as the CV and use the call’s wording.'] },
+  quant: { g: 'Quantitative researcher resume', items: [
+    'One page unless you have a strong reason, with education and skills near the top for a PhD graduate.',
+    '"PhD" is in Education, not after your name.',
+    'Every project says the question, data source, method, validation and limitation.',
+    'Every result is labelled as simulated, historical, out-of-sample or live, and none is presented as returns you did not earn.',
+    'Transaction costs are stated, with any assumption, if you mention performance.',
+    'Languages and libraries listed are ones you could code with in an interview.',
+    'Probability, statistics, optimisation and time-series background is visible in coursework, thesis or projects.',
+    'Competitions and prizes listed are real and specific.'] },
+  ds: { g: 'Data scientist resume', items: [
+    'One page, with a 2 to 3 line summary that names your field, data scale, tools and target role.',
+    'Skills are grouped by type, and each skill appears again in a bullet or project.',
+    'Each bullet follows problem, method and measured impact, with the baseline named.',
+    'Production work (deployment, monitoring, pipelines) is described where it exists and not claimed where it does not.',
+    'Projects have a link, a one-line problem, the validation method and the result.',
+    'The context is clear to someone outside your field.',
+    'Academic papers are reduced to a count and one or two titles.',
+    'Keywords from the posting appear where they are true.'] },
+  gen: { g: 'This role', items: [
+    'The top third of page one shows why you fit this role.',
+    'The summary and bullets use the posting’s wording where it is true.',
+    'The length matches the norm for the role and the employer’s instructions.'] }
+};
+const CL_STATEMENT = [
+  { g: 'Content', items: [
+    'It starts with the physics question, not your biography.',
+    'A physicist outside your analysis could follow it, and every acronym is explained.',
+    ['For every result, your own role is clear and the collaboration’s work is separated from yours.', ['ecfa', 'iupap', 'chen']],
+    'Every result is labelled published, in collaboration review or ongoing.',
+    'What you say about unpublished results agrees with your collaboration’s rules and with what your referees will say.',
+    ['One or two future directions are feasible within the appointment and tied to the group.', ['uw', 'cornellrs']],
+    'The fit section uses the group’s actual publications or the advertisement, not guesses.'] },
+  { g: 'Submit', items: [
+    'Length and file format match the advertisement.',
+    'Every claim, publication detail and link has been checked.',
+    'An adviser or an experienced experimental physicist has reviewed it.',
+    ['Your referees have the deadline and your documents.', ['fleming', 'chen']],
+    'You verified the submission deadline and that applications are still open.',
+    'You kept a copy of exactly what you sent.'] }
+];
+const CL_LETTER = [
+  { g: 'Content', items: [
+    ['The exact advertised position is named in the first lines.', ['berkeley', 'uva']],
+    ['The letter is written for this institution and group, not copied from the one sent elsewhere.', ['unc', 'berkeley']],
+    ['It tells a story with one main takeaway and does not repeat the CV.', ['berkeley', 'unc', 'ucla']],
+    'It describes a real scientific contribution, and your own role in it is clear.',
+    'It connects your experience to the advertised research, using one project of the group that you have read.',
+    ['It sounds like a colleague, not a student, and is neither wordy nor overly modest.', ['berkeley', 'ucla']],
+    ['The closing lists what you enclose, says how the recommendation letters will arrive and asks for a reply.', ['uva']]] },
+  { g: 'Submit', items: [
+    'The names of the PI and the institution are spelled correctly.',
+    'You included every document the advertisement asks for, and checked whether it wants a publication list.',
+    'Length matches the advertisement. A letter that must carry the whole case can run longer than one page.',
+    'The letter agrees with the CV and the research statement.',
+    'You proofread it once on paper or read it aloud.',
+    'You verified the submission deadline and that applications are still open.'] }
+];
+const CL_LAST = { g: 'Last step before every send', items: [
+  'Read the top third of page one as if you had ten seconds. Does it show why you fit this role?',
+  'Compare the CV with your master document. Is anything on it missing from, or different from, the truth recorded there?'] };
+
+function checklistGroups(res) {
+  if (res.mode === 'statement') return CL_STATEMENT;
+  if (res.mode === 'letter') return CL_LETTER;
+  return CL_CV_SHARED.concat([CL_CV_ROLE[res.profileKey] || CL_CV_ROLE.gen, CL_LAST]);
+}
+let ticks = {};
+try { ticks = JSON.parse(localStorage.getItem('appcheck-ticks') || '{}') || {}; } catch (e) { ticks = {}; }
+function saveTicks() { try { localStorage.setItem('appcheck-ticks', JSON.stringify(ticks)); } catch (e) { /* storage may be blocked */ } }
+function tickKey(res, gi, ii) { return res.mode + '|' + (res.mode === 'cv' ? res.profileKey : '-') + '|' + gi + '.' + ii; }
+function clProgress(res) {
+  let n = 0, d = 0;
+  checklistGroups(res).forEach((G, gi) => G.items.forEach((_, ii) => { d++; if (ticks[tickKey(res, gi, ii)]) n++; }));
+  return { n, d };
+}
+function checklistHTML(res) {
+  const p = clProgress(res);
+  return '<div class="block" id="checklist"><h3>Before you send</h3>' +
+    '<p class="sub">The checks above read text only. These items need you. Tick them as you go; ticks are remembered in this browser when it allows storage. The items are my recommendations, and a link marks where a source supports one. <b id="clProg">' + p.n + ' of ' + p.d + ' done</b></p>' +
+    checklistGroups(res).map((G, gi) => '<div class="cl-group"><h4>' + esc(G.g) + '</h4><ul class="cl">' +
+      G.items.map((it, ii) => {
+        const text = Array.isArray(it) ? it[0] : it, src = Array.isArray(it) ? it[1] : [];
+        const k = tickKey(res, gi, ii);
+        return '<li><label><input type="checkbox" data-k="' + esc(k) + '"' + (ticks[k] ? ' checked' : '') + '><span>' + esc(text) +
+          (src.length ? ' <span class="clsrc">(' + src.map(s => '<a href="' + SRC[s].u + '" target="_blank" rel="noopener">' + esc(SRC[s].n) + '</a>').join(', ') + ')</span>' : '') + '</span></label></li>';
+      }).join('') + '</ul></div>').join('') +
+    '<div class="btns"><button type="button" class="btn" id="clReset">Clear ticks</button></div></div>';
+}
+function wireChecklist() {
+  const rep = $('#report');
+  rep.onchange = e => {
+    const t = e.target;
+    if (!t || !t.matches || !t.matches('.cl input[type=checkbox]')) return;
+    if (t.checked) ticks[t.dataset.k] = 1; else delete ticks[t.dataset.k];
+    saveTicks();
+    if (last) { const p = clProgress(last); const el = $('#clProg'); if (el) el.textContent = p.n + ' of ' + p.d + ' done'; }
+  };
+  const r = $('#clReset');
+  if (r) r.onclick = () => {
+    if (!last) return;
+    checklistGroups(last).forEach((G, gi) => G.items.forEach((_, ii) => { delete ticks[tickKey(last, gi, ii)]; }));
+    saveTicks();
+    document.querySelectorAll('.cl input').forEach(i => { i.checked = false; });
+    $('#clProg').textContent = '0 of ' + clProgress(last).d + ' done';
+  };
+}
+
 function render(res) {
   const fails = res.checks.filter(c => c.status === 'fail');
   const warns = res.checks.filter(c => c.status === 'warn');
@@ -1213,6 +1368,7 @@ function render(res) {
     listBlock('Improve', 'Present, but weaker than it should be.', warns) +
     foldBlock('Looks good', goods, false) +
     foldBlock('Notes for this ' + (isCV ? 'role' : 'document'), infos, false) +
+    checklistHTML(res) +
     (isCV ? '<div class="block"><h3>Sections</h3><div class="chips">' +
       res.sectionMap.map(s => '<span class="chip ' + s.state + '">' + esc(s.name) + (s.state === 'missing' && s.level === 'opt' ? ' (optional)' : '') + '</span>').join('') + '</div></div>' +
     '<div class="block"><h3>Keywords</h3><p class="sub">Typical terms for ' + esc(res.profile.label) + '. Use only the ones that are true for you.</p><div class="chips">' +
@@ -1231,14 +1387,20 @@ function render(res) {
     document.querySelectorAll('.detector .bar').forEach(b => { b.style.strokeDashoffset = b.dataset.off; });
   }));
   $('#copyBtn').addEventListener('click', copyReport);
+  wireChecklist();
 }
 
+function openItems(res) {
+  const out = [];
+  checklistGroups(res).forEach((G, gi) => G.items.forEach((it, ii) => { if (!ticks[tickKey(res, gi, ii)]) out.push('- [ ] ' + (Array.isArray(it) ? it[0] : it)); }));
+  return out.length ? '\nSTILL TO CHECK BEFORE YOU SEND\n' + out.join('\n') + '\n' : '';
+}
 function reportText(res) {
   const sec = (title, arr) => arr.length ? '\n' + title + '\n' + arr.map(c => '- ' + c.title + ': ' + c.note + (c.fix ? ' Add: ' + c.fix : '')).join('\n') + '\n' : '';
   return (res.mode === 'cv' ? 'CV check, ' : 'Check of the ' + res.noun + ', ') + res.profile.label + ': ' + res.score + '/100\n' +
     sec('MISSING', res.checks.filter(c => c.status === 'fail')) +
     sec('TO IMPROVE', res.checks.filter(c => c.status === 'warn')) +
-    sec('GOOD', res.checks.filter(c => c.status === 'pass'));
+    sec('GOOD', res.checks.filter(c => c.status === 'pass')) + openItems(res);
 }
 async function copyReport() {
   if (!last) return;
