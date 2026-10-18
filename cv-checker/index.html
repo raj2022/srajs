@@ -184,6 +184,7 @@ mark.c { text-decoration-color: var(--bad); }
 .srcs .by { display: block; color: var(--muted); font-size: 14px; }
 .srcs .com { color: var(--warn); }
 
+.fixarea { width: 100%; max-width: 78ch; margin-bottom: 12px; }
 .cl-group { margin-top: 18px; }
 .cl-group h4 { font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 0 0 6px; }
 .cl { list-style: none; padding: 0; margin: 0; max-width: 72ch; }
@@ -1494,7 +1495,10 @@ function render(res) {
       '<div class="legend">' + legend + '</div>' +
       '<div class="cvview" tabindex="0" role="region" aria-label="Marked-up ' + esc(res.noun) + '">' + cvViewHTML(res) + '</div></div>' +
     sourcesBlock(res) +
-    '<div class="block"><div class="btns"><button type="button" class="btn" id="copyBtn">Copy report</button></div><div class="copybox" id="copyBox"></div>' +
+    '<div class="block" id="fixes"><h3>Fixes to send</h3><p class="sub">Every item marked Missing or Improve, in plain text. Copy it to send to your adviser or a reviewer, or keep it as your to-do list.</p>' +
+      '<textarea id="fixArea" class="fixarea" readonly aria-label="Missing and improve items" rows="' + Math.min(26, Math.max(6, fixesText(res).split('\n').length + 1)) + '"></textarea>' +
+      '<div class="btns"><button type="button" class="btn primary" id="copyFixBtn">Copy fixes</button><button type="button" class="btn" id="copyBtn">Copy full report</button></div><div class="copybox" id="copyBox"></div></div>' +
+    '<div class="block">' +
       '<p class="limits">' + (isCV
         ? 'The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.'
         : 'The checks read text only and cannot judge the physics or whether a claim is true. The evidence for statements and letters is thin: only two of the pages are about postdoc applications in physics, and the rest are written for faculty applications. Length rules are a guide, because the advertisement’s own limit comes first. The CMS collaboration’s job application guide could not be read, so no rule uses it.') + (res.fromLatex ? ' The LaTeX conversion is approximate: files pulled in with \\input, macros made with \\def and drawings are not followed. If something looks wrong in the marked-up text, paste the text from your compiled PDF instead.' : '') + '</p></div></div>';
@@ -1502,10 +1506,20 @@ function render(res) {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     document.querySelectorAll('.detector .bar').forEach(b => { b.style.strokeDashoffset = b.dataset.off; });
   }));
+  $('#fixArea').value = fixesText(res);
   $('#copyBtn').addEventListener('click', copyReport);
+  $('#copyFixBtn').addEventListener('click', copyFixes);
   wireChecklist();
 }
 
+function fixesText(res) {
+  const part = (title, arr) => arr.length ? title + ' (' + arr.length + ')\n' + arr.map((c, i) => (i + 1) + '. ' + c.title + ': ' + c.note +
+    (c.fix ? '\n   To fix: ' + c.fix : '') +
+    (c.src && c.src.length && c.group !== 'Your checklist' ? '\n   Sources: ' + c.src.map(k => SRC[k].n).join(', ') : '')).join('\n') + '\n\n' : '';
+  const head = (res.mode === 'cv' ? 'CV check, ' : 'Check: ') + res.profile.label + ': ' + res.score + '/100\n\n';
+  const body = part('MISSING', res.checks.filter(c => c.status === 'fail')) + part('TO IMPROVE', res.checks.filter(c => c.status === 'warn'));
+  return (head + (body || 'Nothing is missing and nothing needs improving.\n')).trim() + '\n';
+}
 function openItems(res) {
   const out = [];
   checklistGroups(res).forEach((G, gi) => G.items.forEach((it, ii) => { if (!ticks[tickKey(res, gi, ii)]) out.push('- [ ] ' + (Array.isArray(it) ? it[0] : it)); }));
@@ -1513,22 +1527,24 @@ function openItems(res) {
 }
 function reportText(res) {
   const sec = (title, arr) => arr.length ? '\n' + title + '\n' + arr.map(c => '- ' + c.title + ': ' + c.note + (c.fix ? ' Add: ' + c.fix : '')).join('\n') + '\n' : '';
-  return (res.mode === 'cv' ? 'CV check, ' : 'Check of the ' + res.noun + ', ') + res.profile.label + ': ' + res.score + '/100\n' +
+  return (res.mode === 'cv' ? 'CV check, ' : 'Check: ') + res.profile.label + ': ' + res.score + '/100\n' +
     sec('MISSING', res.checks.filter(c => c.status === 'fail')) +
     sec('TO IMPROVE', res.checks.filter(c => c.status === 'warn')) +
     sec('GOOD', res.checks.filter(c => c.status === 'pass')) + openItems(res);
 }
-async function copyReport() {
+function copyFixes() { return copyOut(fixesText(last), $('#copyFixBtn'), 'Copy fixes'); }
+function copyReport() { return copyOut(reportText(last), $('#copyBtn'), 'Copy full report'); }
+async function copyOut(text, btn, label) {
   if (!last) return;
-  const text = reportText(last), box = $('#copyBox'), btn = $('#copyBtn');
+  const box = $('#copyBox');
   try {
     await navigator.clipboard.writeText(text);
     btn.textContent = 'Copied';
-    setTimeout(() => { btn.textContent = 'Copy report'; }, 1600);
+    setTimeout(() => { btn.textContent = label; }, 1600);
     box.innerHTML = '';
   } catch (e) {
-    box.innerHTML = '<textarea id="copyArea" readonly rows="8" aria-label="Report text"></textarea><p class="hint">Copy is blocked here. The text is selected: press Ctrl+C or Cmd+C.</p>';
-    const ta = $('#copyArea'); ta.value = text; ta.focus(); ta.select();
+    const ta = $('#fixArea'); ta.value = text; ta.focus(); ta.select();
+    box.innerHTML = '<p class="hint">Copy is blocked here. The text is selected in the box above: press Ctrl+C or Cmd+C.</p>';
   }
 }
 
