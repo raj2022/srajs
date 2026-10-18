@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0b1118">
-<title>CV checker | Shivam Raj</title>
-<meta name="description" content="Paste a CV or upload a file. The page lists missing sections, weak wording and keyword gaps for postdoc, quant and data science roles, and links each rule to the page it comes from.">
+<title>Application checker | Shivam Raj</title>
+<meta name="description" content="Paste a CV, research statement or cover letter, or upload a file. The page lists missing parts, weak wording and gaps for postdoc, quant and data science applications, and links each rule to the page it comes from.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400&family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
@@ -66,6 +66,7 @@ a { color: var(--accent); text-underline-offset: 3px; }
 
 .input { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .field { display: flex; flex-direction: column; gap: 7px; }
+.field[hidden] { display: none; }
 label, .lbl { font-size: 14px; font-weight: 600; }
 .hint { font-size: 14px; color: var(--muted); }
 select, textarea {
@@ -183,6 +184,16 @@ mark.c { text-decoration-color: var(--bad); }
 .srcs .by { display: block; color: var(--muted); font-size: 14px; }
 .srcs .com { color: var(--warn); }
 
+.cl-group { margin-top: 18px; }
+.cl-group h4 { font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 0 0 6px; }
+.cl { list-style: none; padding: 0; margin: 0; max-width: 72ch; }
+.cl li { border-top: 1px solid var(--line); }
+.cl li:last-child { border-bottom: 1px solid var(--line); }
+.cl label { font-weight: 400; font-size: 16px; display: flex; gap: 12px; align-items: flex-start; padding: 9px 2px; cursor: pointer; }
+.cl input { flex: none; width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+.cl input:checked + span { color: var(--muted); }
+.clsrc { font-size: 14px; }
+#checklist .btns { margin-top: 16px; }
 .limits { font-size: 14px; color: var(--muted); max-width: 70ch; }
 .copybox { margin-top: 8px; }
 .foot { border-top: 1px solid var(--line); padding: 20px 0 40px; font-size: 14px; color: var(--muted); max-width: 70ch; }
@@ -190,16 +201,25 @@ mark.c { text-decoration-color: var(--bad); }
 </head>
 <body>
 <div class="wrap">
-  <nav class="crumbs" aria-label="Breadcrumb"><a href="../">Shivam Raj</a><span aria-hidden="true">/</span><span>CV checker</span></nav>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="../">Shivam Raj</a><span aria-hidden="true">/</span><span>Application checker</span></nav>
 
   <header class="top">
-    <h1>CV checker</h1>
-    <p>Paste a CV or upload a PDF, DOCX or text file. The page lists missing sections, weak wording and keyword gaps for the role you pick, and links each rule to the page it comes from.</p>
+    <h1>Application checker</h1>
+    <p>Check a CV, a research statement or a cover letter. Paste the text or upload a PDF, DOCX or text file. The page lists missing parts, weak wording and gaps, and links each rule to the page it comes from.</p>
   </header>
 
   <main class="grid">
     <section class="input" aria-label="CV input">
       <div class="field">
+        <label for="doc">Document</label>
+        <select id="doc">
+          <option value="cv">CV</option>
+          <option value="statement">Research statement (experimental HEP postdoc)</option>
+          <option value="letter">Cover letter (experimental HEP postdoc)</option>
+        </select>
+      </div>
+
+      <div class="field" id="profileField">
         <label for="profile">Target role</label>
         <select id="profile">
           <option value="ds">Data science / ML (industry)</option>
@@ -210,13 +230,13 @@ mark.c { text-decoration-color: var(--bad); }
       </div>
 
       <div class="field">
-        <span class="lbl" id="srcLbl">CV source</span>
+        <span class="lbl" id="srcLbl">Text source</span>
         <div class="tabs" role="tablist" aria-labelledby="srcLbl">
           <button type="button" role="tab" id="tabPaste" aria-selected="true" aria-controls="paneText">Paste text</button>
           <button type="button" role="tab" id="tabUpload" aria-selected="false" aria-controls="paneUpload">Upload file</button>
         </div>
         <div id="paneText" role="tabpanel" aria-labelledby="tabPaste">
-          <textarea id="cvText" spellcheck="false" aria-label="CV text"></textarea>
+          <textarea id="cvText" spellcheck="false" aria-label="Document text"></textarea>
         </div>
         <div id="paneUpload" role="tabpanel" aria-labelledby="tabUpload" hidden>
           <label class="drop" id="drop" for="cvFile">
@@ -231,7 +251,7 @@ mark.c { text-decoration-color: var(--bad); }
       <div class="field">
         <label for="extra">Your own checklist (optional)</label>
         <textarea id="extra" spellcheck="false" placeholder="One requirement per line.&#10;Separate alternatives with commas.&#10;LinkedIn, github.com&#10;leadership, led, managed"></textarea>
-        <p class="hint">Paste advice points from the sites you follow. Each line is checked against your CV.</p>
+        <p class="hint">Paste advice points from the sites you follow. Each line is checked against your text.</p>
       </div>
 
       <div class="btns">
@@ -239,7 +259,7 @@ mark.c { text-decoration-color: var(--bad); }
         <button type="button" class="btn" id="exampleBtn">Load example</button>
         <button type="button" class="btn" id="clearBtn">Clear</button>
       </div>
-      <p class="privacy">Your CV stays in this browser tab. This page uploads and stores nothing.</p>
+      <p class="privacy">Your text stays in this browser tab. This page uploads and stores nothing.</p>
     </section>
 
     <section class="report" aria-label="Review" aria-live="polite">
@@ -248,7 +268,7 @@ mark.c { text-decoration-color: var(--bad); }
   </main>
 
   <footer class="foot">
-    <p>Pages were read on 16 and 17 October 2026. Pages change, so open the link behind a rule before you rely on it. Rules without a link are my own recommendation.</p>
+    <p>Pages were read between 16 and 18 October 2026. Pages change, so open the link behind a rule before you rely on it. Rules without a link are my own recommendation.</p>
   </footer>
 </div>
 
@@ -280,7 +300,21 @@ const SRC = {
   aps: { n: 'APS Careers', by: 'American Physical Society', u: 'https://www.aps.org/careers/advice/effective-resumes' },
   columbia: { n: 'Columbia Career Education', by: 'Columbia Center for Career Education', u: 'https://www.careereducation.columbia.edu/resources/optimizing-your-resume-applicant-tracking-systems' },
   ecfa: { n: 'ECFA evaluation memo', by: 'ECFA, memo of May 2015', u: 'https://iupap.org/wp-content/uploads/2021/03/C11-ecfa-291_ECFA-HEP-evaluation.pdf' },
-  iupap: { n: 'IUPAP Commission 11', by: 'IUPAP working group, report of 2008', u: 'https://iupap.org/wp-content/uploads/2021/03/wg-assessment-08.pdf' }
+  iupap: { n: 'IUPAP Commission 11', by: 'IUPAP working group, report of 2008', u: 'https://iupap.org/wp-content/uploads/2021/03/wg-assessment-08.pdf' },
+  uw: { n: 'UW research statements', by: 'University of Washington Career & Internship Center, modified Sep 2026', u: 'https://careers.uw.edu/resources/academic-careers-research-statements/' },
+  cornellrs: { n: 'Cornell Postdoc Office statement', by: 'Cornell University Postdoc Office, written for faculty applications', u: 'https://postdocs.cornell.edu/postdoc-careers/academic-job-search/research-statement/' },
+  cornellgrad: { n: 'Cornell Graduate School statement', by: 'Cornell Graduate School, written for faculty applications', u: 'https://gradschool.cornell.edu/career-and-professional-development/pathways-to-success/prepare-for-your-career/take-action/research-statement' },
+  northwestern: { n: 'Northwestern statement', by: 'Northwestern PhD and postdoc careers, written for faculty applications', u: 'https://www.northwestern.edu/phd-postdoc-careers/your-job-search/developing-materials/academic-job-market/research-statement.html' },
+  uchicago: { n: 'UChicago GRAD statements', by: 'UChicago GRAD, STEM research statement slides', u: 'https://grad.uchicago.edu/wp-content/uploads/2020/09/STEM-Research-Statements.pdf' },
+  mit: { n: 'MIT CAPD', by: 'MIT Career Advising & Professional Development, faculty search materials', u: 'https://capd.mit.edu/resources/application-materials-for-a-faculty-job-search/' },
+  lapa: { n: 'Lapa, UIUC', by: 'Postdoc application talk by a condensed-matter theorist, 19 Oct 2018', u: 'https://ws.engr.illinois.edu/sitemanager/getfile.asp?id=2900' },
+  chen: { n: 'Chen, Belle II', by: 'Belle II career workshop slides on HEP careers, 4 Aug 2022', u: 'https://indico.belle2.org/event/6444/contributions/37623/attachments/17941/26725/B2SW-Chen-20220804.pdf' },
+  fleming: { n: 'Fleming, Yale Wright Lab', by: 'Job workshop slides for HEP and nuclear physicists, 6 Oct 2020', u: 'https://indico.wlab.yale.edu/event/795/attachments/590/954/JobWorkshop2020_WrightLab.pdf' },
+  yunger: { n: 'Yunger Halpern', by: 'Quantum Frontiers post by a quantum theorist, 10 Aug 2025', u: 'https://quantumfrontiers.com/2025/08/' },
+  berkeley: { n: 'UC Berkeley cover letter', by: 'UC Berkeley career site, academic cover letter page', u: 'https://www.career.berkeley.edu/grad-students-postdocs/academic-job-search/the-cover-letter/' },
+  unc: { n: 'UNC faculty panel', by: 'UNC Office of Research, advice from faculty, PDF of 2025', u: 'https://research.unc.edu/wp-content/uploads/2025/03/Faculty-Application-Materials_Advice-from-Faculty.pdf' },
+  ucla: { n: 'UCLA cover letter', by: 'UCLA Career Center, modified May 2026', u: 'https://career.ucla.edu/resources/academic-cover-letter-for-phd-students/' },
+  uva: { n: 'UVA sample letter', by: 'University of Virginia PhD+, sample postdoc letter dated 2006', u: 'https://phdplus.virginia.edu/sites/phdplus/files/documents/Sample_Cover_Letter-Unsolicited_Postdoc.pdf' }
 };
 const CHECK_SRC = {
   github: ['washu', 'efc'], summary: ['ucdres', 'aucc', 'fincv'], education: ['ucdres', 'ucdcv', 'umich'], edudetail: ['ucdcv', 'ucdres'],
@@ -290,9 +324,19 @@ const CHECK_SRC = {
   numbers: ['informs', 'harvardres', 'aucc', 'fincv', 'efc', 'jhu'], weak: ['jhu', 'harvardres'], pronoun: ['harvardres', 'harvardcv', 'tibbs'], personal: ['harvardres', 'jhu', 'tibbs', 'aps'],
   refline: ['ucdres'], phdname: ['columbia'], collabrole: ['ecfa', 'iupap'], inprep: ['tibbs'],
   chrono: ['cornell', 'usc', 'ucdres', 'washu', 'aucc', 'harvardres', 'harvardcv', 'tibbs'], publinks: ['ucdcv'], mentor: ['ucdcv'],
-  quantval: ['quantt', 'fca', 'wsp'], quantcost: ['quantt', 'fca', 'wsp'], comps: ['quantt', 'fca']
+  quantval: ['quantt', 'fca', 'wsp'], quantcost: ['quantt', 'fca', 'wsp'], comps: ['quantt', 'fca'],
+  // research statement
+  s_role: ['fleming', 'chen', 'uw', 'yunger'], s_we: ['fleming', 'ecfa', 'iupap', 'chen'], s_credit: ['uchicago', 'yunger'],
+  s_future: ['uw', 'cornellrs', 'northwestern', 'lapa'], s_balance: ['lapa', 'cornellrs', 'northwestern', 'yunger', 'mit'],
+  s_hype: ['uchicago', 'cornellgrad', 'cornellrs'], s_acro: ['cornellgrad', 'northwestern', 'uchicago', 'yunger'],
+  s_fit: ['lapa', 'yunger', 'fleming', 'uw'],
+  // cover letter
+  l_position: ['berkeley', 'uva'], l_host: ['lapa', 'berkeley', 'unc'], l_specific: ['fleming', 'lapa'], l_names: ['unc', 'lapa'],
+  l_generic: ['unc', 'berkeley'], l_role: ['fleming', 'chen'], l_science: ['uva', 'berkeley'], l_cv: ['berkeley', 'unc'],
+  l_close: ['uva'], l_tone: ['berkeley', 'ucla']
 };
-const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich'], gen: ['ucdres', 'aucc', 'aps'] };
+const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich'], gen: ['ucdres', 'aucc', 'aps'],
+  statement: ['lapa', 'uw', 'cornellgrad', 'northwestern', 'fleming'], letter: ['fleming', 'mit', 'berkeley', 'unc', 'ucla'] };
 const KW_SRC = { ds: ['ucdres', 'washu', 'informs'], quant: ['quantt', 'fca', 'wsp'], acad: [], gen: ['ucdres', 'aucc'] };
 
 const PROFILES = {
@@ -703,11 +747,273 @@ function analyzeCV(raw, profileKey, extraText) {
   }));
 
   return {
-    score, checks, lines, kind, flags, profile: P, profileKey,
+    score, checks, lines, kind, flags, profile: P, profileKey, mode: 'cv', noun: 'CV', groupOrder: DOCS.cv.groups,
     stats: { words, pages, bullets: bulletCount, achievements: ach.length, numShare: ach.length ? nNum / ach.length : null, verbShare: ach.length ? nVerb / ach.length : null },
+    statsList: [['Words', String(words)], ['Pages', '~' + pages.toFixed(1)], ['Bullets', String(bulletCount)],
+      ['Bullets with numbers', ach.length ? Math.round(100 * nNum / ach.length) + '%' : '–'], ['Bullets starting with a verb', ach.length ? Math.round(100 * nVerb / ach.length) + '%' : '–']],
     sectionMap, kw: { found: kwFound, missing: kwMissing }
   };
 }
+
+/* ---------- research statement and cover letter ---------- */
+const DOCS = {
+  cv: { label: null, noun: 'CV', groups: ['Header', 'Sections', 'Content', 'Keywords', 'Your checklist'] },
+  statement: { label: 'Research statement, experimental HEP postdoc', noun: 'statement', groups: ['Format', 'Structure', 'Your role', 'Clarity', 'Your checklist'] },
+  letter: { label: 'Cover letter, experimental HEP postdoc', noun: 'letter', groups: ['Format', 'Fit', 'Content', 'Your checklist'] }
+};
+const PLACE_SRC = "\\[(?=[^\\]\\n]*[A-Za-z])[^\\]\\n]{2,60}\\]|\\b(?:TBD|TODO|XXX+|lorem ipsum)\\b|\\binsert [a-z ]{2,30} here\\b";
+const GENERIC_SRC = "\\b(?:to whom it may concern|dear sirs?(?: or madam)?|dear madam|your (?:esteemed|prestigious) (?:group|institution|university|institute|laboratory|team|department))\\b";
+const HEDGE_SRC = "\\b(?:i (?:just|merely)|i hope (?:that )?(?:you|i)|i (?:feel|believe|think) (?:that )?i (?:might|may|could|would)|a mere|humbly|if you would be so kind|i am (?:only|just) a|i am (?:very |so |truly )?(?:excited|thrilled|honou?red) to|world[- ]class|ground-?breaking|revolutionary|cutting[- ]edge|unprecedented)\\b";
+const PROMISE_SRC = "\\b(?:will (?:definitely|certainly|surely|revolution\\w+|solve|prove)|guarantee[sd]?|beyond any doubt)\\b";
+const DOC_HL = new RegExp('(' + WEAK_SRC + '|' + CLICHE_SRC + '|' + HEDGE_SRC + '|' + PROMISE_SRC + ')|(' + PLACE_SRC + '|' + GENERIC_SRC + ')', 'gi');
+const OWN_VERBS = /\b(?:led|co-led|built|developed|designed|measured|performed|carried out|implemented|wrote|proposed|derived|contributed|constructed|calibrated|maintained|coordinated|optimi[sz]ed|validated|extracted|supervised|mentored|trained|presented|authored|analy[sz]ed|studied|searched|simulated|commissioned|assembled|tested|diagnosed|produced|ran|convened|organi[sz]ed|owned|established|created|devised|reconstructed|estimated|computed|determined|characteri[sz]ed|installed|operated|reviewed|edited|drove|initiated|launched|delivered|improved|reduced|identified|discovered|found|demonstrated|showed)\b/i;
+const FUT_RE = /\b(?:in the future|going forward|next (?:step|steps|phase|stage|years?)|future (?:work|plans?|directions?|research|projects?|studies)|I (?:will|would|plan to|intend to|aim to|propose to|hope to|want to|am keen to|look forward to)|would (?:allow|extend|enable|study|measure|search|build|contribute|open|improve|help)|upcoming|planned|proposed)\b/i;
+const STATUS_RE = /\b(?:published|submitted (?:to|for)|accepted|collaboration review|preliminary|public(?:ly)? (?:result|note|release)|CMS-PAS|ATLAS-CONF|arxiv|ongoing|in progress|under review|internal note|in preparation|approved|unblind\w*)\b/i;
+const CRED_RE = /\b(?:with|alongside|together with)\s+(?:a |the |my |our |two |three |four |five |six |\d+ )?(?:team|colleagues?|students?|collaborators?|advis[eo]rs?|supervisors?|postdocs?|physicists|group)\b|\bcollaborat\w+|\bsupervised by\b|\badvised by\b|\bunder the supervision\b|\bthanks?\b|\bcredit\b/i;
+const FIT_RE = /\b(?:your (?:group|team|lab|laboratory|programme|program|department|institution|experiment)|the group (?:of|led by)|would (?:join|complement|fit)|I would (?:like to )?(?:work|collaborate|join|contribute))\b/i;
+const SPEC_RE = /\b(?:your|their|the group['’]s|\w+['’]s)\s+(?:recent\s+|latest\s+|ongoing\s+)?(?:papers?|analys[ie]s|measurements?|searches?|results?|work|projects?|upgrade|publications?|programme|program|effort)\b/i;
+const SCI_RE = /\b(?:search|measurement|analysis|analyses|detector|calorimeter|tracker|trigger|simulation|data|collision|reconstruction|calibration|upgrade|cross[- ]section|background|signal|thesis|dissertation|physics)\b/i;
+const ACRO_OK = new Set(['PHD', 'USA', 'UK', 'EU', 'CERN', 'LHC', 'HL-LHC', 'HEP', 'CMS', 'ATLAS', 'LHCB', 'ALICE', 'DOE', 'NSF', 'SM', 'BSM', 'QCD', 'MC', 'AI', 'ML', 'CPU', 'GPU', 'CV', 'PDF', 'ORCID', 'INSPIRE', 'JHEP', 'PRD', 'PRL', 'PLB', 'EPJC', 'NIM', 'ROOT', 'LEP', 'TBD', 'TODO', 'II', 'III', 'IV', 'VI', 'VII', 'VIII', 'IX', 'XI', 'XII']);
+
+function splitSentences(t) {
+  const flat = t.replace(/\s*\n+\s*/g, ' ')
+    .replace(/\b(et al|e\.g|i\.e|Fig|Eq|Ref|Phys|Rev|Lett|vs|approx|Dr|Prof|cf|No|Vol)\./g, '$1\u0001')
+    .replace(/(\d)\.(\d)/g, '$1\u0002$2');
+  return (flat.match(/[^.!?]+(?:[.!?]+|$)/g) || []).map(x => x.replace(/[\u0001\u0002]/g, '.').trim()).filter(x => x.split(/\s+/).length >= 3);
+}
+function hostNames(t) {
+  const out = new Set(), re = /\b(?:[Pp]rof(?:essor)?\.?|[Dd]r\.?)\s+([A-Z][a-z'’-]+(?:\s+[A-Z][a-z'’-]+)?)/g;
+  let m;
+  while ((m = re.exec(t)) !== null) {
+    const before = t.slice(Math.max(0, m.index - 45), m.index);
+    if (/(?:supervis\w*|advis\w*|mentor\w*|student of)[,:]?\s*(?:(?:of|by)\s+)?(?:the\s+)?$/i.test(before)) continue;
+    out.add(m[1].toLowerCase());
+  }
+  return Array.from(out);
+}
+function unexplainedAcronyms(text) {
+  const seen = new Set(), out = [];
+  text.split('\n').forEach(line => {
+    const letters = line.replace(/[^A-Za-z]/g, '');
+    if (letters.length > 3 && letters === letters.toUpperCase()) return;
+    (line.match(/\b[A-Z][A-Z]+(?:-[A-Z]+)*\b/g) || []).forEach(tok => {
+      if (ACRO_OK.has(tok) || seen.has(tok) || tok.length > 10) return;
+      seen.add(tok);
+      const e = tok.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+      if (new RegExp('\\(' + e + '\\)|\\b' + e + '\\s*\\(').test(text)) return;
+      out.push(tok);
+    });
+  });
+  return out;
+}
+function uniqueList(re, text, n) {
+  const seen = new Set(), out = [];
+  (text.match(re) || []).forEach(m => { const k = m.toLowerCase().trim(); if (!seen.has(k)) { seen.add(k); out.push(m.trim()); } });
+  return n ? out.slice(0, n) : out;
+}
+
+function analyzeDoc(raw, mode, extraText) {
+  const D = DOCS[mode];
+  const text = String(raw).replace(/\r\n?/g, '\n').replace(/ /g, ' ').trim();
+  const lines = text.split('\n');
+  const flat = text.replace(/\s*\n+\s*/g, ' ');
+  const lower = text.toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const pages = words / 500;
+  const sents = splitSentences(text);
+  const iSents = sents.filter(s => /\bI\b/.test(s) || /\bmy\b/i.test(s));
+  const ownS = sents.filter(s => /\bI\b/.test(s) && OWN_VERBS.test(s));
+  const paras = text.split(/\n\s*\n/).map(p => p.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean);
+  const bodyParas = paras.filter(p => p.split(/\s+/).length >= 20);
+  const nonEmpty = lines.filter(l => l.trim()).length;
+  const hardWrapped = nonEmpty >= 12 && words / nonEmpty < 16 && paras.length <= 3;
+  const names = hostNames(text);
+  const checks = [];
+  const add = (group, id, title, status, note, fix, weight) =>
+    checks.push({ group, id, title, status, note, fix: fix || '', weight: weight == null ? 1 : weight });
+  const pagesTxt = '~' + pages.toFixed(1) + ' pages at 500 words a page';
+
+  // format
+  if (mode === 'statement') {
+    const st = words < 250 ? 'fail' : words < 450 ? 'warn' : words <= 1500 ? 'pass' : words <= 2500 ? 'warn' : 'fail';
+    add('Format', 'length', 'Length', st,
+      words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This is within the 1 to 3 pages that the postdoc-specific sources give.' :
+        words < 450 ? 'This is shorter than the 1 to 3 pages the postdoc-specific sources give.' : 'This is longer than the 1 to 3 pages the postdoc-specific sources give. Faculty pages run to 3 to 5.'),
+      st === 'pass' ? '' : words < 450 ? 'Add your role in each result and one or two specific future directions.' : 'Cut to about two pages unless the advertisement sets a different limit. Keep a three-page version in reserve.', 1);
+  } else {
+    const st = words < 150 ? 'fail' : words < 250 ? 'warn' : words <= 600 ? 'pass' : words <= 1000 ? 'warn' : 'fail';
+    add('Format', 'length', 'Length', st,
+      words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This fits on one page, which is the length most sources give.' :
+        words < 250 ? 'This is shorter than a page.' : words <= 1000 ? 'This runs to about a page and a half. Sources allow that only when no separate research statement is requested.' : 'This is longer than the 2 pages that every source treats as the limit.'),
+      st === 'pass' ? '' : words < 250 ? 'Add what the position needs: your main result, your role and why this group.' : 'Cut to one page. Let the research statement and CV carry the detail.', 1);
+    const hasDear = /\b(?:dear|to whom it may concern)\b/i.test(lines.filter(l => l.trim()).slice(0, 8).join(' '));
+    const hasClose = /\b(?:sincerely|regards|respectfully|yours|best wishes|cordially|with thanks)\b/i.test(lines.filter(l => l.trim()).slice(-6).join(' '));
+    add('Format', 'l_greet', 'Greeting and sign-off', hasDear && hasClose ? 'pass' : hasDear || hasClose ? 'warn' : 'fail',
+      hasDear && hasClose ? 'A greeting and a sign-off found.' : hasDear ? 'A greeting was found, but no sign-off near the end.' : hasClose ? 'A sign-off was found, but no greeting near the top.' : 'No greeting and no sign-off found.',
+      hasDear && hasClose ? '' : 'Start with "Dear Professor [name]" or "Dear Search Committee" and end with "Sincerely," and your name.', 0.5);
+    const hasContact = /[\w.+-]+@[\w-]+\.[\w.-]+/.test(text) || /\+?\d[\d\s().-]{8,}\d/.test(text);
+    add('Format', 'l_contact', 'Contact details', hasContact ? 'pass' : 'warn',
+      hasContact ? 'An email address or phone number found.' : 'No email address or phone number found in the letter.',
+      hasContact ? '' : 'Put your email under your name, or in the letterhead.', 0.5);
+  }
+  const place = uniqueList(new RegExp(PLACE_SRC, 'gi'), text, 4);
+  add('Format', 'place', 'Placeholders left in the text', place.length ? 'fail' : 'pass',
+    place.length ? 'Found text that looks like a template placeholder: ' + place.join(', ') + '.' : 'No bracketed placeholders, TBD or TODO found.',
+    place.length ? 'Replace every bracket with something true and checkable, or delete the sentence.' : '', 1);
+  if (mode === 'statement') {
+    if (hardWrapped) {
+      add('Format', 's_shape', 'Paragraph shape', 'info', 'Paragraph breaks were lost, which happens with text taken from a PDF. This check was skipped.', 'Paste the text from your source file if you want it checked.', 0);
+    } else {
+      const longest = bodyParas.reduce((m, p) => Math.max(m, p.split(/\s+/).length), 0);
+      const few = words >= 500 && paras.length < 4;
+      const ok = longest <= 250 && !few;
+      add('Format', 's_shape', 'Paragraph shape', ok ? 'pass' : 'warn',
+        ok ? 'The text is broken into readable paragraphs.' : (longest > 250 ? 'One paragraph runs to ' + longest + ' words.' : 'Only ' + paras.length + ' paragraph(s) for ' + words + ' words.'),
+        ok ? '' : 'Split the text by project or question. Open each paragraph with a topic sentence.', 0.5);
+    }
+    add('Format', 'advert', 'The advertisement comes first', 'info',
+      'These rules combine career-office advice, mostly written for faculty applications, with two postdoc-specific sources. They do not replace the advertisement.',
+      'Check its length limit, file format and list of documents before you use any score from this page.', 0);
+  } else {
+    add('Format', 'advert', 'The advertisement comes first', 'info',
+      'These rules combine career-office advice, mostly written for faculty applications, with one sample postdoc letter. They do not replace the advertisement.',
+      'Check which documents it asks for. A letter that must carry the whole case can run longer than one page.', 0);
+  }
+
+  // statement: structure, role, clarity
+  if (mode === 'statement') {
+    const firstPara = (bodyParas[0] || flat).slice(0, 400);
+    const bio = /^(?:i am (?:a|an|currently|writing)|my name is|i was born|since (?:i|childhood|my)|ever since|i have always|growing up|as a child)/i.test(firstPara) ||
+      /\b(?:fascinated by|always (?:been )?(?:fascinated|curious|loved|wanted)|since (?:i was|childhood))\b/i.test(firstPara);
+    add('Structure', 's_open', 'Opens with the physics', bio ? 'warn' : 'pass',
+      bio ? 'The opening reads as a biography or a statement of enthusiasm.' : 'The opening does not read as a biography.',
+      bio ? 'Open with the physics question your work addresses, then say what you did. Biography belongs in the CV.' : '', 0.75);
+    const fut = sents.filter(s => FUT_RE.test(s));
+    add('Structure', 's_future', 'Future directions', fut.length >= 2 ? 'pass' : fut.length === 1 ? 'warn' : 'fail',
+      fut.length ? fut.length + (fut.length === 1 ? ' sentence looks' : ' sentences look') + ' ahead to future work.' : 'No sentence about future work found.',
+      fut.length >= 2 ? '' : 'Add one or two specific directions you could do within the appointment, and the skill you would use or learn.', 1);
+    if (sents.length >= 6) {
+      add('Structure', 's_balance', 'Balance of past and future', 'info',
+        Math.round(100 * fut.length / sents.length) + '% of sentences look ahead. The sources disagree on the right share: Lapa gives at most about a third on graduate work, while the faculty pages weight the future.',
+        'My default for an experimental HEP postdoc is about half on your own results, a third on one or two future directions and the rest on fit. Ask an experienced experimental physicist.', 0);
+    }
+    const hasWork = /\b(?:search|measurement|analysis|analyses|cross[- ]section|limit|observation|result)s?\b/i.test(flat);
+    const stN = sents.filter(s => STATUS_RE.test(s)).length;
+    add('Structure', 's_status', 'Results labelled by status', !hasWork ? 'info' : stN >= 2 ? 'pass' : 'warn',
+      !hasWork ? 'No analysis result was found to label.' : stN >= 2 ? stN + ' sentences carry a status word such as published, in collaboration review or ongoing.' : stN === 1 ? 'Only one sentence carries a status word.' : 'No status word found next to your results.',
+      !hasWork || stN >= 2 ? '' : 'Say "published", "in collaboration review" or "ongoing" for every result, and do not give numbers you may not share.', 0.75);
+    const fitN = sents.filter(s => FIT_RE.test(s) || hostNames(s).length).length;
+    add('Structure', 's_fit', 'Fit with the group', fitN >= 2 ? 'pass' : fitN === 1 ? 'warn' : 'fail',
+      fitN ? fitN + (fitN === 1 ? ' sentence refers' : ' sentences refer') + ' to the host group.' : 'No sentence about the host group found.',
+      fitN >= 2 ? '' : 'Name the group, one of its analyses or subsystems that you have read about, and what you would add and learn.', 1);
+
+    add('Your role', 's_role', 'Your own contribution', ownS.length >= 4 ? 'pass' : ownS.length >= 1 ? 'warn' : 'fail',
+      ownS.length + (ownS.length === 1 ? ' sentence says' : ' sentences say') + ' what you did, such as "I led" or "I built".',
+      ownS.length >= 4 ? '' : 'For each result, say what you did yourself. Use "I led", "I built" or "I measured" where it is true.', 1);
+    const weS = sents.filter(s => /\b(?:we|our)\b/i.test(s) || /\bthe (?:collaboration|team|group)\b/i.test(s)).length;
+    const weHeavy = weS >= 4 && weS > 2 * iSents.length;
+    add('Your role', 's_we', 'Collaboration work credited as your own', weHeavy ? 'warn' : 'pass',
+      weHeavy ? weS + ' sentences speak of "we" or the collaboration, against ' + iSents.length + ' that speak of you.' : 'Your own role is not drowned out by "we" and "the collaboration".',
+      weHeavy ? 'Large collaborations list authors alphabetically, so the text must show who did what. Separate your part from the team’s.' : '', 0.75);
+    const numS = sents.filter(s => /\d/.test(s.replace(/arxiv:\s*\S+|doi:\s*\S+|\b(?:19|20)\d{2}\b/gi, ''))).length;
+    add('Your role', 's_evidence', 'Numbers and evidence', numS >= 3 ? 'pass' : 'warn',
+      numS + (numS === 1 ? ' sentence has' : ' sentences have') + ' a number such as a dataset size, a count or a size of improvement.',
+      numS >= 3 ? '' : 'Give counts, dataset sizes and results that you can document.', 0.75);
+    const cred = CRED_RE.test(flat);
+    add('Your role', 's_credit', 'Credit to collaborators', cred ? 'pass' : 'warn',
+      cred ? 'Collaborators, advisers or the team are mentioned.' : 'No collaborators or advisers are mentioned.',
+      cred ? '' : 'Say who you worked with on each project, and whether you led.', 0.5);
+
+    const acr = unexplainedAcronyms(text);
+    add('Clarity', 's_acro', 'Acronyms explained', acr.length <= 3 ? 'pass' : acr.length <= 10 ? 'warn' : 'fail',
+      acr.length ? acr.length + (acr.length === 1 ? ' acronym is' : ' acronyms are') + ' not spelled out: ' + acr.slice(0, 8).join(', ') + (acr.length > 8 ? ', and more' : '') + '.' : 'Every acronym is either common or spelled out.',
+      acr.length <= 3 ? '' : 'Spell out each on first use, or cut it. Write for a physicist outside your sub-analysis.', 1);
+    const hy = uniqueList(new RegExp(CLICHE_SRC + '|' + HEDGE_SRC + '|' + PROMISE_SRC, 'gi'), text, 4);
+    const hyN = (text.match(new RegExp(CLICHE_SRC + '|' + HEDGE_SRC + '|' + PROMISE_SRC, 'gi')) || []).length;
+    add('Clarity', 's_hype', 'Hype and promises', hyN >= 2 ? 'warn' : 'pass',
+      hyN >= 2 ? hyN + ' phrases sound like hype or like promised results: ' + hy.join(', ') + '.' : 'No hype or promised results found.',
+      hyN >= 2 ? 'Let the physics carry the text. Say what you would investigate and what you could learn, and do not promise a result.' : '', 0.75);
+  }
+
+  // letter: fit and content
+  if (mode === 'letter') {
+    const first90 = words ? flat.split(/\s+/).slice(0, 90).join(' ') : '';
+    const pos = /\b(?:appl(?:y|ying|ication)|position|postdoc(?:toral)?|post-doc|research associate|fellowship|posting|advertis\w+|vacancy|opening)\b/i.test(first90);
+    add('Fit', 'l_position', 'Names the position early', pos ? 'pass' : 'fail',
+      pos ? 'The first lines mention the position or the application.' : 'The first 90 words do not name the position.',
+      pos ? '' : 'Name the exact advertised position in the first lines, and say who referred you if someone did.', 1);
+    const named = names.length >= 1 || /\b[A-Z][a-z]+['’]s (?:group|lab|laboratory|team)\b/.test(flat);
+    const gen = /\byour (?:group|team|lab|laboratory|programme|program|department|institution|university|institute)\b/i.test(flat);
+    add('Fit', 'l_host', 'Names the group or its leader', named ? 'pass' : gen ? 'warn' : 'fail',
+      named ? 'A professor or a named group appears.' : gen ? 'The letter says "your group" but names no one.' : 'The letter names no group and no leader.',
+      named ? '' : 'Name the PI and the group you are writing to. Write one letter per posting.', 1);
+    const spec = SPEC_RE.test(flat);
+    add('Fit', 'l_specific', 'Refers to the group’s own work', spec ? 'pass' : 'warn',
+      spec ? 'The letter refers to the group’s analyses, projects or papers.' : 'No reference to the group’s own work found.',
+      spec ? '' : 'Name one analysis, subsystem or paper of theirs that you have read, and say what you would add.', 0.75);
+    const gm = uniqueList(new RegExp(GENERIC_SRC, 'gi'), text, 3);
+    add('Fit', 'l_generic', 'Generic wording', gm.length ? 'warn' : 'pass',
+      gm.length ? 'Found wording that suggests a letter sent to everyone: ' + gm.join(', ') + '.' : 'No generic greeting or flattery found.',
+      gm.length ? 'Address the committee or the PI by name, and cut praise that could apply to any group.' : '', 0.75);
+    if (names.length >= 3) {
+      add('Fit', 'l_names', 'Several faculty named', 'info',
+        names.length + ' professors or doctors are named. The UNC panel says not to name specific faculty unless you know the department’s dynamics.',
+        'Naming the PI you write to is fine. Check that you know why you name the others.', 0);
+    }
+
+    add('Content', 'l_role', 'Your own contribution', ownS.length >= 2 ? 'pass' : ownS.length === 1 ? 'warn' : 'fail',
+      ownS.length + (ownS.length === 1 ? ' sentence says' : ' sentences say') + ' what you did, such as "I led" or "I built".',
+      ownS.length >= 2 ? '' : 'State your own role in your main result. Use "I led" or "I built" where it is true.', 1);
+    const sci = sents.filter(s => SCI_RE.test(s)).length;
+    add('Content', 'l_science', 'Describes the research', sci >= 3 ? 'pass' : sci >= 1 ? 'warn' : 'fail',
+      sci + (sci === 1 ? ' sentence mentions' : ' sentences mention') + ' your research, data or detector work.',
+      sci >= 3 ? '' : 'Summarise your main result and why it matters in one paragraph, and tie it to the group’s programme.', 0.75);
+    const years = (flat.match(/\b(?:19|20)\d{2}\b/g) || []).length;
+    const bul = lines.filter(l => BULLET_RE.test(l)).length;
+    const cvLike = bul >= 4 || years >= 7;
+    add('Content', 'l_cv', 'Tells a story, not the CV', cvLike ? 'warn' : 'pass',
+      cvLike ? 'The text has ' + (bul >= 4 ? bul + ' bullet points' : years + ' years') + ', which reads like the CV.' : 'The letter does not read like the CV in paragraph form.',
+      cvLike ? 'Pick one main takeaway and tell it as a story. The CV already lists dates and roles.' : '', 0.75);
+    const docs = /\b(?:enclos\w+|attached|my cv|curriculum vitae|research statement|publication list)\b/i.test(flat);
+    const recs = /\b(?:letters? of (?:recommendation|reference)|reference letters?|recommendation letters?|referees?)\b/i.test(flat);
+    const inv = /\b(?:look forward|happy to|glad to|available|interview|hear from you|discuss|be in touch)\b/i.test(flat);
+    const missing = [!docs && 'the enclosed documents', !recs && 'the recommendation letters', !inv && 'an invitation to reply'].filter(Boolean);
+    add('Content', 'l_close', 'Closing paragraph', missing.length <= 1 ? 'pass' : 'warn',
+      missing.length ? 'The closing does not mention ' + missing.join(', ') + '.' : 'The closing lists the documents, the recommendation letters and an invitation to reply.',
+      missing.length <= 1 ? '' : 'Close by listing what you enclose, saying how the recommendation letters will arrive, and asking for a reply.', 0.5);
+    const tn = uniqueList(new RegExp(HEDGE_SRC + '|' + CLICHE_SRC, 'gi'), text, 4);
+    add('Content', 'l_tone', 'Tone', tn.length ? 'warn' : 'pass',
+      tn.length ? 'Found phrases that sound modest, wordy or like hype: ' + tn.join(', ') + '.' : 'No hedging or hype found.',
+      tn.length ? 'Sound like a colleague, not a student. Replace praise with one specific reason this group fits.' : '', 0.75);
+  }
+
+  // user checklist
+  const extra = String(extraText || '').split('\n').map(s => s.trim()).filter(Boolean);
+  extra.forEach((line, k) => {
+    const alts = line.split(/[,|]/).map(s => s.trim().toLowerCase()).filter(Boolean);
+    const hit = alts.find(a => lower.includes(a));
+    add('Your checklist', 'x' + k, line, hit ? 'pass' : 'fail',
+      hit ? 'Found "' + hit + '".' : 'Not found in your ' + D.noun + '.',
+      hit ? '' : 'Mention ' + (alts.length > 1 ? 'one of: ' + alts.join(', ') : '"' + alts[0] + '"') + ' if it applies to you.', 1);
+  });
+
+  checks.forEach(c => { c.src = c.id === 'length' ? LEN_SRC[mode] : (CHECK_SRC[c.id] || []); });
+  let num = 0, den = 0;
+  checks.forEach(c => {
+    if (c.status === 'info' || c.weight <= 0) return;
+    den += c.weight; num += c.weight * (c.status === 'pass' ? 1 : c.status === 'warn' ? 0.5 : 0);
+  });
+  const score = den ? Math.round(100 * num / den) : 0;
+  const pct = v => Math.round(100 * v) + '%';
+  const statsList = [['Words', String(words)], ['Pages', '~' + pages.toFixed(1)], ['Paragraphs', hardWrapped ? '–' : String(paras.length)],
+    ['Sentences', String(sents.length)], ['Sentences about you', sents.length ? pct(iSents.length / sents.length) : '–']];
+  if (mode === 'statement') statsList.push(['Sentences about the future', sents.length ? pct(sents.filter(s => FUT_RE.test(s)).length / sents.length) : '–']);
+  return {
+    score, checks, lines, kind: lines.map(() => ''), flags: lines.map(() => ({})), profile: { label: D.label }, profileKey: mode,
+    mode, noun: D.noun, groupOrder: D.groups, statsList, sectionMap: null, kw: null
+  };
+}
+
 // ==ANALYSIS END==
 
 /* ---------- UI ---------- */
@@ -745,6 +1051,62 @@ const EXAMPLE = [
   'Graduate Teaching Fellowship, 2022'
 ].join('\n');
 
+const EXAMPLE_STATEMENT = [
+  'Research Statement',
+  'Jordan Ellis',
+  '',
+  'I am a PhD student at Midlands State University, and I have always been fascinated by the smallest building blocks of nature. My thesis is a search for heavy resonances at the LHC, and I would like to continue this work as a postdoctoral researcher.',
+  '',
+  'Doctoral research',
+  'I led a search for heavy resonances that decay to pairs of boosted vector bosons, using 140 fb-1 of proton-proton collision data. The signal would appear as a narrow excess in the invariant mass spectrum. The main difficulty is the QCD multijet background, which is large and poorly modelled at high jet mass. I developed a data-driven background estimate in a control region and validated it in two orthogonal regions. I also built a BDT classifier that separates signal from background, and I measured its uncertainty with a closure test. The result constrains models in which heavy partners of the electroweak bosons decay to boson pairs. I presented the background estimate in the weekly analysis meetings and revised it after two rounds of review. The analysis is currently in collaboration review, and the paper is in preparation.',
+  '',
+  'I participated in the calibration of the jet mass scale, which feeds into the same search. We also improved the HLT selection for boosted objects, and the new menu is now used by the collaboration.',
+  '',
+  'Technical expertise',
+  'I wrote the C++ and Python framework that produces our simulated samples on a batch system. It processes 200 million events per week and is used by 6 analysts. I validated the framework against a reference sample before every release, and I wrote the documentation that new students use. I also contributed to a graph-network jet tagger, published as arXiv:2401.00000, and I presented the result at 3 international conferences.',
+  '',
+  'Beyond the analysis',
+  'I supervised two master students, who built the validation plots for the background estimate. I also gave 3 lectures in the graduate course on statistics for particle physics.',
+  '',
+  'Future directions',
+  'Going forward I would extend the search to Run 3 data and to a final state with leptons, where the background is smaller. I would also study whether the graph-network tagger can replace the BDT, which could improve the sensitivity by a large factor. The first step would be to re-optimise the selection on simulated Run 3 samples, which I could finish within the first year. This will definitely revolutionize how we search for new physics.',
+  '',
+  'Fit with your group',
+  'Your group is a world-class team, and I am excited to join it.'
+].join('\n');
+
+const EXAMPLE_LETTER = [
+  'Jordan Ellis',
+  'Midlands State University',
+  'jordan.ellis@example.com',
+  '',
+  'Dear Search Committee,',
+  '',
+  'I am writing to apply for the postdoctoral research associate position in experimental particle physics that you advertised. I will defend my PhD at Midlands State University in December 2026, under the supervision of Prof. Maria Okafor.',
+  '',
+  'My thesis is a search for heavy resonances that decay to boosted vector bosons, using 140 fb-1 of LHC collision data. I led the analysis from the first studies to collaboration review, and I developed the data-driven background estimate that controls the dominant multijet background. I validated that estimate in two orthogonal regions and measured the uncertainty of the classifier that separates signal from background. The result is in collaboration review, and a paper is in preparation. I also wrote the framework that produces our simulated samples, which 6 analysts now use, and I presented the work at 3 international conferences.',
+  '',
+  'Your group’s recent work on the barrel calorimeter upgrade is close to my interest in detector performance for boosted objects. I have followed the published analyses of the group and would like to learn the calibration methods that it develops. I would hope to contribute to jet reconstruction in the upgraded detector, and I believe I could learn a great deal from you. I am excited to join a world-class group.',
+  '',
+  'I have enclosed my CV and research statement, and three letters of recommendation will be sent by my referees. I would be happy to discuss my application at your convenience.',
+  '',
+  'Sincerely,',
+  'Jordan Ellis'
+].join('\n');
+const EXAMPLES = { cv: EXAMPLE, statement: EXAMPLE_STATEMENT, letter: EXAMPLE_LETTER };
+const MODE_TEXT = {
+  cv: { btn: 'Check CV', empty: 'Paste your CV text or upload a file, then press Check CV.', ex: 'Example CV for a fictional person. Replace it with yours.' },
+  statement: { btn: 'Check statement', empty: 'Paste your research statement or upload a file, then press Check statement.', ex: 'Example statement for a fictional person, with some problems left in on purpose. Replace it with yours.' },
+  letter: { btn: 'Check letter', empty: 'Paste your cover letter or upload a file, then press Check letter.', ex: 'Example letter for a fictional person, with some problems left in on purpose. Replace it with yours.' }
+};
+const curMode = () => $('#doc').value;
+function applyMode() {
+  const m = curMode();
+  $('#profileField').hidden = m !== 'cv';
+  $('#checkBtn').textContent = MODE_TEXT[m].btn;
+}
+function isExample(t) { return Object.keys(EXAMPLES).some(k => EXAMPLES[k] === t); }
+
 let last = null;
 
 function setNote(msg, isErr) { const n = $('#srcNote'); n.textContent = msg || ''; n.classList.toggle('err', !!isErr); }
@@ -763,7 +1125,7 @@ function groupScores(res) {
     const o = g[c.group] || (g[c.group] = { n: 0, d: 0 });
     o.d += c.weight; o.n += c.weight * (c.status === 'pass' ? 1 : c.status === 'warn' ? 0.5 : 0);
   });
-  return ['Header', 'Sections', 'Content', 'Keywords', 'Your checklist'].filter(k => g[k]).map(k => ({ name: k, pct: Math.round(100 * g[k].n / g[k].d) }));
+  return res.groupOrder.filter(k => g[k]).map(k => ({ name: k, pct: Math.round(100 * g[k].n / g[k].d) }));
 }
 const LAYER_OPACITY = [1, 0.8, 0.62, 0.48, 0.36];
 function detectorHTML(res) {
@@ -783,8 +1145,8 @@ function layersHTML(res) {
   return '<ul class="layers">' + groupScores(res).map((g, i) =>
     '<li><span><i class="sw" style="opacity:' + LAYER_OPACITY[i] + '"></i>' + esc(g.name) + '</span><b>' + g.pct + '%</b></li>').join('') + '</ul>';
 }
-function verdictOf(score) {
-  return score >= 85 ? 'Strong CV, only small fixes left' : score >= 70 ? 'Solid CV with a few gaps' : score >= 50 ? 'Needs work before you send it' : 'Major gaps to fill first';
+function verdictOf(score, noun) {
+  return score >= 85 ? 'Strong ' + noun + ', only small fixes left' : score >= 70 ? 'Solid ' + noun + ' with a few gaps' : score >= 50 ? 'Needs work before you send it' : 'Major gaps to fill first';
 }
 function srcLine(c) {
   if (c.group === 'Your checklist') return '';
@@ -800,9 +1162,12 @@ function itemHTML(c) {
     '<p class="n">' + esc(c.note) + '</p>' +
     (c.fix ? '<p class="fix"><b>' + (c.status === 'info' ? 'Note:' : 'To fix:') + '</b>' + esc(c.fix) + '</p>' : '') + srcLine(c) + '</li>';
 }
-function sourcesBlock() {
-  return '<div class="block"><h3>Sources behind the rules</h3><p class="sub">Each rule links to the pages that support it. Pages marked commercial sell a service tied to their advice, so I weigh them less.</p><ul class="srcs">' +
-    Object.keys(SRC).map(k => {
+function sourcesBlock(res) {
+  const used = new Set();
+  res.checks.forEach(c => (c.src || []).forEach(k => used.add(k)));
+  checklistGroups(res).forEach(G => G.items.forEach(it => { if (Array.isArray(it)) it[1].forEach(k => used.add(k)); }));
+  return '<div class="block"><h3>Sources behind the rules</h3><p class="sub">Each rule links to the pages that support it. This list shows the pages behind the checks in this report. Pages marked commercial sell a service tied to their advice, so I weigh them less.</p><ul class="srcs">' +
+    Object.keys(SRC).filter(k => used.has(k)).map(k => {
       const s = SRC[k];
       return '<li><a href="' + s.u + '" target="_blank" rel="noopener">' + esc(s.n) + '</a><span class="by">' + esc(s.by) + (s.com ? '. <span class="com">Commercial</span>' : '') + '</span></li>';
     }).join('') + '</ul></div>';
@@ -817,14 +1182,17 @@ function foldBlock(title, arr, open) {
 }
 
 const HL = new RegExp('(' + WEAK_SRC + ')|(' + CLICHE_SRC + ')|(' + PRON_SRC + ')', 'gi');
-function markLine(line) {
+function markLine(line, mode) {
+  const re = mode === 'cv' ? HL : DOC_HL;
   let out = '', pos = 0, m;
-  HL.lastIndex = 0;
-  while ((m = HL.exec(line)) !== null) {
-    if (m[0] === '') { HL.lastIndex++; continue; }
+  re.lastIndex = 0;
+  while ((m = re.exec(line)) !== null) {
+    if (m[0] === '') { re.lastIndex++; continue; }
     out += esc(line.slice(pos, m.index));
-    const cls = m[2] ? ' class="c" title="Buzzword"' : m[3] ? ' title="First person"' : ' title="Weak phrase"';
-    out += '<mark' + cls + '>' + esc(m[0]) + '</mark>';
+    let cls, title;
+    if (mode === 'cv') { cls = m[2] ? ' class="c"' : ''; title = m[2] ? 'Buzzword' : m[3] ? 'First person' : 'Weak phrase'; }
+    else { cls = m[2] ? ' class="c"' : ''; title = m[2] ? 'Placeholder or generic wording' : 'Weak, hedged or hyped phrase'; }
+    out += '<mark' + cls + ' title="' + title + '">' + esc(m[0]) + '</mark>';
     pos = m.index + m[0].length;
   }
   return out + esc(line.slice(pos));
@@ -832,54 +1200,207 @@ function markLine(line) {
 function cvViewHTML(res) {
   return res.lines.map((l, i) => {
     const cls = 'ln' + (res.kind[i] === 'h' ? ' h' : '') + (res.flags[i].noNum ? ' nonum' : '');
-    return '<div class="' + cls + '">' + (l.trim() ? markLine(l) : '&nbsp;') + '</div>';
+    return '<div class="' + cls + '">' + (l.trim() ? markLine(l, res.mode) : '&nbsp;') + '</div>';
   }).join('');
 }
 
+/* ---------- tickable checklists ---------- */
+const CL_CV_SHARED = [
+  { g: 'Prepare', items: [
+    'Every placeholder from a template is replaced, and no illustrative example is left in.',
+    'Every number has a source you can name and a way it was measured.',
+    'Every claim is one you could explain for five minutes in an interview.',
+    'You read the advertisement and marked its must-haves.'] },
+  { g: 'Review', items: [
+    'Spelling and grammar are checked by software, and you read it aloud once.',
+    'One date format, one bullet style and one tense rule throughout, with no gaps you cannot explain.',
+    'Tool and method names are spelled and capitalised the same way every time, for example PyTorch, scikit-learn, C++.',
+    'Contact details are correct: email, phone, city and links.',
+    'Someone who knows your field has read it.'] },
+  { g: 'Links', items: [
+    'Every link opens in a private browser window without a login.',
+    'Links go to stable pages: a profile, a repository, a DOI or an arXiv abstract.',
+    'Linked repositories have a readme and nothing you would not want a reader to open.'] },
+  { g: 'Submit', items: [
+    'You followed the employer’s instructions on file type, file name and length.',
+    'If there were no instructions: you sent a text-based PDF, then copied its text into a plain-text editor and checked the order and characters.',
+    'The file name is clear, for example Surname_Firstname_CV_Role.pdf.',
+    'Every knockout question (work authorisation, degree, availability) is answered accurately.',
+    'You kept a copy of exactly what you sent, with the date and the posting.'] }
+];
+const CL_CV_ROLE = {
+  acad: { g: 'Postdoctoral CV', items: [
+    'Research interests (3 to 4 lines) fit this group or call and name the question you want to work on next.',
+    'Length fits the norm in your field and the call. The sources I read give 3 to 5 pages for a postdoc CV.',
+    'Publications are split into refereed, preprints and submitted, and each has a working link.',
+    'Your name is marked in author lists in the same way throughout.',
+    ['For large-collaboration papers, you selected your significant papers or added a line on your role to each, including convener or contact roles.', ['ecfa', 'iupap']],
+    'Preprints that are not yet accepted are labelled as preprints or submitted.',
+    'Grants, fellowships and awards show the funder and year, and say whether you applied for or were named on them.',
+    'Talks are split into invited and contributed, with the event and year.',
+    'Teaching and mentoring list courses, your role and the number of students mentored.',
+    ['Referees have agreed, have the current version of your CV and know the deadline.', ['fleming', 'chen']],
+    'The cover letter and research statement tell the same story as the CV and use the call’s wording.'] },
+  quant: { g: 'Quantitative researcher resume', items: [
+    'One page unless you have a strong reason, with education and skills near the top for a PhD graduate.',
+    '"PhD" is in Education, not after your name.',
+    'Every project says the question, data source, method, validation and limitation.',
+    'Every result is labelled as simulated, historical, out-of-sample or live, and none is presented as returns you did not earn.',
+    'Transaction costs are stated, with any assumption, if you mention performance.',
+    'Languages and libraries listed are ones you could code with in an interview.',
+    'Probability, statistics, optimisation and time-series background is visible in coursework, thesis or projects.',
+    'Competitions and prizes listed are real and specific.'] },
+  ds: { g: 'Data scientist resume', items: [
+    'One page, with a 2 to 3 line summary that names your field, data scale, tools and target role.',
+    'Skills are grouped by type, and each skill appears again in a bullet or project.',
+    'Each bullet follows problem, method and measured impact, with the baseline named.',
+    'Production work (deployment, monitoring, pipelines) is described where it exists and not claimed where it does not.',
+    'Projects have a link, a one-line problem, the validation method and the result.',
+    'The context is clear to someone outside your field.',
+    'Academic papers are reduced to a count and one or two titles.',
+    'Keywords from the posting appear where they are true.'] },
+  gen: { g: 'This role', items: [
+    'The top third of page one shows why you fit this role.',
+    'The summary and bullets use the posting’s wording where it is true.',
+    'The length matches the norm for the role and the employer’s instructions.'] }
+};
+const CL_STATEMENT = [
+  { g: 'Content', items: [
+    'It starts with the physics question, not your biography.',
+    'A physicist outside your analysis could follow it, and every acronym is explained.',
+    ['For every result, your own role is clear and the collaboration’s work is separated from yours.', ['ecfa', 'iupap', 'chen']],
+    'Every result is labelled published, in collaboration review or ongoing.',
+    'What you say about unpublished results agrees with your collaboration’s rules and with what your referees will say.',
+    ['One or two future directions are feasible within the appointment and tied to the group.', ['uw', 'cornellrs']],
+    'The fit section uses the group’s actual publications or the advertisement, not guesses.'] },
+  { g: 'Submit', items: [
+    'Length and file format match the advertisement.',
+    'Every claim, publication detail and link has been checked.',
+    'An adviser or an experienced experimental physicist has reviewed it.',
+    ['Your referees have the deadline and your documents.', ['fleming', 'chen']],
+    'You verified the submission deadline and that applications are still open.',
+    'You kept a copy of exactly what you sent.'] }
+];
+const CL_LETTER = [
+  { g: 'Content', items: [
+    ['The exact advertised position is named in the first lines.', ['berkeley', 'uva']],
+    ['The letter is written for this institution and group, not copied from the one sent elsewhere.', ['unc', 'berkeley']],
+    ['It tells a story with one main takeaway and does not repeat the CV.', ['berkeley', 'unc', 'ucla']],
+    'It describes a real scientific contribution, and your own role in it is clear.',
+    'It connects your experience to the advertised research, using one project of the group that you have read.',
+    ['It sounds like a colleague, not a student, and is neither wordy nor overly modest.', ['berkeley', 'ucla']],
+    ['The closing lists what you enclose, says how the recommendation letters will arrive and asks for a reply.', ['uva']]] },
+  { g: 'Submit', items: [
+    'The names of the PI and the institution are spelled correctly.',
+    'You included every document the advertisement asks for, and checked whether it wants a publication list.',
+    'Length matches the advertisement. A letter that must carry the whole case can run longer than one page.',
+    'The letter agrees with the CV and the research statement.',
+    'You proofread it once on paper or read it aloud.',
+    'You verified the submission deadline and that applications are still open.'] }
+];
+const CL_LAST = { g: 'Last step before every send', items: [
+  'Read the top third of page one as if you had ten seconds. Does it show why you fit this role?',
+  'Compare the CV with your master document. Is anything on it missing from, or different from, the truth recorded there?'] };
+
+function checklistGroups(res) {
+  if (res.mode === 'statement') return CL_STATEMENT;
+  if (res.mode === 'letter') return CL_LETTER;
+  return CL_CV_SHARED.concat([CL_CV_ROLE[res.profileKey] || CL_CV_ROLE.gen, CL_LAST]);
+}
+let ticks = {};
+try { ticks = JSON.parse(localStorage.getItem('appcheck-ticks') || '{}') || {}; } catch (e) { ticks = {}; }
+function saveTicks() { try { localStorage.setItem('appcheck-ticks', JSON.stringify(ticks)); } catch (e) { /* storage may be blocked */ } }
+function tickKey(res, gi, ii) { return res.mode + '|' + (res.mode === 'cv' ? res.profileKey : '-') + '|' + gi + '.' + ii; }
+function clProgress(res) {
+  let n = 0, d = 0;
+  checklistGroups(res).forEach((G, gi) => G.items.forEach((_, ii) => { d++; if (ticks[tickKey(res, gi, ii)]) n++; }));
+  return { n, d };
+}
+function checklistHTML(res) {
+  const p = clProgress(res);
+  return '<div class="block" id="checklist"><h3>Before you send</h3>' +
+    '<p class="sub">The checks above read text only. These items need you. Tick them as you go; ticks are remembered in this browser when it allows storage. The items are my recommendations, and a link marks where a source supports one. <b id="clProg">' + p.n + ' of ' + p.d + ' done</b></p>' +
+    checklistGroups(res).map((G, gi) => '<div class="cl-group"><h4>' + esc(G.g) + '</h4><ul class="cl">' +
+      G.items.map((it, ii) => {
+        const text = Array.isArray(it) ? it[0] : it, src = Array.isArray(it) ? it[1] : [];
+        const k = tickKey(res, gi, ii);
+        return '<li><label><input type="checkbox" data-k="' + esc(k) + '"' + (ticks[k] ? ' checked' : '') + '><span>' + esc(text) +
+          (src.length ? ' <span class="clsrc">(' + src.map(s => '<a href="' + SRC[s].u + '" target="_blank" rel="noopener">' + esc(SRC[s].n) + '</a>').join(', ') + ')</span>' : '') + '</span></label></li>';
+      }).join('') + '</ul></div>').join('') +
+    '<div class="btns"><button type="button" class="btn" id="clReset">Clear ticks</button></div></div>';
+}
+function wireChecklist() {
+  const rep = $('#report');
+  rep.onchange = e => {
+    const t = e.target;
+    if (!t || !t.matches || !t.matches('.cl input[type=checkbox]')) return;
+    if (t.checked) ticks[t.dataset.k] = 1; else delete ticks[t.dataset.k];
+    saveTicks();
+    if (last) { const p = clProgress(last); const el = $('#clProg'); if (el) el.textContent = p.n + ' of ' + p.d + ' done'; }
+  };
+  const r = $('#clReset');
+  if (r) r.onclick = () => {
+    if (!last) return;
+    checklistGroups(last).forEach((G, gi) => G.items.forEach((_, ii) => { delete ticks[tickKey(last, gi, ii)]; }));
+    saveTicks();
+    document.querySelectorAll('.cl input').forEach(i => { i.checked = false; });
+    $('#clProg').textContent = '0 of ' + clProgress(last).d + ' done';
+  };
+}
+
 function render(res) {
-  const S = res.stats;
   const fails = res.checks.filter(c => c.status === 'fail');
   const warns = res.checks.filter(c => c.status === 'warn');
   const goods = res.checks.filter(c => c.status === 'pass');
   const infos = res.checks.filter(c => c.status === 'info');
-  const pct = v => (v == null ? '–' : Math.round(v * 100) + '%');
+  const isCV = res.mode === 'cv';
+  const legend = isCV
+    ? '<span><i class="key-h"></i> section heading</span><span class="key-w">weak phrase</span><span class="key-c">buzzword</span><span><i class="key-n"></i> bullet without a number</span>'
+    : '<span class="key-w">weak, hedged or hyped phrase</span><span class="key-c">placeholder or generic wording</span>';
   const html = '<div class="report-in">' +
     '<div class="scorecard">' + detectorHTML(res) +
-      '<div class="verdict"><h2>' + esc(verdictOf(res.score)) + '</h2>' +
+      '<div class="verdict"><h2>' + esc(verdictOf(res.score, res.noun)) + '</h2>' +
       '<div class="tally"><span class="fail">' + fails.length + ' missing</span><span class="warn">' + warns.length + ' to improve</span><span class="pass">' + goods.length + ' good</span></div>' +
       layersHTML(res) +
       '<p class="hint">Checked against: ' + esc(res.profile.label) + '. Each ring is one group of checks, outermost first.</p></div></div>' +
-    '<dl class="stats"><div><dt>Words</dt><dd>' + S.words + '</dd></div><div><dt>Pages</dt><dd>~' + S.pages.toFixed(1) + '</dd></div>' +
-      '<div><dt>Bullets</dt><dd>' + S.bullets + '</dd></div><div><dt>Bullets with numbers</dt><dd>' + pct(S.numShare) + '</dd></div>' +
-      '<div><dt>Bullets starting with a verb</dt><dd>' + pct(S.verbShare) + '</dd></div></dl>' +
-    (fails.length ? listBlock('Fix first', 'Missing components and gaps that screeners notice.', fails) : '<div class="block"><h3>Fix first</h3><p class="sub">Nothing required is missing.</p></div>') +
+    '<dl class="stats">' + res.statsList.map(x => '<div><dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd></div>').join('') + '</dl>' +
+    (fails.length ? listBlock('Fix first', 'Missing parts and gaps that readers notice.', fails) : '<div class="block"><h3>Fix first</h3><p class="sub">Nothing required is missing.</p></div>') +
     listBlock('Improve', 'Present, but weaker than it should be.', warns) +
     foldBlock('Looks good', goods, false) +
-    foldBlock('Notes for this role', infos, false) +
-    '<div class="block"><h3>Sections</h3><div class="chips">' +
+    foldBlock('Notes for this ' + (isCV ? 'role' : 'document'), infos, false) +
+    checklistHTML(res) +
+    (isCV ? '<div class="block"><h3>Sections</h3><div class="chips">' +
       res.sectionMap.map(s => '<span class="chip ' + s.state + '">' + esc(s.name) + (s.state === 'missing' && s.level === 'opt' ? ' (optional)' : '') + '</span>').join('') + '</div></div>' +
     '<div class="block"><h3>Keywords</h3><p class="sub">Typical terms for ' + esc(res.profile.label) + '. Use only the ones that are true for you.</p><div class="chips">' +
       res.kw.found.map(k => '<span class="chip kfound">' + esc(k) + '</span>').join('') +
-      res.kw.missing.map(k => '<span class="chip kmiss">' + esc(k) + '</span>').join('') + '</div></div>' +
-    '<div class="block"><h3>Marked-up CV</h3>' +
-      '<div class="legend"><span><i class="key-h"></i> section heading</span><span class="key-w">weak phrase</span><span class="key-c">buzzword</span><span><i class="key-n"></i> bullet without a number</span></div>' +
-      '<div class="cvview" tabindex="0" role="region" aria-label="Marked-up CV">' + cvViewHTML(res) + '</div></div>' +
-    sourcesBlock() +
+      res.kw.missing.map(k => '<span class="chip kmiss">' + esc(k) + '</span>').join('') + '</div></div>' : '') +
+    '<div class="block"><h3>Marked-up ' + esc(res.noun) + '</h3>' +
+      '<div class="legend">' + legend + '</div>' +
+      '<div class="cvview" tabindex="0" role="region" aria-label="Marked-up ' + esc(res.noun) + '">' + cvViewHTML(res) + '</div></div>' +
+    sourcesBlock(res) +
     '<div class="block"><div class="btns"><button type="button" class="btn" id="copyBtn">Copy report</button></div><div class="copybox" id="copyBox"></div>' +
-      '<p class="limits">The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.</p></div></div>';
+      '<p class="limits">' + (isCV
+        ? 'The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.'
+        : 'The checks read text only and cannot judge the physics or whether a claim is true. The evidence for statements and letters is thin: only two of the pages are about postdoc applications in physics, and the rest are written for faculty applications. Length rules are a guide, because the advertisement’s own limit comes first. The CMS collaboration’s job application guide could not be read, so no rule uses it.') + '</p></div></div>';
   $('#report').innerHTML = html;
   requestAnimationFrame(() => requestAnimationFrame(() => {
     document.querySelectorAll('.detector .bar').forEach(b => { b.style.strokeDashoffset = b.dataset.off; });
   }));
   $('#copyBtn').addEventListener('click', copyReport);
+  wireChecklist();
 }
 
+function openItems(res) {
+  const out = [];
+  checklistGroups(res).forEach((G, gi) => G.items.forEach((it, ii) => { if (!ticks[tickKey(res, gi, ii)]) out.push('- [ ] ' + (Array.isArray(it) ? it[0] : it)); }));
+  return out.length ? '\nSTILL TO CHECK BEFORE YOU SEND\n' + out.join('\n') + '\n' : '';
+}
 function reportText(res) {
   const sec = (title, arr) => arr.length ? '\n' + title + '\n' + arr.map(c => '- ' + c.title + ': ' + c.note + (c.fix ? ' Add: ' + c.fix : '')).join('\n') + '\n' : '';
-  return 'CV check, ' + res.profile.label + ': ' + res.score + '/100\n' +
+  return (res.mode === 'cv' ? 'CV check, ' : 'Check of the ' + res.noun + ', ') + res.profile.label + ': ' + res.score + '/100\n' +
     sec('MISSING', res.checks.filter(c => c.status === 'fail')) +
     sec('TO IMPROVE', res.checks.filter(c => c.status === 'warn')) +
-    sec('GOOD', res.checks.filter(c => c.status === 'pass'));
+    sec('GOOD', res.checks.filter(c => c.status === 'pass')) + openItems(res);
 }
 async function copyReport() {
   if (!last) return;
@@ -897,12 +1418,12 @@ async function copyReport() {
 
 function showEmpty() {
   last = null;
-  $('#report').innerHTML = '<p class="empty">Paste your CV text or upload a file, then press Check CV.</p>';
+  $('#report').innerHTML = '<p class="empty">' + esc(MODE_TEXT[curMode()].empty) + '</p>';
   }
 function run() {
   const t = $('#cvText').value;
   if (t.trim().length < 40) { showEmpty(); return; }
-  last = analyzeCV(t, $('#profile').value, $('#extra').value);
+  last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value) : analyzeDoc(t, curMode(), $('#extra').value);
   render(last);
 }
 
@@ -959,7 +1480,13 @@ async function loadFile(file) {
 $('#tabPaste').addEventListener('click', () => selectTab('paste'));
 $('#tabUpload').addEventListener('click', () => selectTab('upload'));
 $('#checkBtn').addEventListener('click', run);
-$('#exampleBtn').addEventListener('click', () => { $('#cvText').value = EXAMPLE; selectTab('paste'); setNote('Example CV for a fictional person. Replace it with yours.'); run(); });
+$('#exampleBtn').addEventListener('click', () => { $('#cvText').value = EXAMPLES[curMode()]; selectTab('paste'); setNote(MODE_TEXT[curMode()].ex); run(); });
+$('#doc').addEventListener('change', () => {
+  applyMode();
+  const t = $('#cvText').value;
+  if (!t.trim() || isExample(t)) { $('#cvText').value = EXAMPLES[curMode()]; setNote(MODE_TEXT[curMode()].ex); run(); }
+  else { setNote(''); run(); }
+});
 $('#clearBtn').addEventListener('click', () => { $('#cvText').value = ''; $('#cvFile').value = ''; setNote(''); selectTab('paste'); showEmpty(); $('#cvText').focus(); });
 $('#profile').addEventListener('change', () => { if ($('#cvText').value.trim()) run(); });
 $('#extra').addEventListener('change', () => { if ($('#cvText').value.trim()) run(); });
@@ -971,8 +1498,9 @@ const drop = $('#drop');
 drop.addEventListener('drop', e => loadFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]));
 
 // open with a worked example so the first view shows what the tool does
-$('#cvText').value = EXAMPLE;
-setNote('Example CV for a fictional person. Replace it with yours.');
+applyMode();
+$('#cvText').value = EXAMPLES.cv;
+setNote(MODE_TEXT.cv.ex);
 run();
 </script>
 </body>
