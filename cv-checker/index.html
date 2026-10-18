@@ -184,6 +184,7 @@ mark.c { text-decoration-color: var(--bad); }
 .srcs .by { display: block; color: var(--muted); font-size: 14px; }
 .srcs .com { color: var(--warn); }
 
+.fixarea { width: 100%; max-width: 78ch; margin-bottom: 12px; }
 .cl-group { margin-top: 18px; }
 .cl-group h4 { font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 0 0 6px; }
 .cl { list-style: none; padding: 0; margin: 0; max-width: 72ch; }
@@ -205,7 +206,7 @@ mark.c { text-decoration-color: var(--bad); }
 
   <header class="top">
     <h1>Application checker</h1>
-    <p>Check a CV, a research statement or a cover letter. Paste the text or upload a PDF, DOCX or text file. The page lists missing parts, weak wording and gaps, and links each rule to the page it comes from.</p>
+    <p>Check a CV, a research statement or a cover letter. Paste the text or upload a PDF, DOCX, TEX or text file. LaTeX source is converted to plain text first. The page lists missing parts, weak wording and gaps, and links each rule to the page it comes from.</p>
   </header>
 
   <main class="grid">
@@ -241,8 +242,8 @@ mark.c { text-decoration-color: var(--bad); }
         <div id="paneUpload" role="tabpanel" aria-labelledby="tabUpload" hidden>
           <label class="drop" id="drop" for="cvFile">
             <strong>Drop a file here or click to choose</strong>
-            <span>PDF, DOCX, TXT or MD</span>
-            <input type="file" id="cvFile" accept=".pdf,.docx,.txt,.md,.text,application/pdf,text/plain">
+            <span>PDF, DOCX, TXT, MD or TEX</span>
+            <input type="file" id="cvFile" accept=".pdf,.docx,.txt,.md,.text,.tex,application/pdf,text/plain">
           </label>
         </div>
         <p class="srcnote" id="srcNote" aria-live="polite"></p>
@@ -1014,6 +1015,121 @@ function analyzeDoc(raw, mode, extraText) {
   };
 }
 
+
+/* ---------- LaTeX source to plain text ---------- */
+function looksLikeLatex(t) {
+  return (String(t).match(/\\[a-zA-Z]+/g) || []).length >= 4 &&
+    /\\(?:documentclass|begin\{|section\*?\{|subsection|item\b|textbf\{|href\{|usepackage|newcommand)/.test(t);
+}
+function texArgs(s, i, n) {
+  const args = [];
+  let p = i;
+  for (let k = 0; k < n; k++) {
+    while (p < s.length && /\s/.test(s[p])) p++;
+    if (s[p] !== '{') return null;
+    let d = 0, q = p;
+    for (; q < s.length; q++) {
+      if (s[q] === '\\') { q++; continue; }
+      if (s[q] === '{') d++;
+      else if (s[q] === '}') { d--; if (d === 0) break; }
+    }
+    if (d !== 0) return null;
+    args.push(s.slice(p + 1, q));
+    p = q + 1;
+  }
+  return { args, end: p };
+}
+function texExpand(s, name, n, fn) {
+  const re = new RegExp('\\\\' + name + '(?![a-zA-Z])\\*?', 'g');
+  let out = '', last = 0, m;
+  while ((m = re.exec(s)) !== null) {
+    let p = m.index + m[0].length;
+    const opt = /^\[[^\]]*\]/.exec(s.slice(p));
+    if (opt) p += opt[0].length;
+    const r = texArgs(s, p, n);
+    if (!r) continue;
+    out += s.slice(last, m.index) + fn(r.args);
+    last = r.end;
+    re.lastIndex = r.end;
+  }
+  return out + s.slice(last);
+}
+const TEX_SYMBOLS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', zeta: 'ζ', eta: 'η', theta: 'θ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', pi: 'π', rho: 'ρ', sigma: 'σ', tau: 'τ', phi: 'φ', varphi: 'φ', chi: 'χ', psi: 'ψ', omega: 'ω',
+  Delta: 'Δ', Gamma: 'Γ', Lambda: 'Λ', Sigma: 'Σ', Omega: 'Ω', Phi: 'Φ', Psi: 'Ψ', Pi: 'Π', Theta: 'Θ', geq: '≥', leq: '≤', times: '×', pm: '±', approx: '≈', sim: '~', to: '→', rightarrow: '→',
+  ell: 'l', sqrt: '√', cdot: '·', bullet: '•', textbullet: '•', ldots: '…', dots: '…', textasciitilde: '~', LaTeX: 'LaTeX', TeX: 'TeX', ss: 'ß', o: 'ø', O: 'Ø', aa: 'å', AA: 'Å', ae: 'æ', AE: 'Æ', i: 'i' };
+function texEnvArgs(s, NL) {
+  const need = { 'tabular*': 2, tabularx: 2, tabular: 1, array: 1, minipage: 1, multicols: 1 };
+  const re = /\\begin\{(tabular\*|tabularx|tabular|array|minipage|multicols)\}/g;
+  let out = '', last = 0, m;
+  while ((m = re.exec(s)) !== null) {
+    let p = m.index + m[0].length, groups = need[m[1]];
+    while (p < s.length) {
+      if (s[p] === '[') { const e = s.indexOf(']', p); if (e < 0) break; p = e + 1; continue; }
+      if (s[p] === '{' && groups > 0) { const r = texArgs(s, p, 1); if (!r) break; p = r.end; groups--; continue; }
+      break;
+    }
+    out += s.slice(last, m.index) + NL;
+    last = p;
+    re.lastIndex = p;
+  }
+  return (out + s.slice(last)).replace(/\\end\{(?:tabular\*|tabularx|tabular|array|minipage|multicols)\}/g, NL);
+}
+function latexToText(src) {
+  let s = String(src).replace(/\r\n?/g, '\n').replace(/(^|[^\\])%.*$/gm, '$1');
+  // user macros
+  const macros = {}, cuts = [];
+  const defRe = /\\(?:newcommand|renewcommand|providecommand)\*?\s*\{?\\([a-zA-Z]+)\}?\s*(?:\[(\d)\])?(?:\[[^\]]*\])?\s*/g;
+  let m;
+  while ((m = defRe.exec(s)) !== null) {
+    const r = texArgs(s, defRe.lastIndex, 1);
+    if (r) { macros[m[1]] = { n: +(m[2] || 0), body: r.args[0] }; cuts.push([m.index, r.end]); defRe.lastIndex = r.end; }
+  }
+  for (let k = cuts.length - 1; k >= 0; k--) s = s.slice(0, cuts[k][0]) + s.slice(cuts[k][1]);
+  const bi = s.indexOf('\\begin{document}');
+  if (bi >= 0) { s = s.slice(bi + 16); const ei = s.indexOf('\\end{document}'); if (ei >= 0) s = s.slice(0, ei); }
+  s = s.replace(/\\(?:documentclass|usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\{[^}]*\}/g, '');
+  for (let pass = 0; pass < 3; pass++) {
+    Object.keys(macros).forEach(k => {
+      const d = macros[k];
+      if (d.n === 0) s = s.replace(new RegExp('\\\\' + k + '(?![a-zA-Z])(?:\\s*\\{\\})?', 'g'), () => d.body);
+      else s = texExpand(s, k, d.n, a => d.body.replace(/#(\d)/g, (_, i, off, str) => (/\\[a-zA-Z]+$/.test(str.slice(0, off)) ? ' ' : '') + (a[+i - 1] != null ? a[+i - 1] : '')));
+    });
+  }
+  const NL = '', PP = '';
+  s = s.replace(/\\([$%&#_{}])/g, (_, c) => ({ '$': '', '%': '', '&': '', '#': '', '_': '', '{': '', '}': '' }[c]));
+  s = s.replace(/\n[ \t]*\n+/g, PP);
+  ['section', 'subsection', 'subsubsection', 'chapter'].forEach(n => { s = texExpand(s, n, 1, a => PP + a[0] + PP); });
+  s = s.replace(/\\item(?:\[[^\]]*\])?/g, NL + '• ');
+  s = s.replace(/\\begin\{(?:itemize|enumerate|description)\}(?:\[[^\]]*\])?/g, NL);
+  s = texEnvArgs(s, NL);
+  s = s.replace(/\\(?:begin|end)\{[^}]*\}/g, NL);
+  s = s.replace(/\\\\(?:\[[^\]]*\])?\*?|\\newline\b|\\par\b/g, NL);
+  s = s.replace(/\\(?:hfill|quad|qquad|hspace\*?\{[^}]*\})/g, ' ');
+  s = texExpand(s, 'href', 2, a => { const u = a[0].replace(/\\/g, ''), t = a[1].trim(); return t && u.toLowerCase().indexOf(t.toLowerCase()) >= 0 ? t : a[1] + ' (' + u + ')'; });
+  s = texExpand(s, 'url', 1, a => a[0].replace(/\\/g, ''));
+  ['textcolor', 'colorbox'].forEach(n => { s = texExpand(s, n, 2, a => a[1]); });
+  ['color', 'vspace', 'pagestyle', 'thispagestyle', 'label', 'ref', 'cite', 'includegraphics', 'phantom', 'hyperlink', 'hypertarget'].forEach(n => { s = texExpand(s, n, 1, () => ''); });
+  ['setlength', 'addtolength', 'rule', 'fontsize'].forEach(n => { s = texExpand(s, n, 2, () => ''); });
+  s = texExpand(s, 'definecolor', 3, () => '');
+  s = texExpand(s, 'footnote', 1, a => ' (' + a[0] + ')');
+  for (let pass = 0; pass < 4; pass++) {
+    ['textbf', 'textit', 'emph', 'underline', 'textsc', 'texttt', 'textrm', 'textsf', 'text', 'mbox', 'hbox', 'textsuperscript', 'textsubscript', 'mathrm', 'mathbf', 'mathit', 'mathcal', 'MakeUppercase', 'MakeLowercase', 'uppercase', 'textnormal', 'small', 'large']
+      .forEach(n => { s = texExpand(s, n, 1, a => a[0]); });
+  }
+  const MARK = { "'": '́', '`': '̀', '^': '̂', '"': '̈', '~': '̃' };
+  s = s.replace(/\\(['`^"~])\s*\{?\\?([a-zA-Z])\}?/g, (_, mk, ch) => (ch + MARK[mk]).normalize('NFC'));
+  s = s.replace(/\\c\s*\{?([cCsStT])\}?/g, (_, ch) => (ch + '̧').normalize('NFC'));
+  s = s.replace(/\\v\s*\{([a-zA-Z])\}/g, (_, ch) => (ch + '̌').normalize('NFC'));
+  s = s.replace(/\\([a-zA-Z]+)\*?/g, (_, n) => (TEX_SYMBOLS[n] != null ? TEX_SYMBOLS[n] : ' '));
+  s = s.replace(/\\[,;:! \/]/g, ' ').replace(/\\-/g, '').replace(/\\/g, ' ');
+  s = s.replace(/\$/g, '').replace(/[{}]/g, '').replace(/~/g, ' ').replace(/&/g, ' | ');
+  s = s.replace(/---/g, '—').replace(/--/g, '–').replace(/``/g, '"').replace(/''/g, '"');
+  s = s.replace(//g, '$').replace(//g, '%').replace(//g, '&').replace(//g, '#').replace(//g, '_').replace(//g, '{').replace(//g, '}');
+  s = s.replace(/[ \t\n]+/g, ' ').replace(new RegExp(PP, 'g'), '\n\n').replace(new RegExp(NL, 'g'), '\n');
+  s = s.split('\n').map(l => l.replace(/ {2,}/g, ' ').trim()).filter(l => !/^•$/.test(l)).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return s;
+}
+
 // ==ANALYSIS END==
 
 /* ---------- UI ---------- */
@@ -1362,7 +1478,8 @@ function render(res) {
       '<div class="verdict"><h2>' + esc(verdictOf(res.score, res.noun)) + '</h2>' +
       '<div class="tally"><span class="fail">' + fails.length + ' missing</span><span class="warn">' + warns.length + ' to improve</span><span class="pass">' + goods.length + ' good</span></div>' +
       layersHTML(res) +
-      '<p class="hint">Checked against: ' + esc(res.profile.label) + '. Each ring is one group of checks, outermost first.</p></div></div>' +
+      '<p class="hint">Checked against: ' + esc(res.profile.label) + '. Each ring is one group of checks, outermost first.</p>' +
+      (res.fromLatex ? '<p class="hint">Read as LaTeX source. Commands were removed and macros expanded before checking, so the marked-up text below is the converted version.</p>' : '') + '</div></div>' +
     '<dl class="stats">' + res.statsList.map(x => '<div><dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd></div>').join('') + '</dl>' +
     (fails.length ? listBlock('Fix first', 'Missing parts and gaps that readers notice.', fails) : '<div class="block"><h3>Fix first</h3><p class="sub">Nothing required is missing.</p></div>') +
     listBlock('Improve', 'Present, but weaker than it should be.', warns) +
@@ -1378,18 +1495,31 @@ function render(res) {
       '<div class="legend">' + legend + '</div>' +
       '<div class="cvview" tabindex="0" role="region" aria-label="Marked-up ' + esc(res.noun) + '">' + cvViewHTML(res) + '</div></div>' +
     sourcesBlock(res) +
-    '<div class="block"><div class="btns"><button type="button" class="btn" id="copyBtn">Copy report</button></div><div class="copybox" id="copyBox"></div>' +
+    '<div class="block" id="fixes"><h3>Fixes to send</h3><p class="sub">Every item marked Missing or Improve, in plain text. Copy it to send to your adviser or a reviewer, or keep it as your to-do list.</p>' +
+      '<textarea id="fixArea" class="fixarea" readonly aria-label="Missing and improve items" rows="' + Math.min(26, Math.max(6, fixesText(res).split('\n').length + 1)) + '"></textarea>' +
+      '<div class="btns"><button type="button" class="btn primary" id="copyFixBtn">Copy fixes</button><button type="button" class="btn" id="copyBtn">Copy full report</button></div><div class="copybox" id="copyBox"></div></div>' +
+    '<div class="block">' +
       '<p class="limits">' + (isCV
         ? 'The checks read text only. Layout problems such as columns, tables, photos and spelling are not visible here. Sources disagree on PDF versus Word, so no rule checks the file type. The CQF Institute page could not be read, so no rule uses it.'
-        : 'The checks read text only and cannot judge the physics or whether a claim is true. The evidence for statements and letters is thin: only two of the pages are about postdoc applications in physics, and the rest are written for faculty applications. Length rules are a guide, because the advertisement’s own limit comes first. The CMS collaboration’s job application guide could not be read, so no rule uses it.') + '</p></div></div>';
+        : 'The checks read text only and cannot judge the physics or whether a claim is true. The evidence for statements and letters is thin: only two of the pages are about postdoc applications in physics, and the rest are written for faculty applications. Length rules are a guide, because the advertisement’s own limit comes first. The CMS collaboration’s job application guide could not be read, so no rule uses it.') + (res.fromLatex ? ' The LaTeX conversion is approximate: files pulled in with \\input, macros made with \\def and drawings are not followed. If something looks wrong in the marked-up text, paste the text from your compiled PDF instead.' : '') + '</p></div></div>';
   $('#report').innerHTML = html;
   requestAnimationFrame(() => requestAnimationFrame(() => {
     document.querySelectorAll('.detector .bar').forEach(b => { b.style.strokeDashoffset = b.dataset.off; });
   }));
+  $('#fixArea').value = fixesText(res);
   $('#copyBtn').addEventListener('click', copyReport);
+  $('#copyFixBtn').addEventListener('click', copyFixes);
   wireChecklist();
 }
 
+function fixesText(res) {
+  const part = (title, arr) => arr.length ? title + ' (' + arr.length + ')\n' + arr.map((c, i) => (i + 1) + '. ' + c.title + ': ' + c.note +
+    (c.fix ? '\n   To fix: ' + c.fix : '') +
+    (c.src && c.src.length && c.group !== 'Your checklist' ? '\n   Sources: ' + c.src.map(k => SRC[k].n).join(', ') : '')).join('\n') + '\n\n' : '';
+  const head = (res.mode === 'cv' ? 'CV check, ' : 'Check: ') + res.profile.label + ': ' + res.score + '/100\n\n';
+  const body = part('MISSING', res.checks.filter(c => c.status === 'fail')) + part('TO IMPROVE', res.checks.filter(c => c.status === 'warn'));
+  return (head + (body || 'Nothing is missing and nothing needs improving.\n')).trim() + '\n';
+}
 function openItems(res) {
   const out = [];
   checklistGroups(res).forEach((G, gi) => G.items.forEach((it, ii) => { if (!ticks[tickKey(res, gi, ii)]) out.push('- [ ] ' + (Array.isArray(it) ? it[0] : it)); }));
@@ -1397,22 +1527,24 @@ function openItems(res) {
 }
 function reportText(res) {
   const sec = (title, arr) => arr.length ? '\n' + title + '\n' + arr.map(c => '- ' + c.title + ': ' + c.note + (c.fix ? ' Add: ' + c.fix : '')).join('\n') + '\n' : '';
-  return (res.mode === 'cv' ? 'CV check, ' : 'Check of the ' + res.noun + ', ') + res.profile.label + ': ' + res.score + '/100\n' +
+  return (res.mode === 'cv' ? 'CV check, ' : 'Check: ') + res.profile.label + ': ' + res.score + '/100\n' +
     sec('MISSING', res.checks.filter(c => c.status === 'fail')) +
     sec('TO IMPROVE', res.checks.filter(c => c.status === 'warn')) +
     sec('GOOD', res.checks.filter(c => c.status === 'pass')) + openItems(res);
 }
-async function copyReport() {
+function copyFixes() { return copyOut(fixesText(last), $('#copyFixBtn'), 'Copy fixes'); }
+function copyReport() { return copyOut(reportText(last), $('#copyBtn'), 'Copy full report'); }
+async function copyOut(text, btn, label) {
   if (!last) return;
-  const text = reportText(last), box = $('#copyBox'), btn = $('#copyBtn');
+  const box = $('#copyBox');
   try {
     await navigator.clipboard.writeText(text);
     btn.textContent = 'Copied';
-    setTimeout(() => { btn.textContent = 'Copy report'; }, 1600);
+    setTimeout(() => { btn.textContent = label; }, 1600);
     box.innerHTML = '';
   } catch (e) {
-    box.innerHTML = '<textarea id="copyArea" readonly rows="8" aria-label="Report text"></textarea><p class="hint">Copy is blocked here. The text is selected: press Ctrl+C or Cmd+C.</p>';
-    const ta = $('#copyArea'); ta.value = text; ta.focus(); ta.select();
+    const ta = $('#fixArea'); ta.value = text; ta.focus(); ta.select();
+    box.innerHTML = '<p class="hint">Copy is blocked here. The text is selected in the box above: press Ctrl+C or Cmd+C.</p>';
   }
 }
 
@@ -1421,9 +1553,12 @@ function showEmpty() {
   $('#report').innerHTML = '<p class="empty">' + esc(MODE_TEXT[curMode()].empty) + '</p>';
   }
 function run() {
-  const t = $('#cvText').value;
+  const raw = $('#cvText').value;
+  const isTex = looksLikeLatex(raw);
+  const t = isTex ? latexToText(raw) : raw;
   if (t.trim().length < 40) { showEmpty(); return; }
   last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value) : analyzeDoc(t, curMode(), $('#extra').value);
+  last.fromLatex = isTex;
   render(last);
 }
 
@@ -1464,8 +1599,8 @@ async function loadFile(file) {
     let r;
     if (name.endsWith('.pdf')) r = await readPdf(file);
     else if (name.endsWith('.docx')) r = await readDocx(file);
-    else if (/\.(txt|md|text)$/.test(name) || (file.type || '').startsWith('text/')) r = { text: (await file.text()).trim() };
-    else throw new Error('This file type is not supported. Use PDF, DOCX, TXT or MD. For .doc files, save as DOCX or PDF first.');
+    else if (/\.(txt|md|text|tex)$/.test(name) || (file.type || '').startsWith('text/')) r = { text: (await file.text()).trim() };
+    else throw new Error('This file type is not supported. Use PDF, DOCX, TXT, MD or TEX. For .doc files, save as DOCX or PDF first.');
     if (r.text.length < 40) throw new Error('No readable text found. A scanned PDF has no text layer, so paste the text or export a text-based PDF.');
     $('#cvText').value = r.text;
     selectTab('paste');
