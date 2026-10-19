@@ -280,7 +280,7 @@ mark.c { text-decoration-color: var(--bad); }
   </main>
 
   <footer class="foot">
-    <p>Pages were read between 16 and 18 October 2026. Pages change, so open the link behind a rule before you rely on it. Rules without a link are my own recommendation.</p>
+    <p>Pages were read between 16 and 19 October 2026. Pages change, so open the link behind a rule before you rely on it. Rules without a link are my own recommendation.</p>
   </footer>
 </div>
 
@@ -329,6 +329,9 @@ const SRC = {
   washuc: { n: 'WashU cover letters (tech, data)', by: 'WashU Center for Career Engagement, modified Jun 2026', u: 'https://careers.washu.edu/cover-letters-for-tech-data-and-engineering-community/' },
   mitc: { n: 'MIT CAPD cover letters', by: 'MIT Career Advising & Professional Development, modified Feb 2026', u: 'https://capd.mit.edu/resources/how-to-write-an-effective-cover-letter/' },
   hblog: { n: 'Harvard cover letter article', by: 'Harvard FAS Mignone Center, republished from WayUp, 10 Aug 2026', u: 'https://careerservices.fas.harvard.edu/blog/2026/08/10/how-to-write-a-cover-letter-that-actually-gets-you-hired-in-2026/' },
+  penncv: { n: 'Penn faculty CV', by: 'Penn Career Services, CVs for faculty job applications, modified Jul 2026', u: 'https://careerservices.upenn.edu/application-materials-for-the-faculty-job-search/cvs-for-faculty-job-applications/' },
+  pennstem: { n: 'Penn STEM CV', by: 'Penn Career Services, Creating a STEM CV, modified Mar 2024', u: 'https://careerservices.upenn.edu/stemcv/' },
+  uclacv: { n: 'UCLA PhD CV Book', by: 'UCLA Graduate Career Services, PhD CV Book, July 2025', u: 'https://career.ucla.edu/resources/phd-cv-book/' },
   penn: { n: 'Penn grad and postdoc advice', by: 'Penn Career Services, modified Jun 2026', u: 'https://careerservices.upenn.edu/resources/resume-and-cover-letter-advice-for-grad-students-postdocs/' },
   ucdcl: { n: 'UC Davis cover letters', by: 'UC Davis Career Center, modified Apr 2026', u: 'https://careercenter.ucdavis.edu/resumes-and-materials/cover-letters' },
   ucr: { n: 'UC Riverside grad handout', by: 'UC Riverside Career Center, 2025-26 graduate cover letter handout', u: 'https://careers.ucr.edu/sites/default/files/2026-02/25-26_grad_cover_letter_handout.pdf' },
@@ -344,11 +347,11 @@ const SRC = {
 const CHECK_SRC = {
   github: ['washu', 'efc'], summary: ['ucdres', 'aucc', 'fincv'], education: ['ucdres', 'ucdcv', 'umich'], edudetail: ['ucdcv', 'ucdres'],
   experience: ['ucdres', 'ucdcv', 'umich'], projects: ['washu', 'ucdres', 'efc'], skills: ['informs', 'ucdres', 'washu'],
-  publications: ['ucdcv', 'umich', 'usc', 'tibbs'], awards: ['ucdcv', 'umich'], talks: ['ucdcv'], service: ['ucdcv', 'umich'], references: ['ucdres', 'harvardres', 'harvardcv'],
-  datefmt: ['umich', 'cs'], bullets: ['ucdres'], verbs: ['informs', 'aucc', 'harvardres', 'harvardcv', 'ucdres', 'jhu'],
+  publications: ['ucdcv', 'umich', 'usc', 'tibbs'], awards: ['ucdcv', 'umich'], talks: ['ucdcv', 'pennstem', 'uclacv'], service: ['ucdcv', 'umich'], references: ['ucdres', 'harvardres', 'harvardcv'],
+  datefmt: ['umich', 'cs', 'uclacv'], bullets: ['ucdres'], verbs: ['informs', 'aucc', 'harvardres', 'harvardcv', 'ucdres', 'jhu', 'pennstem'],
   numbers: ['informs', 'harvardres', 'aucc', 'fincv', 'efc', 'jhu'], weak: ['jhu', 'harvardres'], pronoun: ['harvardres', 'harvardcv', 'tibbs'], personal: ['harvardres', 'jhu', 'tibbs', 'aps'],
-  refline: ['ucdres'], phdname: ['columbia'], collabrole: ['ecfa', 'iupap'], inprep: ['tibbs'],
-  chrono: ['cornell', 'usc', 'ucdres', 'washu', 'aucc', 'harvardres', 'harvardcv', 'tibbs'], publinks: ['ucdcv'], mentor: ['ucdcv'],
+  refline: ['ucdres'], phdname: ['columbia'], collabrole: ['ecfa', 'iupap'], inprep: ['tibbs', 'penncv', 'pennstem', 'uclacv'],
+  chrono: ['penncv', 'cornell', 'usc', 'ucdres', 'washu', 'aucc', 'harvardres', 'harvardcv', 'tibbs'], publinks: ['ucdcv', 'pennstem'], mentor: ['ucdcv'],
   quantval: ['quantt', 'fca', 'wsp'], quantcost: ['quantt', 'fca', 'wsp'], comps: ['quantt', 'fca'],
   // research statement
   s_role: ['fleming', 'chen', 'uw', 'yunger'], s_we: ['fleming', 'ecfa', 'iupap', 'chen'], s_credit: ['uchicago', 'yunger'],
@@ -366,7 +369,7 @@ const CHECK_SRC = {
   n_weak: ['hblog'], n_resume: ['mitc', 'ucdcl', 'ucr', 'penn', 'msn'], n_close: ['ucr', 'mitc', 'ucdcl', 'msn'], n_tone: ['ucr', 'hblog'],
   n_acro: ['aps'], n_labels: ['quantt', 'fca', 'wsp']
 };
-const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich'], gen: ['ucdres', 'aucc', 'aps'],
+const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich', 'uclacv'], gen: ['ucdres', 'aucc', 'aps'],
   statement: ['lapa', 'uw', 'cornellgrad', 'northwestern', 'fleming'], letter: ['fleming', 'mit', 'berkeley', 'unc', 'ucla'],
   letterds: ['hblog', 'mitc', 'ucr'], letterq: ['hblog', 'mitc', 'ucr'] };
 const KW_SRC = { ds: ['ucdres', 'washu', 'informs'], quant: ['quantt', 'fca', 'wsp'], acad: [], gen: ['ucdres', 'aucc'] };
@@ -398,7 +401,7 @@ const PROFILES = {
     ]
   },
   acad: {
-    label: 'Academic / postdoc', pages: [500, 100000], serviceName: 'Teaching & service', kwWeight: 1,
+    label: 'Academic / postdoc', pages: [500, 5500], serviceName: 'Teaching & service', kwWeight: 1,
     level: { summary: 'opt', education: 'req', experience: 'req', projects: 'opt', skills: 'opt', publications: 'req', awards: 'rec', talks: 'rec', service: 'rec', references: 'opt' },
     kw: [
       ['Papers / preprints', /\b(arxiv|doi|journal|proceedings|phys\.? rev|jhep|et al)/i], ['Citations / h-index', /\b(citation|h-index)/i],
@@ -638,7 +641,7 @@ function analyzeCV(raw, profileKey, extraText, opts) {
     const vs = nVerb / ach.length, ns = nNum / ach.length;
     add('Content', 'verbs', 'Bullets start with an action verb', vs >= 0.7 ? 'pass' : vs >= 0.45 ? 'warn' : 'fail',
       Math.round(vs * 100) + '% of bullets start with a verb.',
-      vs >= 0.7 ? '' : 'Start each bullet with a past-tense verb such as Built, Led, Reduced, Trained.');
+      vs >= 0.7 ? '' : 'Start each bullet with a verb: past tense for finished roles (Built, Reduced, Trained), present tense for current ones (Lead, Maintain).');
     add('Content', 'numbers', 'Results with numbers', ns >= 0.4 ? 'pass' : ns >= 0.2 ? 'warn' : 'fail',
       nNum + ' of ' + ach.length + ' bullets contain a number (' + Math.round(ns * 100) + '%).',
       ns >= 0.4 ? '' : 'Add scale or impact to bullets: data size, speed-up, accuracy, team size, users, money, time saved. Lines marked with a dotted bar in the CV view have none.', 1.25);
@@ -669,7 +672,7 @@ function analyzeCV(raw, profileKey, extraText, opts) {
   const lenNote = words + ' words, about ' + pages.toFixed(1) + ' pages.';
   add('Content', 'length', 'Length', lenOk ? 'pass' : 'warn',
     lenOk ? lenNote : lenNote + (words < minW ? ' That is thin for this role.' : ' That is long for this role.'),
-    lenOk ? '' : (words < minW ? 'Add detail to your strongest roles and projects.' : (profileKey === 'quant' ? 'Quant firms expect one page. Cut older or minor items.' : 'Trim to the most relevant 1 to 2 pages. Cut older or minor items.')), 0.75);
+    lenOk ? '' : (words < minW ? 'Add detail to your strongest roles and projects.' : (profileKey === 'quant' ? 'Quant firms expect one page. Cut older or minor items.' : profileKey === 'acad' ? 'UCLA allows up to 10 pages for a STEM postdoc and warns that a longer CV looks padded. Cut minor items and keep the strongest first.' : 'Trim to the most relevant 1 to 2 pages. Cut older or minor items.')), 0.75);
 
   if (/\bph\.?\s?d\b/i.test(firstLine) && profileKey !== 'acad') {
     add('Header', 'phdname', 'Degree in the name line', 'warn', 'The name line contains "PhD".',
@@ -729,7 +732,7 @@ function analyzeCV(raw, profileKey, extraText, opts) {
   }
   if (profileKey === 'acad' && /\bin preparation\b/i.test(text)) {
     add('Content', 'inprep', 'Manuscripts in preparation', 'info', 'Entries marked "in preparation" were found.',
-      'One source says to list submitted, in-review and in-press work, and to leave work still in preparation out of the CV and mention it in the cover letter. Treat this as optional.', 0);
+      'The sources disagree. UCLA and one other source say to list only submitted, in-review or accepted work. Penn allows a few articles in preparation if publication is realistic. If you keep them, label the status. Treat this as optional.', 0);
   }
   if (profileKey === 'quant') {
     const val = /\b(backtest|back-test|out[- ]of[- ]sample|cross[- ]validation|walk[- ]forward|validation)\b/i.test(text);
