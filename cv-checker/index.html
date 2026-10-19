@@ -879,7 +879,8 @@ function analyzeDoc(raw, mode, extraText, opts) {
   const checks = [];
   const add = (group, id, title, status, note, fix, weight) =>
     checks.push({ group, id, title, status, note, fix: fix || '', weight: weight == null ? 1 : weight });
-  const pagesTxt = '~' + pages.toFixed(1) + ' pages at 500 words a page';
+  const realPages = opts && opts.pages ? opts.pages : 0;
+  const pagesTxt = realPages ? realPages + (realPages === 1 ? ' page' : ' pages') + ' in the PDF' : '~' + pages.toFixed(1) + ' pages at 500 words a page';
 
   // format
   if (mode === 'statement') {
@@ -890,16 +891,18 @@ function analyzeDoc(raw, mode, extraText, opts) {
       st === 'pass' ? '' : words < 450 ? 'Add your role in each result and one or two specific future directions.' : 'Cut to about two pages unless the advertisement sets a different limit. Keep a three-page version in reserve.', 1);
   } else {
     if (IND) {
-      const st = words < 120 ? 'fail' : words < 200 ? 'warn' : words <= 450 ? 'pass' : words <= 600 ? 'warn' : 'fail';
+      let st = words < 120 ? 'fail' : words < 200 ? 'warn' : words <= 450 ? 'pass' : words <= 600 ? 'warn' : 'fail';
+      if (realPages && words >= 200) st = realPages <= 1 ? 'pass' : realPages === 2 ? 'warn' : 'fail';
       add('Format', 'length', 'Length', st,
         words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This fits on one page. The Harvard article suggests roughly 250 to 400 words.' :
           words < 200 ? 'This is shorter than the 250 to 400 words the Harvard article suggests.' : words <= 600 ? 'This runs over the roughly 250 to 400 words that fit one page.' : 'This is well over one page, which every source treats as the limit.'),
         st === 'pass' ? '' : words < 200 ? 'Add one or two achievements with what you did, how and the result.' : 'Cut to one page. Keep two or three themes and drop what the resume already says.', 1);
     } else {
-    const st = words < 150 ? 'fail' : words < 250 ? 'warn' : words <= 600 ? 'pass' : words <= 1000 ? 'warn' : 'fail';
+    let st = words < 150 ? 'fail' : words < 250 ? 'warn' : words <= 700 ? 'pass' : words <= 1000 ? 'warn' : 'fail';
+    if (realPages && words >= 250) st = realPages <= 1 ? 'pass' : realPages === 2 ? 'warn' : 'fail';
     add('Format', 'length', 'Length', st,
       words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This fits on one page, which is the length most sources give.' :
-        words < 250 ? 'This is shorter than a page.' : words <= 1000 ? 'This runs to about a page and a half. Sources allow that only when no separate research statement is requested.' : 'This is longer than the 2 pages that every source treats as the limit.'),
+        words < 250 ? 'This is shorter than a page.' : (realPages ? realPages === 2 : words <= 1000) ? 'This runs onto a second page. Sources allow that only when no separate research statement is requested.' : 'This is longer than the 2 pages that every source treats as the limit.'),
       st === 'pass' ? '' : words < 250 ? 'Add what the position needs: your main result, your role and why this group.' : 'Cut to one page. Let the research statement and CV carry the detail.', 1);
     }
     const nonEmpty = lines.filter(l => l.trim());
@@ -1813,12 +1816,13 @@ function showEmpty() {
   last = null;
   $('#report').innerHTML = '<p class="empty">' + esc(MODE_TEXT[curMode()].empty) + '</p>';
   }
+let filePages = 0, fileText = '';
 function run() {
   const raw = $('#cvText').value;
   const isTex = looksLikeLatex(raw);
   const t = isTex ? latexToText(raw) : raw;
   if (t.trim().length < 40) { showEmpty(); return; }
-  last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value, { heads: isTex ? texSections(raw) : [] }) : analyzeDoc(t, curMode(), $('#extra').value, { employer: $('#employer').value });
+  last = curMode() === 'cv' ? analyzeCV(t, $('#profile').value, $('#extra').value, { heads: isTex ? texSections(raw) : [] }) : analyzeDoc(t, curMode(), $('#extra').value, { employer: $('#employer').value, pages: (filePages && raw.trim() === fileText) ? filePages : 0 });
   last.fromLatex = isTex;
   render(last);
 }
@@ -1864,6 +1868,7 @@ async function loadFile(file) {
     else throw new Error('This file type is not supported. Use PDF, DOCX, TXT, MD or TEX. For .doc files, save as DOCX or PDF first.');
     if (r.text.length < 40) throw new Error('No readable text found. A scanned PDF has no text layer, so paste the text or export a text-based PDF.');
     $('#cvText').value = r.text;
+    filePages = r.pages || 0; fileText = r.text.trim();
     selectTab('paste');
     setNote('Read from ' + file.name + (r.pages ? ' (' + r.pages + ' page' + (r.pages > 1 ? 's' : '') + ')' : '') + '. Edit the text if the extraction missed anything.');
     run();
