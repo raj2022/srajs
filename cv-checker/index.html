@@ -1925,6 +1925,8 @@ async function copyReview() {
 
 /* ---------- compare documents ---------- */
 const CMP_LABEL = { cv: 'CV', statement: 'Research statement', letter: 'Cover letter (HEP postdoc)', letterds: 'Cover letter (data science)', letterq: 'Cover letter (quant)' };
+function cmpSlot(res) { return res.mode === 'cv' ? 'cv:' + res.profileKey : res.mode; }
+function cmpLabel(k) { return k.indexOf('cv:') === 0 ? 'CV, ' + ((PROFILES[k.slice(3)] || {}).label || k.slice(3)) : CMP_LABEL[k]; }
 const CMP_NUMW = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
 const CMP_NOUN = '(?:mass points?|analys[ie]s|papers?|publications?|students?|conferences?|talks?|posters?|citations?|analysts?|committees|collaborators|semesters|months|years|sites|channels|categories|modules|references|letters|people|physicists|events)';
 const CMP_UNIT_RE = new RegExp('(\\d[\\d,]*(?:\\.\\d+)?|\\b(?:' + Object.keys(CMP_NUMW).join('|') + ')\\b)(?:\\s*[–-]\\s*(\\d+(?:\\.\\d+)?))?\\s*(?:(σ|sigma\\b|%|fb\\b|pb\\b|TB\\b|GB\\b)|((?:[A-Za-z-]+\\s+){0,2}?' + CMP_NOUN + ')\\b)', 'gi');
@@ -2037,8 +2039,8 @@ function cmpText(items, docs) {
 }
 let savedDocs = {}, cmpState = null;
 function cmpHTML() {
-  const keys = Object.keys(savedDocs), cur = last && last.mode, has = cur && savedDocs[cur];
-  const list = keys.length ? '<ul class="cmplist">' + keys.map(k => '<li><span><b>' + esc(CMP_LABEL[k]) + '</b>, ' + savedDocs[k].words + ' words</span><button type="button" class="btn" data-rm="' + k + '">Remove</button></li>').join('') + '</ul>' : '<p class="hint">No documents saved yet.</p>';
+  const keys = Object.keys(savedDocs), cur = last && cmpSlot(last), has = cur && savedDocs[cur];
+  const list = keys.length ? '<ul class="cmplist">' + keys.map(k => '<li><span><b>' + esc(cmpLabel(k)) + '</b>, ' + savedDocs[k].words + ' words</span><button type="button" class="btn" data-rm="' + k + '">Remove</button></li>').join('') + '</ul>' : '<p class="hint">No documents saved yet.</p>';
   let res = '';
   if (cmpState) {
     res = cmpState.items.length
@@ -2047,14 +2049,14 @@ function cmpHTML() {
       : '<div class="cmpres"><h4>No differences found</h4><p class="hint">Numbers with units, expected dates, contact details, names, titles and paper status agree across the saved documents. Other facts are not compared.</p></div>';
   }
   return '<h3>Compare your documents</h3><p class="sub">Save your CV, statement and letters one at a time, then compare them. It lists numbers, dates, contact details, names, titles and paper status that differ between them. Documents are kept in this tab only and are cleared when you reload the page.</p>' +
-    '<div class="btns"><button type="button" class="btn primary" id="cmpSave"' + (last ? '' : ' disabled') + '>' + (has ? 'Update saved ' : 'Save this ') + (cur ? esc(CMP_LABEL[cur]) : 'document') + '</button>' +
+    '<div class="btns"><button type="button" class="btn primary" id="cmpSave"' + (last ? '' : ' disabled') + '>' + (has ? 'Update saved ' : 'Save this ') + (cur ? esc(cmpLabel(cur)) : 'document') + '</button>' +
     '<button type="button" class="btn" id="cmpRun"' + (keys.length >= 2 ? '' : ' disabled') + '>Compare saved documents</button>' +
     (cmpState && cmpState.items.length ? '<button type="button" class="btn" id="cmpCopy">Copy differences</button>' : '') + '</div>' + list + res + '<div class="copybox" id="cmpBox"></div>';
 }
 function refreshCmp() {
   const el = $('#cmp'); if (!el) return;
   el.innerHTML = cmpHTML();
-  $('#cmpSave').addEventListener('click', () => { if (!last) return; savedDocs[last.mode] = { label: CMP_LABEL[last.mode], text: last.text, words: last.text.split(/\s+/).filter(Boolean).length }; cmpState = null; refreshCmp(); });
+  $('#cmpSave').addEventListener('click', () => { if (!last) return; savedDocs[cmpSlot(last)] = { label: cmpLabel(cmpSlot(last)), text: last.text, words: last.text.split(/\s+/).filter(Boolean).length }; cmpState = null; refreshCmp(); });
   $('#cmpRun').addEventListener('click', () => { const docs = Object.keys(savedDocs).map(k => savedDocs[k]); cmpState = { items: compareDocs(docs), docs }; refreshCmp(); });
   document.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => { delete savedDocs[b.dataset.rm]; cmpState = null; refreshCmp(); }));
   const cp = $('#cmpCopy'); if (cp) cp.addEventListener('click', async () => { try { await navigator.clipboard.writeText(cmpText(cmpState.items, cmpState.docs)); cp.textContent = 'Copied'; setTimeout(() => { cp.textContent = 'Copy differences'; }, 1600); } catch (e) { $('#cmpBox').innerHTML = '<textarea class="fixarea" readonly rows="8" id="cmpTa"></textarea>'; $('#cmpTa').value = cmpText(cmpState.items, cmpState.docs); $('#cmpTa').select(); } });
