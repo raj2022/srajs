@@ -62,7 +62,10 @@ a { color: var(--accent); text-underline-offset: 3px; }
 
 .grid { display: grid; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); gap: 36px; align-items: start; padding-bottom: 64px; }
 @media (max-width: 920px) { .grid { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
-@media (min-width: 921px) { .input { position: sticky; top: 16px; } }
+@media (min-width: 921px) {
+  .input { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; overscroll-behavior: contain; padding-right: 10px; scrollbar-gutter: stable; }
+  #cvText { height: clamp(240px, 38vh, 520px); overflow-y: scroll; }
+}
 
 .input { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .field { display: flex; flex-direction: column; gap: 7px; }
