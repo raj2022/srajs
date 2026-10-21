@@ -300,7 +300,7 @@ mark.c { text-decoration-color: var(--bad); }
   </main>
 
   <footer class="foot">
-    <p>Pages were read between 16 and 19 October 2026. Pages change, so open the link behind a rule before you rely on it. Rules without a link are my own recommendation.</p>
+    <p>Pages were read between 16 and 21 October 2026. Pages change, so open the link behind a rule before you rely on it. Rules without a link are my own recommendation.</p>
   </footer>
 </div>
 
@@ -357,6 +357,13 @@ const SRC = {
   ucr: { n: 'UC Riverside grad handout', by: 'UC Riverside Career Center, 2025-26 graduate cover letter handout', u: 'https://careers.ucr.edu/sites/default/files/2026-02/25-26_grad_cover_letter_handout.pdf' },
   msn: { n: 'Morgan Stanley cover letters', by: 'Morgan Stanley students and graduates site, modified Oct 2025', u: 'https://www.morganstanley.com/articles/are-cover-letters-important' },
   jsapp: { n: 'Jane Street researcher application', by: 'Jane Street application page, no date shown', u: 'https://janestreet.com/apply-quantitative-researcher' },
+  drw: { n: 'DRW researcher posting', by: 'DRW, Quantitative Researcher (Chicago) posting on Greenhouse, no date shown', u: 'https://job-boards.greenhouse.io/drweng/jobs/6991933' },
+  flowt: { n: 'Flow Traders graduates page', by: 'Flow Traders, graduate trader and software development tracks, no date shown', u: 'https://www.flowtraders.com/careers/graduates/' },
+  imcr: { n: 'IMC recruitment process', by: 'IMC Trading, US recruitment process page, copyright 2025', u: 'https://www.imc.com/us/careers/recruitment-process' },
+  oxfq: { n: 'Oxford Careers, quantitative finance', by: 'University of Oxford Careers Service, no date shown', u: 'https://www.ox.ac.uk/careers/careers-guidance/explore-careers/sectors-and-occupations/quantitative-finance' },
+  ascb: { n: 'ASCB, academia to industry', by: 'American Society for Cell Biology, article by Tim Fessenden, 6 Apr 2021', u: 'https://ascb.org/?p=125320' },
+  strata: { n: 'StrataScratch (commercial)', by: 'StrataScratch interview-prep platform, article by Nazlican Kurt, 16 Jul 2021, the author’s opinion', u: 'https://www.stratascratch.com/blog/how-to-write-a-perfect-data-science-cover-letter' },
+  ds365: { n: '365 Data Science (commercial)', by: '365 Data Science training company, article by Marta Teneva, updated 17 Jan 2025, the author’s opinion', u: 'https://365datascience.com/career-advice/job-interview-tips/data-science-cover-letter-dos/' },
   citq: { n: 'Citadel Securities PhD posting', by: 'Citadel Securities, Quantitative Researcher PhD Graduate (US), no date shown', u: 'https://www.citadelsecurities.com/careers/details/quantitative-researcher-phd-graduate-us/' },
   citref: { n: 'Citadel Securities EMEA posting', by: 'Citadel Securities, Campus Referrals Quantitative Research (EMEA), page modified 18 Oct 2026', u: 'https://www.citadelsecurities.com/?p=33932' },
   optq: { n: 'Optiver graduate researcher posting', by: 'Optiver, Graduate Quantitative Researcher 2027 start (Amsterdam), no date shown', u: 'https://www.optiver.com/join-us/jobs/quantitative-research-and-machine-learning/amsterdam/graduate-quantitative-researcher-2027-start/' },
@@ -384,14 +391,14 @@ const CHECK_SRC = {
   l_close: ['uva'], l_tone: ['berkeley', 'ucla'],
   l_greet: ['ucdcl', 'mitc'], l_contact: ['mitc', 'ucdcl'],
   // industry letters (data science and quant)
-  n_role: ['ucr', 'ucdcl', 'hblog', 'washuc'], n_employer: ['hblog', 'ucr', 'msn'], n_other: ['msn'], n_greet: ['washuc', 'mitc', 'ucdcl'],
-  n_numbers: ['hblog', 'ucr', 'washuc'], n_tools: ['washuc', 'ucr'], n_qskills: ['citq', 'sigq', 'optq'], n_own: ['hblog', 'ucr'],
-  n_weak: ['hblog'], n_resume: ['mitc', 'ucdcl', 'ucr', 'penn', 'msn'], n_close: ['ucr', 'mitc', 'ucdcl', 'msn'], n_tone: ['ucr', 'hblog'],
+  n_role: ['ucr', 'ucdcl', 'hblog', 'washuc'], n_employer: ['hblog', 'ucr', 'msn', 'strata', 'ascb'], n_other: ['msn'], n_greet: ['washuc', 'mitc', 'ucdcl', 'strata'],
+  n_numbers: ['hblog', 'ucr', 'washuc', 'ds365', 'strata'], n_claim: ['ds365'], n_salary: ['ds365'], n_tools: ['washuc', 'ucr'], n_qskills: ['citq', 'sigq', 'optq'], n_own: ['hblog', 'ucr'],
+  n_weak: ['hblog'], n_resume: ['mitc', 'ucdcl', 'ucr', 'penn', 'msn', 'strata', 'ds365'], n_close: ['ucr', 'mitc', 'ucdcl', 'msn'], n_tone: ['ucr', 'hblog', 'ds365'],
   n_acro: ['aps'], n_labels: ['quantt', 'fca', 'wsp']
 };
 const LEN_SRC = { ds: ['informs', 'ucdres', 'aucc', 'aps'], quant: ['efc', 'quantt'], acad: ['usc', 'cornell', 'umich', 'uclacv'], gen: ['ucdres', 'aucc', 'aps'],
   statement: ['lapa', 'uw', 'cornellgrad', 'northwestern', 'fleming'], letter: ['fleming', 'mit', 'berkeley', 'unc', 'ucla'],
-  letterds: ['hblog', 'mitc', 'ucr'], letterq: ['hblog', 'mitc', 'ucr'] };
+  letterds: ['hblog', 'mitc', 'ucr', 'ds365'], letterq: ['hblog', 'mitc', 'ucr'] };
 const KW_SRC = { ds: ['ucdres', 'washu', 'informs'], quant: ['quantt', 'fca', 'wsp'], acad: [], gen: ['ucdres', 'aucc'] };
 
 const PROFILES = {
@@ -937,8 +944,8 @@ function analyzeDoc(raw, mode, extraText, opts) {
       let st = words < 120 ? 'fail' : words < 200 ? 'warn' : words <= 450 ? 'pass' : words <= 600 ? 'warn' : 'fail';
       if (realPages && words >= 200) st = realPages <= 1 ? 'pass' : realPages === 2 ? 'warn' : 'fail';
       add('Format', 'length', 'Length', st,
-        words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This fits on one page. The Harvard article suggests roughly 250 to 400 words.' :
-          words < 200 ? 'This is shorter than the 250 to 400 words the Harvard article suggests.' : words <= 600 ? 'This runs over the roughly 250 to 400 words that fit one page.' : 'This is well over one page, which every source treats as the limit.'),
+        words + ' words (' + pagesTxt + '). ' + (st === 'pass' ? 'This fits on one page. The Harvard article and 365 Data Science suggest roughly 250 to 400 words.' :
+          words < 200 ? 'This is shorter than the 250 to 400 words that the Harvard article and 365 Data Science suggest.' : words <= 600 ? 'This runs over the roughly 250 to 400 words that fit one page.' : 'This is well over one page, which every source treats as the limit.'),
         st === 'pass' ? '' : words < 200 ? 'Add one or two achievements with what you did, how and the result.' : 'Cut to one page. Keep two or three themes and drop what the resume already says.', 1);
     } else {
     let st = words < 150 ? 'fail' : words < 250 ? 'warn' : words <= 700 ? 'pass' : words <= 1000 ? 'warn' : 'fail';
@@ -1156,6 +1163,12 @@ function analyzeDoc(raw, mode, extraText, opts) {
     add('Content', 'n_tone', 'Confident, specific tone', tn.length ? 'warn' : 'pass',
       tn.length ? 'Found tentative or stock phrases: ' + tn.join(', ') + '.' : 'No tentative or stock phrases found.',
       tn.length ? 'Say what you did and what it achieved. Replace praise for the ' + who + ' with one specific reason you want this role.' : '', 0.75);
+    const claim = /\b(?:the |an )?(?:best|perfect|ideal|right|strongest)\s+(?:candidate|fit|person|choice|applicant|hire)\b/i.exec(text);
+    add('Content', 'n_claim', 'Does not tell the reader the decision', claim ? 'warn' : 'pass',
+      claim ? 'Found "' + claim[0] + '".' : 'No claim to be the best candidate found.',
+      claim ? 'Show the evidence and let the reader decide. One data science source advises against calling yourself the best candidate. It is the author’s opinion.' : '', 0.25);
+    const sal = /\b(?:salary|salaries|compensation expectations?|pay expectations?|expected (?:pay|salary)|desired (?:pay|salary))\b/i.exec(text);
+    if (sal) add('Content', 'n_salary', 'Salary', 'warn', 'The letter mentions "' + sal[0] + '".', 'Leave salary out unless the posting asks for it. One data science source advises this. It is the author’s opinion.', 0.25);
     const acr = unexplainedAcronyms(text, ACRO_IND);
     add('Content', 'n_acro', 'Plain language for a reader outside physics', acr.length <= 3 ? 'pass' : acr.length <= 8 ? 'warn' : 'fail',
       acr.length ? acr.length + (acr.length === 1 ? ' acronym is' : ' acronyms are') + ' not spelled out: ' + acr.slice(0, 8).join(', ') + '.' : 'No unexplained acronyms found.',
@@ -1168,8 +1181,8 @@ function analyzeDoc(raw, mode, extraText, opts) {
           lab ? 'Results are labelled as simulated, historical, out-of-sample or live.' : 'A strategy or backtest is mentioned without saying whether the result is simulated, historical, out-of-sample or live.',
           lab ? '' : 'Label each result, state costs and assumptions, and do not present simulated results as returns you earned. These three sources are commercial.', 0.75);
       }
-      banner = { text: 'Check first whether the firm wants a letter. Of the five application pages I read on 18 October 2026, none asks for one. Jane Street’s researcher form says a cover letter is not needed. Citadel Securities’ PhD and EMEA forms ask for a resume, Optiver’s graduate posting asks for a CV and its recruiting page says materials must come through the application form, and the SIG PhD posting does not mention a letter. A page that does not mention a letter does not prove that none is read, and no page says what happens to one sent anyway. Banks and asset managers may ask for one: Morgan Stanley says that when a letter is required it matters. If the form has no place for it, follow the form.',
-        src: ['jsapp', 'citq', 'citref', 'optq', 'optqa', 'sigq', 'msn'] };
+      banner = { text: 'Check first whether the firm wants a letter, because it varies. I read application pages from seven firms between 18 and 21 October 2026. Flow Traders asks for a CV and a cover letter, but that page covers its graduate trader and software tracks, not research. DRW’s quantitative researcher form has a cover letter field marked optional. Jane Street’s researcher form says a cover letter is not needed. Citadel Securities’ PhD and EMEA forms ask for a resume, Optiver’s graduate posting asks for a CV and its recruiting page says materials must come through the application form, and the SIG and IMC pages do not mention a letter. Oxford’s careers page on quantitative finance does not mention letters either. It says to read each job description and that sharing code or short write-ups can strengthen an application. A page that does not mention a letter does not prove that none is read, and no page says what happens to one sent anyway. Banks and asset managers may ask for one: Morgan Stanley says that when a letter is required it matters. If the form has no place for it, follow the form.',
+        src: ['flowt', 'drw', 'jsapp', 'citq', 'citref', 'optq', 'optqa', 'sigq', 'imcr', 'oxfq', 'msn'] };
     } else {
       banner = { text: 'Check the posting first. WashU says to follow it: if it says not to include a letter, do not write one, and if a letter is optional, one can help when it adds to your resume. The Harvard article says recruiters often spend under 30 seconds on a first read, but that is the author’s advice and not research.',
         src: ['washuc', 'hblog'] };
