@@ -1104,7 +1104,9 @@ function analyzeDoc(raw, mode, extraText, opts) {
   let banner = null;
   if (IND) {
     const q = mode === 'letterq';
-    const emp = String((opts && opts.employer) || '').split(/[,|]/).map(x => x.trim()).filter(Boolean);
+    const empRaw = String((opts && opts.employer) || '').split(/[,|]/).map(x => x.trim()).filter(x => x && !/^(?:l\.?l\.?c\.?|l\.?p\.?|inc\.?|ltd\.?|plc|corp\.?|co\.?|gmbh|llp)$/i.test(x));
+    const SUFFIX_RE = /[\s,.]+(?:l\.?l\.?c\.?|l\.?p\.?|inc\.?|incorporated|ltd\.?|limited|plc|corp\.?|corporation|co\.?|gmbh|llp|group|holdings)\s*$/i;
+    const emp = []; empRaw.forEach(e => { emp.push(e); const t0 = e.replace(SUFFIX_RE, '').trim(); if (t0 && t0.toLowerCase() !== e.toLowerCase()) emp.push(t0); });
     const who = q ? 'firm' : 'company';
     const first90 = flat.split(/\s+/).slice(0, 90).join(' ');
     const roleRe = q ? /\b(?:quantitative|quant|research analyst|researcher|trader|trading|position|role|opening|internship|graduate|programme|program)\b/i
@@ -1115,8 +1117,15 @@ function analyzeDoc(raw, mode, extraText, opts) {
       roleOk ? '' : 'Name the exact role in the opening, with the reference code if the posting gives one, and say why you want it.', 1);
     const cnt = emp.reduce((n, e) => n + (lower.split(e.toLowerCase()).length - 1), 0);
     if (emp.length) {
+      const esc1 = f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const named = (q ? QUANT_FIRMS : TECH_FIRMS).filter(f => new RegExp('\\b' + esc1(f) + '(?![\\w-])').test(text))
+        .filter(f => !emp.some(e => e.toLowerCase().indexOf(f.toLowerCase()) >= 0 || f.toLowerCase().indexOf(e.toLowerCase()) >= 0));
+      const isSample = empRaw.some(e => e === EXAMPLE_EMPLOYER[mode]);
+      const hint = !cnt ? (isSample ? ' The field still holds "' + empRaw[0] + '", the sample name from Load example. Replace it with the firm you are writing to, or press Clear.'
+        : named.length ? ' The letter names ' + named.slice(0, 2).join(' and ') + ' but the field says "' + empRaw[0] + '". Check that the field matches the letter, or that the firm is spelled the same way in both.'
+        : ' The field says "' + empRaw[0] + '". Check that it is spelled the same way in the letter.') : '';
       add('Fit', 'n_employer', 'Names the ' + who, cnt >= 2 ? 'pass' : cnt === 1 ? 'warn' : 'fail',
-        cnt ? 'The ' + who + ' is named ' + cnt + (cnt === 1 ? ' time.' : ' times.') : 'The ' + who + ' name does not appear in the letter.',
+        cnt ? 'The ' + who + ' is named ' + cnt + (cnt === 1 ? ' time.' : ' times.') : 'The ' + who + ' name does not appear in the letter.' + hint,
         cnt >= 2 ? '' : 'Name the ' + who + ' in the opening and again where you say why you want to work there.', 1);
     } else {
       add('Fit', 'n_employer', 'Names the ' + who, 'info', 'No ' + who + ' name was entered, so this check was skipped.',
